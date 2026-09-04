@@ -25,16 +25,18 @@ Example true costs at this basis:
 
 | Category | Price |
 |---|---|
-| One-way (up to 15 miles) | **$25** |
-| Round trip | **$42** — save $8 vs. two one-ways ($50) |
-| Weekly, one-way only (5 days) | **$105/week** — vs. $125 individually, save $20 (16%) |
-| Weekly, round trip (5 days) | **$175/week** — vs. $210 individually, save $35 (17%) |
-| Monthly, 1 route/day | **$430/month** |
-| Monthly, 2 routes/day (round trip) | **$725/month**, 1 child |
-| 2nd child, same schedule | **+$360/month** (combined $1,085/mo, ~$543/child) |
-| 3rd+ child, same schedule | **+$255/month each** (3 kids = $1,340/mo, ~$447/child) |
+| One-way (up to 15 miles) | **$20** |
+| Round trip | **$34** — save $6 vs. two one-ways ($40) |
+| Weekly, one-way only (5 days) | **$84/week** — vs. $100 individually, save $16 (16%) |
+| Weekly, round trip (5 days) | **$140/week** — vs. $170 individually, save $30 (18%) |
+| Monthly, 1 route/day | **$345/month** |
+| Monthly, 2 routes/day (round trip) | **$580/month**, 1 child |
+| 2nd child, same schedule | **+$290/month** (combined $870/mo, ~$435/child) |
+| 3rd+ child, same schedule | **+$205/month each** (3 kids = $1,075/mo, ~$358/child) |
 | Wait time | First 5 min free, then $1/min |
-| Beyond 15 miles one-way | Flat rate + $1.50/mile past mile 15 |
+| Beyond 15 miles one-way | Flat rate + $1.20/mile past mile 15 |
+
+**Margin note at $20 one-way:** true cost for a 14.4-mile trip runs almost exactly $20 (see the cost table above) — trips in the roughly 14.4–15 mile range within the flat-rate band break even or run a small loss. Everything under ~14 miles (the large majority of realistic trips) still carries real margin. If a hard buffer matters more than the round $20 number, tightening the flat-rate radius to 13 miles removes this edge case entirely — not done here since it wasn't requested, but easy to apply later.
 
 No weekend/after-hours surcharge, no additional-stop fee — deliberately dropped to keep the rate card as simple as the flat-price promise implies.
 
@@ -51,26 +53,28 @@ Since pricing is flat, the calculator's job is simpler than a per-mile formula, 
 5. Display the full price before payment — category, any over-15-mile add-on, and any multi-child total — never a "call for final price" step
 ```
 
-## Unit economics — corrected
+## Unit economics — updated for the $20/$34/$580 rate card
 
-Per recurring round-trip child, at $725/month:
+Per recurring round-trip child, at $580/month:
 | Line item | Monthly amount |
 |---|---|
-| Revenue | $725 |
+| Revenue | $580 |
 | Fuel + wear (~7 mi/leg × 2 legs/day × 21.7 days × $0.40/mi) | –$122 |
-| Payment processing (~3%) | –$22 |
+| Payment processing (~3%) | –$17 |
 | Per-customer overhead | –$50 |
-| **Contribution margin per child** | **≈ $531/month** |
+| **Contribution margin per child** | **≈ $391/month** |
 
-This margin covers your own driving time (already partly priced into the $0.35/min assumption used to build the $25/$42 base rates) plus real profit — it does not yet subtract the business's fixed monthly costs (insurance, phone, marketing — see `08-startup-budget.md`, roughly $450–830/month).
+Down from ~$531/month at the earlier $725 rate — a real, meaningful reduction, since the fixed cash costs (fuel, processing, overhead) don't shrink just because the price did. This margin covers your own driving time (already partly priced into the $0.35/min assumption used to build the base rates) plus real profit — it does not yet subtract the business's fixed monthly costs (insurance, phone, marketing — see `08-startup-budget.md`, roughly $450–830/month).
 
 **At realistic customer counts** (revenue − direct costs above − ~$600/month fixed overhead):
 | Recurring round-trip children | Owner pay + profit, before self-employment tax |
 |---|---|
-| 5 (breakeven zone) | ~$2,055/month |
-| 8 (conservative launch target, `07-business-plan.md`) | ~$3,648/month |
-| 12 | ~$5,772/month |
-| 15 (optimistic — needs sibling/route overlap to be physically driveable solo) | ~$7,365/month |
+| 5 (breakeven zone) | ~$1,355/month |
+| 8 (conservative launch target, `07-business-plan.md`) | ~$2,525/month |
+| 12 | ~$4,087/month |
+| 15 (optimistic — needs sibling/route overlap to be physically driveable solo) | ~$5,259/month |
+
+**This is meaningfully thinner than the $725 scenario** — the business is still real and still profitable, but with less cushion per customer, so it depends more on actually reaching the higher end of these customer counts to be worth running solo. Worth revisiting once 60–90 days of real cost data (per `17-growth-plan-and-kpis.md`) confirms whether the $0.40/mile and $0.35/min assumptions hold up in practice.
 
 **The real constraint is fleet/driver capacity, not demand-generation cost or pricing headroom** — CAC for a recurring family is low (mostly time, not ad spend, at this stage per `09-marketing-plan.md`), so growth is capped by how many households one vehicle can actually serve reliably, not by how many you could theoretically sign up. This reinforces the phased service-area approach in `15-service-area-and-seo-strategy.md`.
 
