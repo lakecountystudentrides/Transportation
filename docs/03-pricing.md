@@ -1,71 +1,26 @@
-# Pricing Strategy — Lake County, FL
+# Pricing — Locked
 
-## Market context
-Lake County has no direct public "kids rideshare" comps to benchmark against, so pricing is built from adjacent local markets:
-- **NEMT (non-emergency medical transport)** in Central Florida runs roughly $25–$45 base + $2–$3.50/mile.
-- **Private after-school "carpool" services** in Florida metros (Miami, Tampa, Orlando) typically run **$15–$25 per one-way ride** for a single recurring child on a fixed short route, or **$250–$450/month** for daily M–F service on one route.
-- **Rideshare (Uber/Lyft)** in Lake County for a comparable 5–10 mile trip runs roughly $12–$22 — but Uber/Lyft won't legally transport unaccompanied minors, which is exactly the gap you're filling, so you're not really competing with them on price; you're pricing against "what a parent would pay a trusted neighbor or a part-time nanny/sitter to do this."
+**This is the final, locked pricing for Lake County Student Rides.** One flat price per category, the same anywhere in the service area — see `14-pricing-and-business-model.md` for the full cost-basis and profitability math behind these numbers, and `15-service-area-and-seo-strategy.md` for the phased service-area rollout these prices apply within.
 
-Your price needs to cover: driver time (not just drive time — buffer for lateness, check-in/out, waiting), fuel, vehicle wear, insurance overhead, background-check/training amortization, payment processing fees (~3%), and profit. Price too low and you can't sustain a second vehicle; price too high and you lose to "ask grandma" or the daycare's own van.
+## Rate card
 
-## Pricing formula (what the website calculates automatically)
-
-```
-Base Fare           = $6.00  (flat, covers dispatch/scheduling overhead)
-Per-Mile Rate        = $2.25/mile  (driving distance, pickup → drop-off)
-Per-Minute Rate       = $0.35/min  (estimated drive time, covers traffic/short-hop trips where mileage alone undercharges)
-Additional Child      = +50% of (Base + Mileage + Time) for 2nd child on same route/same trip
-                       +35% of (Base + Mileage + Time) for each additional child beyond the 2nd
-Round Trip            = 1.85x one-way price (not a flat 2x — reflects driver already routed/idle time saved)
-Recurring Discount    = 10% off per-ride price for 5x/week (M–F) standing schedule
-                        15% off per-ride price for 2 or more children on the SAME recurring schedule
-Peak/Early Surcharge  = +$3.00 for pickups before 6:30 AM or after 8:00 PM
-Wait Time             = First 5 minutes free; $1/minute after, capped and disclosed at booking
-Cancellation          = Free >12 hrs notice; 50% of fare 4–12 hrs notice; 100% of fare <4 hrs / no-show
-Minimum Fare          = $12.00 (no trip, however short, bills below this)
-```
-
-Formula shown to the parent before payment:
-```
-Estimated Price = MAX( Minimum Fare,
-                       Base Fare + (Distance x Per-Mile) + (Est. Time x Per-Minute) )
-                  x Round-Trip Multiplier (if applicable)
-                  x (1 + Additional-Child %)
-                  x (1 - Recurring Discount %, if applicable)
-                  + Peak Surcharge (if applicable)
-```
-Distance/time come from a mapping API (Google Maps Distance Matrix or Mapbox Directions — see Website Tech doc) called at Step 7 of booking, using the actual pickup/drop-off addresses the parent selected in Steps 3–4.
-
-## Worked examples (Lake County geography — ~5–12 mile typical trips between home/school/daycare within the same city)
-
-| Scenario | Distance/Time | Calculation | Price |
-|---|---|---|---|
-| 1 child, one-way, 5 mi / 12 min, off-peak | 5 mi, 12 min | $6.00 + (5×$2.25) + (12×$0.35) = $6+$11.25+$4.20 | **$21.45** → round to **$21** |
-| 1 child, round trip, same route | same | $21.45 × 1.85 | **$39.68** → **$40** |
-| 2 children (siblings), one-way, same 5 mi trip | 5 mi | $21.45 × 1.50 | **$32** |
-| 3 children, one-way, same trip | 5 mi | $21.45 base + 50% (child 2) + 35% (child 3) = $21.45×1.85 | **$39.68** → **$40** |
-| 1 child, one-way, 12 mi / 22 min (cross-town, e.g. Clermont→Leesburg) | 12 mi, 22 min | $6 + $27 + $7.70 | **$40.70** → **$41** |
-| Early pickup, 6:00 AM, 1 child, 5 mi | 5 mi | $21.45 + $3 surcharge | **$24** |
-| Recurring M–F, 1 child, School run only (one-way AM), 5 mi | 5 mi | $21.45 × 0.90 (10% recurring) = $19.31/ride × ~21.7 school days/mo | **~$419/month** (or quote as $19/ride billed weekly, ~$96.50/wk) |
-| Recurring M–F, round trip (AM school + PM pickup), 1 child, 5 mi each leg | 5 mi ×2 legs | ($21.45+$21.45) × 0.90 = $38.61/day × ~21.7 days | **~$838/month** |
-| Recurring M–F, round trip, 2 siblings, same schedule | 5 mi ×2 legs, 2 kids | Base pair price $38.61 × 1.50 (2-child) × 0.85 (multi-child recurring stack) = $49.23/day × 21.7 | **~$1,068/month** for both kids, both legs (≈$534/child/month — competitive against most local daycare "extended care" add-on fees) |
-| Sports/activity run, one-way, 8 mi, evening 6:30 PM | 8 mi, 15 min | $6 + $18 + $5.25 = $29.25, no surcharge (before 8pm cutoff) | **$29** |
-
-## Recommended published pricing (round, parent-facing numbers)
-
-| Service | Price |
+| Category | Price |
 |---|---|
-| One-way, single child, ≤6 miles | **$20–$25** |
-| One-way, single child, 7–12 miles | **$30–$42** |
-| Round trip, single child, ≤6 miles | **$38–$45** |
-| Each additional child, same trip | **+50% first extra, +35% each after** |
-| Weekly recurring, one-way only (5x/wk) | **$90–$115/week** |
-| Weekly recurring, round trip (5x/wk) | **$170–$215/week** |
-| Monthly recurring, round trip, 1 child | **$700–$850/month** |
-| Monthly recurring, round trip, 2 siblings same schedule | **$1,000–$1,150/month** (per-child savings vs. booking separately) |
-| Sports/activity one-off, evening/weekend | **$25–$40**, +$3 late-evening surcharge after 8 PM |
+| **One-way** (up to 15 miles) | **$25** |
+| **Round trip** | **$42** — save $8 vs. two one-ways ($50) |
+| **Weekly, one-way only** (5 days, one direction) | **$105/week** — vs. $125 buying individually, save $20 (16%) |
+| **Weekly, round trip** (5 days) | **$175/week** — vs. $210 individually, save $35 (17%) |
+| **Monthly, 1 route/day** (one-way only, ~21.7 school days) | **$430/month** |
+| **Monthly, 2 routes/day** (round trip) | **$725/month**, 1 child |
+| **2nd child, same schedule** | **+$360/month** (combined $1,085/mo for 2 kids, ~$543/child) |
+| **3rd+ child, same schedule** | **+$255/month each** (3 kids = $1,340/mo, ~$447/child) |
+| **Wait time** | First 5 minutes free, then $1/minute |
+| **Beyond 15 miles one-way** | Flat rate + $1.50/mile for each mile past mile 15 |
 
-## Positioning
-Anchor your marketing around the **monthly recurring round-trip rate per child** ("$700–$850/month covers every school day, both ways, all month") because that's the number a working parent mentally compares against daycare extended-care fees, a part-time nanny, or their own lost work hours — and it reads as far more reasonable framed monthly than as "$40/day."
+No weekend/after-hours surcharge and no additional-stop fee — deliberately dropped to keep the rate card as simple as the "one flat price" promise implies.
 
-Revisit pricing after your first 25 customers once you know real average trip length/time and your actual cost-per-mile (fuel + wear) — this formula is a launch starting point, not a permanent rate card.
+## Why flat, not distance-tiered
+Every identifiable competitor in the region hides its pricing entirely (see `13-market-competitive-research.md`) — publishing one simple, honest number per category is itself a real differentiator. The 15-mile line and per-mile overage past it exist only so the flat price stays honest on the rare long trip; it does not apply to the vast majority of real bookings, which fall well inside that radius within the launch service-area cluster.
+
+## What the calculator shows
+Even with flat pricing, the booking flow (`04-website-booking-system.md`) still checks distance via the mapping API — not to vary the price, but to (a) confirm the trip is within the 15-mile flat-rate radius or apply the per-mile overage if not, and (b) confirm the address falls inside the current service area at all. The parent always sees the price before paying, per the original design goal — flat pricing makes this step simpler, not obsolete.

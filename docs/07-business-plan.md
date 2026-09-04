@@ -32,8 +32,8 @@ See `08-startup-budget.md` for the three-tier startup budget and `03-pricing.md`
 
 | Item | Monthly estimate |
 |---|---|
-| Revenue at ~15 recurring students (round trip) averaging $750/mo each | $11,250 |
-| Revenue at ~8 recurring students (round trip, more conservative ramp) | $6,000 |
+| Revenue at ~15 recurring students (round trip) at $725/mo each | $10,875 |
+| Revenue at ~8 recurring students (round trip, more conservative ramp) | $5,800 |
 | Fuel | $350–$600 |
 | Commercial auto + GL insurance | $250–$500 |
 | Vehicle maintenance reserve | $150–$250 |
@@ -44,7 +44,7 @@ See `08-startup-budget.md` for the three-tier startup budget and `03-pricing.md`
 | Misc (background-check renewals, first-aid supplies, etc., amortized) | $50–$100 |
 | **Estimated monthly overhead (excl. owner draw)** | **~$1,170–$2,150** |
 
-At the conservative 8-student scenario ($6,000/mo revenue), overhead of ~$1,700 leaves roughly **$4,300/month** before owner compensation/taxes — a realistic solo-operator target for month 4–6 if customer acquisition (see Marketing doc) hits its early milestones. Treat these as planning numbers, not guarantees; revisit after your first full month of real bookings.
+At the conservative 8-student scenario ($5,800/mo revenue), overhead of ~$1,700 leaves roughly **$4,100/month** before owner compensation/taxes — a realistic solo-operator target for month 4–6 if customer acquisition (see Marketing doc) hits its early milestones. See `14-pricing-and-business-model.md` for the full per-child cost breakdown behind these numbers. Treat these as planning numbers, not guarantees; revisit after your first full month of real bookings.
 
 ## Marketing strategy & customer acquisition
 See `09-marketing-plan.md`.
