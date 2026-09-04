@@ -19,5 +19,11 @@ Parents book and pay online for safe, background-checked transportation for thei
 9. [`docs/09-marketing-plan.md`](docs/09-marketing-plan.md) — Channel strategy and first-25/50/100/250-customer plans.
 10. [`docs/10-growth-plan.md`](docs/10-growth-plan.md) — Scaling from 1 to 10+ vehicles, employee vs. contractor guidance.
 11. [`docs/11-launch-checklist.md`](docs/11-launch-checklist.md) — Final recommendations and a day-by-day 30-day launch checklist.
+12. [`docs/12-deployment-checklist.md`](docs/12-deployment-checklist.md) — Cloudflare Pages + Stripe go-live setup, step by step.
+13. [`docs/13-market-competitive-research.md`](docs/13-market-competitive-research.md) — Evidence-based Lake County market sizing and competitor research (key finding: no confirmed direct in-county competitor).
+14. [`docs/14-pricing-and-business-model.md`](docs/14-pricing-and-business-model.md) — Full distance-tier pricing matrix, subscription math, unit economics, and route profitability model.
+15. [`docs/15-service-area-and-seo-strategy.md`](docs/15-service-area-and-seo-strategy.md) — Phased service-area rollout, site architecture, keyword map, Google Business Profile and local authority strategy.
+16. [`docs/16-conversion-trust-and-systems.md`](docs/16-conversion-trust-and-systems.md) — Feature prioritization, trust claims (real vs. placeholder), booking/admin/automation systems, conversion and mobile strategy.
+17. [`docs/17-growth-plan-and-kpis.md`](docs/17-growth-plan-and-kpis.md) — KPIs to track, 90-day and 12-month growth plan, before-launch compliance gate.
 
 **Start with `docs/01-legal-compliance.md`** — several licensing questions (notably whether Lake County requires a vehicle-for-hire permit beyond a standard Business Tax Receipt) are flagged as unresolved and need a direct call to the relevant office before you accept a paying customer.
