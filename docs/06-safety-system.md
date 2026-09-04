@@ -40,4 +40,4 @@ Safety is the actual product here — the transportation is the delivery mechani
 - Annual (minimum) re-check of MVR, and re-verification that insurance/background-check credentials haven't lapsed
 
 ## What to tell parents (this is your marketing copy, drawn straight from this list)
-"Every GuardianRide Lake driver passes a background check, holds current CPR/First Aid certification, and drives a commercially insured vehicle equipped with the right car seat or booster for your child. Every trip is logged from pickup to drop-off, and we never release your child to anyone you haven't authorized." — that sentence, essentially verbatim, should appear on your homepage.
+"Every Lake County Student Rides driver passes a background check, holds current CPR/First Aid certification, and drives a commercially insured vehicle equipped with the right car seat or booster for your child. Every trip is logged from pickup to drop-off, and we never release your child to anyone you haven't authorized." — that sentence, essentially verbatim, should appear on your homepage.

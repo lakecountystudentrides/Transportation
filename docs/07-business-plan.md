@@ -1,7 +1,7 @@
-# Business Plan — GuardianRide Lake (working name)
+# Business Plan — Lake County Student Rides
 
 ## Executive summary
-GuardianRide Lake is a private, parent-paid child transportation service based in Lake County, Florida, providing safe, background-checked, insured door-to-door transportation for children between home, school, daycare, after-school programs, sports/activities, camps, and tutoring. The business launches with one vehicle and one owner-operator driver, using an online booking-and-payment platform, and is structured to scale into a multi-vehicle, multi-driver company as demand and cash flow allow.
+Lake County Student Rides is a private, parent-paid child transportation service based in Lake County, Florida, providing safe, background-checked, insured door-to-door transportation for children between home, school, daycare, after-school programs, sports/activities, camps, and tutoring. The business launches with one vehicle and one owner-operator driver, using an online booking-and-payment platform, and is structured to scale into a multi-vehicle, multi-driver company as demand and cash flow allow.
 
 ## Business model
 Direct-to-parent, on-demand and recurring bookings through a website. Parents create an account, add their child(ren) once, and book one-off or recurring (weekly/monthly) rides between any combination of home, school, daycare, and activity locations. Revenue is per-ride and per-recurring-schedule, collected online in advance via card payment. The company owns/operates the vehicle(s) and directly employs or contracts drivers — it is a direct carrier, not a marketplace connecting independent drivers to riders (an important distinction from an Uber/Lyft-style model, both operationally and legally — see `01-legal-compliance.md`).

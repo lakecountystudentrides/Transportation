@@ -3,7 +3,7 @@
 ## Site structure
 
 **Homepage**
-- Header: logo + "GuardianRide Lake" + nav (How It Works / Services / Pricing / Safety / FAQ / Contact / Parent Login)
+- Header: logo + "Lake County Student Rides" + nav (How It Works / Services / Pricing / Safety / FAQ / Contact / Parent Login)
 - Hero: "Safe. Reliable. Convenient." + one-line value prop ("Trusted transportation for your child — to school, daycare, sports, and back home — booked online in minutes.") + large **BOOK A RIDE** button
 - Service area map/list (Clermont, Leesburg, Eustis, Mount Dora, Tavares, Groveland, Minneola — list your actual coverage; don't imply county-wide coverage on day one if you can't deliver it)
 - "How It Works" — 4 icons: Book Online → Confirm & Pay → Driver Picks Up Your Child → Get Live Updates

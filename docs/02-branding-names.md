@@ -1,5 +1,7 @@
 # Business Name & Branding
 
+**Final decision: Lake County Student Rides** — domain `lakecountystudentrides.com`. The brainstorm and top-10 list below stays as reference/backup naming, but all other docs and the live site use the final name.
+
 ## Naming criteria
 Communicate **safety + children + transportation + trust**, without sounding like a public agency (avoid "District," "Transit Authority," "Department," generic "School Bus Co.") and without being a copy of an existing Florida transportation brand. I can't run a live USPTO/Sunbiz trademark search from here — before you commit, run the finalist through **Sunbiz.org** (FL entity name availability — you'll need this anyway to confirm your LLC name doesn't collide), **USPTO TESS** (trademark search), and a plain Google/Instagram/Facebook handle check. Treat every name below as "not obviously taken as of a quick search" rather than "cleared."
 

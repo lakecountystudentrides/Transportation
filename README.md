@@ -1,6 +1,8 @@
 # Transportation
 
-Business plan and launch documentation for a private child transportation business in Lake County, Florida (working name: **GuardianRide Lake** — see `docs/02-branding-names.md` for alternatives).
+Business plan, launch documentation, and website for **Lake County Student Rides** (`lakecountystudentrides.com`) — a private child transportation business in Lake County, Florida.
+
+Live site: [`index.html`](index.html) + [`assets/styles.css`](assets/styles.css), deployed via Cloudflare Pages.
 
 Parents book and pay online for safe, background-checked transportation for their children to and from school, daycare, after-school programs, sports, camps, and tutoring — with a driver dashboard for trip management and a parent dashboard for live trip status.
 
