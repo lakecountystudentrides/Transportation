@@ -5,11 +5,11 @@ Working through this one step at a time, verifying each before moving on. Nothin
 **Architecture decision:** Host on **Cloudflare Pages**, connected directly to this GitHub repo (auto-deploys on push to `main`). Server-side logic (Stripe Checkout session creation, webhook handling) runs as **Cloudflare Pages Functions** — plain JS/TS files in a `/functions` folder — so there's no separate backend server to stand up, and Stripe secret keys live only in Cloudflare's server-side environment variables, never shipped to the browser.
 
 ## Cloudflare
-- [ ] 1. Create Cloudflare Pages project, connected to this GitHub repo
+- [x] 1. Create Cloudflare Pages project, connected to this GitHub repo — live at https://transportation-6bx.pages.dev/
 - [ ] 2. Confirm DNS is fully cut over to Cloudflare nameservers (in progress from earlier setup) and email still works
 - [ ] 3. Point the custom domain at the Cloudflare Pages project
 - [ ] 4. Set placeholder environment variables in Cloudflare Pages (Production + Preview) — values added as each service is connected
-- [ ] 5. Confirm a test deploy is live at the `*.pages.dev` URL before attaching the custom domain
+- [x] 5. Confirm a test deploy is live at the `*.pages.dev` URL before attaching the custom domain
 
 ## Stripe — test mode
 - [ ] 6. Create Stripe account, confirm Test mode is active
