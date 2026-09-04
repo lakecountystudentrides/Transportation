@@ -3,7 +3,7 @@
 Full cost-basis and profitability reasoning behind the locked rate card in `03-pricing.md`. Flat pricing (one price per category, same anywhere in the service area), not distance-tiered — built against the research in `13-market-competitive-research.md`.
 
 ## Why flat, not distance-tiered
-Every identifiable competitor (`13-market-competitive-research.md`) hides its pricing — there is no public per-ride number to benchmark against, only an informal-market anchor (~$17–20/hr nanny-style transport in Central FL). Publishing one simple, honest flat price per category is itself the biggest differentiator available in this market. The only guardrail: trips beyond 15 miles one-way get a modest per-mile add-on, so the flat rate stays honest on the rare long trip instead of quietly losing money on it.
+Every identifiable competitor (`13-market-competitive-research.md`) hides its pricing — there is no public per-ride number to benchmark against, only an informal-market anchor (~$17–20/hr nanny-style transport in Central FL). Publishing one simple, honest flat price per category is itself the biggest differentiator available in this market. The only guardrail: trips beyond 10 miles one-way get a modest per-mile add-on, so the flat rate stays honest on the rare long trip instead of quietly losing money on it.
 
 ## Cost basis — true cost, not retail price
 Important distinction: the numbers below are what a trip **actually costs to deliver** (fuel, wear, insurance allocation, driver time, per-trip overhead) — not the price charged. An earlier pass through this pricing conflated the two and overstated costs by using a marked-up per-mile rate as if it were the raw cost; corrected here.
@@ -18,14 +18,14 @@ Example true costs at this basis:
 |---|---|
 | Short local (~3 mi, ~12 min total) | ~$9.40 |
 | Typical (~7 mi, ~20 min total) | ~$13.80 |
-| Longest flat-rate trip (15 mi cap, ~30 min total) | ~$20.50 |
+| Longest flat-rate trip (10 mi cap, ~24 min total) | ~$16.31 |
 | Rare outlier (40 mi corner-to-corner, ~55 min total) | ~$39.25 |
 
 ## Locked rate card
 
 | Category | Price |
 |---|---|
-| One-way (up to 15 miles) | **$20** |
+| One-way (up to 10 miles) | **$20** |
 | Round trip | **$34** — save $6 vs. two one-ways ($40) |
 | Weekly, one-way only (5 days) | **$84/week** — vs. $100 individually, save $16 (16%) |
 | Weekly, round trip (5 days) | **$140/week** — vs. $170 individually, save $30 (18%) |
@@ -34,9 +34,9 @@ Example true costs at this basis:
 | 2nd child, same schedule | **+$290/month** (combined $870/mo, ~$435/child) |
 | 3rd+ child, same schedule | **+$205/month each** (3 kids = $1,075/mo, ~$358/child) |
 | Wait time | First 5 min free, then $1/min |
-| Beyond 15 miles one-way | Flat rate + $1.20/mile past mile 15 |
+| Beyond 10 miles one-way | Flat rate + $1.20/mile past mile 10 |
 
-**Margin note at $20 one-way:** true cost for a 14.4-mile trip runs almost exactly $20 (see the cost table above) — trips in the roughly 14.4–15 mile range within the flat-rate band break even or run a small loss. Everything under ~14 miles (the large majority of realistic trips) still carries real margin. If a hard buffer matters more than the round $20 number, tightening the flat-rate radius to 13 miles removes this edge case entirely — not done here since it wasn't requested, but easy to apply later.
+**Margin at $20 one-way, 10-mile band:** true cost for the longest trip still covered (10 miles) is ~$16.31 — after payment processing (~$0.60), that's roughly **$3/trip in real margin at the farthest distance the flat rate covers**, and more on every shorter trip within the band. Tightening the radius from the earlier 15-mile draft to 10 miles removed the near-breakeven edge case that existed at the wider radius — every trip in the current band now carries positive margin.
 
 No weekend/after-hours surcharge, no additional-stop fee — deliberately dropped to keep the rate card as simple as the flat-price promise implies.
 
@@ -47,10 +47,10 @@ Since pricing is flat, the calculator's job is simpler than a per-mile formula, 
 
 ```
 1. Call mapping API (Google Maps Distance Matrix) with pickup/drop-off → get one-way miles
-2. If miles <= 15: price = flat rate for the selected category (one-way/round trip/weekly/monthly)
-3. If miles > 15: price = flat rate + $1.50 x (miles - 15), shown as a separate line item, never silently folded in
-4. If additional children: apply the +$360 / +$255-per-child stacking rule (monthly plans) or the one-off per-trip equivalent
-5. Display the full price before payment — category, any over-15-mile add-on, and any multi-child total — never a "call for final price" step
+2. If miles <= 10: price = flat rate for the selected category (one-way/round trip/weekly/monthly)
+3. If miles > 10: price = flat rate + $1.20 x (miles - 10), shown as a separate line item, never silently folded in
+4. If additional children: apply the +$290 / +$205-per-child stacking rule (monthly plans) or the one-off per-trip equivalent
+5. Display the full price before payment — category, any over-10-mile add-on, and any multi-child total — never a "call for final price" step
 ```
 
 ## Unit economics — updated for the $20/$34/$580 rate card
