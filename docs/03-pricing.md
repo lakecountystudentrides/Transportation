@@ -26,3 +26,6 @@ Every identifiable competitor in the region hides its pricing entirely (see `13-
 
 ## What the calculator shows
 Even with flat pricing, the booking flow (`04-website-booking-system.md`) still checks distance via the mapping API — not to vary the price, but to (a) confirm the trip is within the 10-mile flat-rate radius or apply the per-mile overage if not, and (b) confirm the address falls inside the current service area at all. The parent always sees the price before paying, per the original design goal — flat pricing makes this step simpler, not obsolete.
+
+## Origin point for the 10-mile measurement
+The "10 miles" in the rate card is measured from a fixed dispatch origin (where the vehicle is based), not from a generic city centroid. That origin address is intentionally **not published anywhere** — not on the site, not in this repo — since it's the owner's private address. It's stored as a server-side environment variable (`DISPATCH_ORIGIN_ADDRESS`, see `.env.example`) and used only inside the backend distance calculation once the booking system is built; the customer-facing page only ever shows the resulting price, never the origin it was measured from.
