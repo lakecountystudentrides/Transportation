@@ -7,7 +7,7 @@ Working through this one step at a time, verifying each before moving on. Nothin
 ## Cloudflare
 - [x] 1. Create Cloudflare Pages project, connected to this GitHub repo — live at https://transportation-6bx.pages.dev/
 - [x] 2. Confirm DNS is fully cut over to Cloudflare nameservers (in progress from earlier setup) and email still works
-- [ ] 3. Point the custom domain at the Cloudflare Pages project
+- [x] 3. Point the custom domain at the Cloudflare Pages project — both root and www domains showing Active
 - [ ] 4. Set placeholder environment variables in Cloudflare Pages (Production + Preview) — values added as each service is connected
 - [x] 5. Confirm a test deploy is live at the `*.pages.dev` URL before attaching the custom domain
 
