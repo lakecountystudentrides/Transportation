@@ -2,7 +2,7 @@
 
 Business plan, launch documentation, and website for **Lake County Student Rides** (`lakecountystudentrides.com`) — a private child transportation business in Lake County, Florida.
 
-Live site: [`index.html`](index.html) + [`assets/styles.css`](assets/styles.css), deployed via Cloudflare Pages.
+Live site: [`index.html`](index.html) (homepage) + [`book.html`](book.html) (booking + instant pricing) + [`assets/`](assets/) (styles/scripts), deployed via Cloudflare Pages. Backend logic lives in [`functions/api/`](functions/api/) as Cloudflare Pages Functions — `price.js` calculates the quote, `checkout.js` creates the Stripe Checkout Session. Both require environment variables to be set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before they'll work.
 
 Parents book and pay online for safe, background-checked transportation for their children to and from school, daycare, after-school programs, sports, camps, and tutoring — with a driver dashboard for trip management and a parent dashboard for live trip status.
 

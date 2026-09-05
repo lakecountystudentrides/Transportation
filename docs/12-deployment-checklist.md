@@ -8,16 +8,16 @@ Working through this one step at a time, verifying each before moving on. Nothin
 - [x] 1. Create Cloudflare Pages project, connected to this GitHub repo — live at https://transportation-6bx.pages.dev/
 - [x] 2. Confirm DNS is fully cut over to Cloudflare nameservers (in progress from earlier setup) and email still works
 - [x] 3. Point the custom domain at the Cloudflare Pages project — both root and www domains showing Active
-- [ ] 4. Set placeholder environment variables in Cloudflare Pages (Production + Preview) — values added as each service is connected
+- [ ] 4. Set environment variables in Cloudflare Pages (Production + Preview): `GOOGLE_MAPS_API_KEY`, `DISPATCH_ORIGIN_ADDRESS` (your private dispatch address — enter directly in the Cloudflare dashboard, never in this repo), `STRIPE_SECRET_KEY`, `SITE_URL`. See `.env.example` for the full list of names.
 - [x] 5. Confirm a test deploy is live at the `*.pages.dev` URL before attaching the custom domain
 
 ## Stripe — test mode
 - [ ] 6. Create Stripe account, confirm Test mode is active
 - [ ] 7. Retrieve test Publishable key + Secret key
-- [ ] 8. Claude creates/lists Stripe products + prices via API (test mode) matching `docs/03-pricing.md`
-- [ ] 9. Build Checkout integration (Pages Function creates a Checkout Session; front end redirects to it)
-- [ ] 10. Set up Stripe webhook endpoint + retrieve webhook signing secret (test mode)
-- [ ] 11. End-to-end test: book a ride on the live-but-test site, pay with a Stripe test card, confirm booking status updates from the webhook
+- [x] 8. **Design decision:** skipped fixed Stripe Products/Prices in favor of dynamically-priced Checkout Sessions (`price_data` created per booking) — necessary since the real price varies with distance-overage and number of children, so a fixed catalog price wouldn't match what `/api/price` calculates. `functions/api/checkout.js` builds the session amount from the server-computed quote each time.
+- [x] 9. Checkout integration built: `functions/api/price.js` (quote calculation) + `functions/api/checkout.js` (Stripe Checkout Session creation) + `book.html`/`assets/booking.js` (front end) + `booking-success.html`. **Code-complete, not yet testable** — needs `GOOGLE_MAPS_API_KEY`, `DISPATCH_ORIGIN_ADDRESS`, and `STRIPE_SECRET_KEY` set in Cloudflare Pages first (item 4/7).
+- [ ] 10. Set up Stripe webhook endpoint + retrieve webhook signing secret (test mode) — not yet needed for the current flow (Stripe's own success/cancel redirect handles the customer side); add this once a real booking database exists to record payment confirmations server-side (see `16-conversion-trust-and-systems.md` admin dashboard section)
+- [ ] 11. End-to-end test: book a ride on the live-but-test site, pay with a Stripe test card, confirm the price calculation and Checkout redirect both work
 
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Ride | Lake County Student Rides</title>
+  <meta name="description" content="Get an instant price and book safe, background-checked transportation for your child in Lake County, FL." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">LCSR</span>
+        <span class="brand-name">Lake County<br>Student Rides</span>
+      </a>
+      <nav class="main-nav" aria-label="Primary">
+        <a href="/#how-it-works">How It Works</a>
+        <a href="/#services">Services</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#safety">Safety</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/#contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn btn-ghost" href="/#contact">Parent Login</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section booking-section">
+      <div class="wrap booking-wrap">
+        <h1>Book a Ride</h1>
+        <p class="section-lede">Get an instant price, then book and pay online.</p>
+
+        <form id="booking-form" class="booking-form" novalidate>
+          <fieldset>
+            <legend>Parent / Guardian</legend>
+            <div class="form-row">
+              <label for="parentName">Full name</label>
+              <input id="parentName" name="parentName" type="text" required autocomplete="name" />
+            </div>
+            <div class="form-row form-row-split">
+              <div>
+                <label for="parentEmail">Email</label>
+                <input id="parentEmail" name="parentEmail" type="email" required autocomplete="email" />
+              </div>
+              <div>
+                <label for="parentPhone">Phone</label>
+                <input id="parentPhone" name="parentPhone" type="tel" required autocomplete="tel" />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Child</legend>
+            <div class="form-row form-row-split">
+              <div>
+                <label for="childName">Child's name</label>
+                <input id="childName" name="childName" type="text" required />
+              </div>
+              <div>
+                <label for="childAge">Age</label>
+                <input id="childAge" name="childAge" type="number" min="0" max="18" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="numChildren">Number of children on this schedule</label>
+              <select id="numChildren" name="numChildren">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Trip</legend>
+            <div class="form-row">
+              <label for="pickupAddress">Pickup address</label>
+              <input id="pickupAddress" name="pickupAddress" type="text" placeholder="e.g. 123 Main St, Clermont, FL" required />
+            </div>
+            <div class="form-row">
+              <label for="dropoffAddress">Drop-off address</label>
+              <input id="dropoffAddress" name="dropoffAddress" type="text" placeholder="e.g. Clermont Elementary School" required />
+            </div>
+            <div class="form-row">
+              <label for="category">Service</label>
+              <select id="category" name="category" required>
+                <option value="oneway">One-way — $20 (up to 10 mi)</option>
+                <option value="roundtrip">Round trip — $34</option>
+                <option value="weekly-oneway">Weekly, one-way only — $84/week</option>
+                <option value="weekly-roundtrip">Weekly, round trip — $140/week</option>
+                <option value="monthly-oneway">Monthly, one route/day — $345/month</option>
+                <option value="monthly-roundtrip">Monthly, two routes/day (round trip) — $580/month</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="startDate">Start date</label>
+              <input id="startDate" name="startDate" type="date" required />
+            </div>
+            <div class="form-row">
+              <label for="instructions">Special instructions (optional)</label>
+              <textarea id="instructions" name="instructions" rows="2" placeholder="Car seat/booster needed, authorized pickup adult, etc."></textarea>
+            </div>
+          </fieldset>
+
+          <button type="submit" class="btn btn-primary btn-lg" id="get-price-btn">Get Price</button>
+
+          <div id="price-result" class="price-result" hidden></div>
+          <div id="price-error" class="price-error" role="alert" hidden></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p class="footer-links"><a href="mailto:transportation@lakecountystudentrides.com">transportation@lakecountystudentrides.com</a></p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/booking.js"></script>
+</body>
+</html>

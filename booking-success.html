@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Confirmed | Lake County Student Rides</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">LCSR</span>
+        <span class="brand-name">Lake County<br>Student Rides</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section section-cta" style="text-align:left;">
+      <div class="wrap" style="max-width:640px;">
+        <h1 style="color:#fff;">Payment Confirmed</h1>
+        <p>Thank you — your booking request has been received and your payment was successful.</p>
+        <p>We'll follow up by email or phone shortly to confirm pickup details and your driver assignment. If you don't hear from us within one business day, please reach out directly.</p>
+        <p><a class="btn btn-primary" href="/">Back to Home</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p class="footer-links"><a href="mailto:transportation@lakecountystudentrides.com">transportation@lakecountystudentrides.com</a></p>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
