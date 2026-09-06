@@ -6,6 +6,14 @@
     </linearGradient>
   </defs>
   <rect x="4" y="4" width="192" height="192" rx="38" fill="url(#lcsrBg)"/>
+
+  <!-- Lake County water-ripple lines, behind the lettering -->
+  <g stroke="#6f9bbd" fill="none" stroke-width="3" stroke-linecap="round" opacity="0.32">
+    <path d="M18 52 C46 42 74 62 102 52 C130 42 158 62 184 52"/>
+    <path d="M18 66 C46 58 74 74 102 66 C130 58 158 74 184 66"/>
+    <path d="M18 168 C46 160 74 176 102 168 C130 160 158 176 184 168"/>
+  </g>
+
   <rect x="4" y="4" width="192" height="192" rx="38" fill="none" stroke="#e8a33d" stroke-width="3" opacity="0.55"/>
   <text x="100" y="98" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="56" fill="#f3b459" letter-spacing="1">LCSR</text>
   <path d="M46 148 C75 132 125 132 154 116" fill="none" stroke="#e8a33d" stroke-width="6" stroke-linecap="round"/>
