@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lake County Student Rides logo">
+  <rect width="64" height="64" rx="14" fill="#16324f"/>
+  <path d="M14 50 C22 36 42 28 50 14" fill="none" stroke="#f8faf9" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="14" cy="50" r="4.5" fill="#e8a33d"/>
+  <circle cx="50" cy="14" r="6.5" fill="#e8a33d" stroke="#f8faf9" stroke-width="2"/>
+</svg>
