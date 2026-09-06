@@ -7,12 +7,8 @@
   </defs>
   <rect x="4" y="4" width="192" height="192" rx="38" fill="url(#lcsrBg)"/>
 
-  <!-- Lake County water-ripple lines, behind the lettering -->
-  <g stroke="#6f9bbd" fill="none" stroke-width="3" stroke-linecap="round" opacity="0.32">
-    <path d="M18 52 C46 42 74 62 102 52 C130 42 158 62 184 52"/>
-    <path d="M18 66 C46 58 74 74 102 66 C130 58 158 74 184 66"/>
-    <path d="M18 168 C46 160 74 176 102 168 C130 160 158 176 184 168"/>
-  </g>
+  <!-- Lake County, FL outline (traced from reference), as a background watermark -->
+  <path d="M103.9,15 L103.9,54.9 L101.9,56.3 L101.9,70.9 L100.4,72.3 L60,72.7 L60,180 L73.7,180 L73.7,176.9 L83.9,176.9 L83.9,180 L101.9,180 L101.9,139.7 L100.8,137.2 L101.9,104.9 L103.3,101.0 L134.4,99.7 L135.3,94.9 L137.75,89.9 L139.6,84.1 L140.0,78.2 L138.7,72.7 L136.5,67.7 L133.8,63.0 L130.9,58.4 L128.2,53.8 L125.1,49.1 L122.0,44.6 L118.5,40.3 L115.0,36.1 L112.0,32.0 L107.9,28.5 L104.8,27.4 Z" fill="#3d6a8f" opacity="0.4"/>
 
   <rect x="4" y="4" width="192" height="192" rx="38" fill="none" stroke="#e8a33d" stroke-width="3" opacity="0.55"/>
   <text x="100" y="98" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="56" fill="#f3b459" letter-spacing="1">LCSR</text>
