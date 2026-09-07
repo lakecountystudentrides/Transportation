@@ -31,6 +31,12 @@
       <stop offset="100%" stop-color="#fde3a7"/>
     </linearGradient>
 
+    <linearGradient id="vanBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#d7dee3"/>
+      <stop offset="100%" stop-color="#9fabb4"/>
+    </linearGradient>
+
     <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
       <feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.45"/>
     </filter>
@@ -48,7 +54,7 @@
   <rect x="4" y="4" width="192" height="192" rx="38" fill="url(#lcsrBg)"/>
 
   <!-- Lake County, FL outline, traced from reference, as a background watermark -->
-  <path d="M103.9,15 L103.9,54.9 L101.9,56.3 L101.9,70.9 L100.4,72.3 L60,72.7 L60,180 L73.7,180 L73.7,176.9 L83.9,176.9 L83.9,180 L101.9,180 L101.9,139.7 L100.8,137.2 L101.9,104.9 L103.3,101.0 L134.4,99.7 L135.3,94.9 L137.75,89.9 L139.6,84.1 L140.0,78.2 L138.7,72.7 L136.5,67.7 L133.8,63.0 L130.9,58.4 L128.2,53.8 L125.1,49.1 L122.0,44.6 L118.5,40.3 L115.0,36.1 L112.0,32.0 L107.9,28.5 L104.8,27.4 Z" fill="#ffffff" opacity="0.35"/>
+  <path d="M103.9,15 L103.9,54.9 L101.9,56.3 L101.9,70.9 L100.4,72.3 L60,72.7 L60,180 L73.7,180 L73.7,176.9 L83.9,176.9 L83.9,180 L101.9,180 L101.9,139.7 L100.8,137.2 L101.9,104.9 L103.3,101.0 L134.4,99.7 L135.3,94.9 L137.75,89.9 L139.6,84.1 L140.0,78.2 L138.7,72.7 L136.5,67.7 L133.8,63.0 L130.9,58.4 L128.2,53.8 L125.1,49.1 L122.0,44.6 L118.5,40.3 L115.0,36.1 L112.0,32.0 L107.9,28.5 L104.8,27.4 Z" fill="#ffffff" opacity="0.2"/>
 
   <!-- Glossy glass highlight overlay -->
   <rect x="4" y="4" width="192" height="192" rx="38" fill="url(#glossHighlight)"/>
@@ -58,10 +64,27 @@
   <rect x="6" y="6" width="188" height="188" rx="36" fill="none" stroke="#ffffff" stroke-width="0.75" opacity="0.5"/>
 
   <!-- LCSR lettering, metallic gold with depth -->
-  <text x="100" y="99" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="58" letter-spacing="1" fill="url(#goldText)" stroke="#7a4d10" stroke-width="1.5" paint-order="stroke" filter="url(#softShadow)">LCSR</text>
+  <text x="100" y="86" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="54" letter-spacing="1" fill="url(#goldText)" stroke="#7a4d10" stroke-width="1.5" paint-order="stroke" filter="url(#softShadow)">LCSR</text>
 
-  <!-- Route accent: pickup to a glowing arrival point -->
-  <path d="M46 148 C75 132 125 132 154 116" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
-  <circle cx="46" cy="148" r="4" fill="#f3b459"/>
-  <circle cx="154" cy="116" r="7" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
+  <!-- Motion/speed lines -->
+  <g stroke="url(#goldRoute)" stroke-width="2.5" stroke-linecap="round" opacity="0.5">
+    <line x1="18" y1="126" x2="33" y2="126"/>
+    <line x1="14" y1="134" x2="31" y2="134"/>
+    <line x1="18" y1="142" x2="33" y2="142"/>
+  </g>
+
+  <!-- Van silhouette -->
+  <g filter="url(#softShadow)">
+    <rect x="38" y="116" width="110" height="30" rx="9" fill="url(#vanBody)" stroke="#7d8b96" stroke-width="1"/>
+    <rect x="46" y="120" width="32" height="13" rx="3" fill="#12283d" opacity="0.55"/>
+    <rect x="96" y="120" width="42" height="13" rx="3" fill="#12283d" opacity="0.85"/>
+    <circle cx="62" cy="148" r="10" fill="#1c2530"/>
+    <circle cx="62" cy="148" r="4.5" fill="#c7ced4"/>
+    <circle cx="122" cy="148" r="10" fill="#1c2530"/>
+    <circle cx="122" cy="148" r="4.5" fill="#c7ced4"/>
+  </g>
+
+  <!-- Route accent: from the van to a glowing arrival point -->
+  <path d="M130 118 C144 104 154 92 165 78" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
+  <circle cx="165" cy="78" r="7.5" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
 </svg>
