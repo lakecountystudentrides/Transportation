@@ -60,13 +60,14 @@
   <!-- LCSR lettering, metallic gold with depth -->
   <text x="100" y="86" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="54" letter-spacing="1" fill="url(#goldText)" stroke="#7a4d10" stroke-width="1.5" paint-order="stroke" filter="url(#softShadow)">LCSR</text>
 
-  <!-- Pickup pin marker -->
+  <!-- Route accent: from behind the pickup pin up to the lower part of the letter R -->
+  <path d="M58 152 C88 138 116 118 143 107" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
+
+  <!-- Pickup pin marker (drawn on top, so the line tucks behind it) -->
   <g filter="url(#softShadow)">
     <path d="M58 152 C58 138 72 132 72 118 C72 108 65 101 58 101 C51 101 44 108 44 118 C44 132 58 138 58 152 Z" fill="url(#goldRing)" stroke="#8a5a10" stroke-width="1.2"/>
     <circle cx="58" cy="118" r="6.5" fill="#12283d"/>
   </g>
 
-  <!-- Route accent: from the tip of the pickup pin up to the lower part of the letter R -->
-  <path d="M58 152 C88 138 116 118 143 107" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
   <circle cx="146" cy="106" r="6" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
 </svg>
