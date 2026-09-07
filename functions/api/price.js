@@ -5,22 +5,26 @@
 // Distance is measured from the private dispatch origin (env.DISPATCH_ORIGIN_ADDRESS)
 // to the pickup address — this defines the service radius, not the pickup-to-dropoff
 // trip length. See docs/03-pricing.md.
+//
+// Two-tier flat pricing: 0-5 miles is cheaper than 5-9 miles, reflecting the lower
+// true cost of shorter trips. Beyond 9 miles, the upper tier price plus a per-mile
+// overage applies.
 
-const BASE_ONE_WAY = 20;
-const BASE_ROUND_TRIP = 34;
-const FLAT_RADIUS_MILES = 5;
+const TIER1_MAX_MILES = 5;
+const TIER2_MAX_MILES = 9;
 const OVERAGE_PER_MILE = 1.2;
 const SCHOOL_DAYS_PER_MONTH = 21.7;
 
-// Derived so these exactly reproduce the locked rate card in docs/03-pricing.md
-// when a trip is within the flat radius (overage = 0).
-const WEEKLY_ONEWAY_FACTOR = 84 / (5 * BASE_ONE_WAY); // 0.84
-const WEEKLY_ROUNDTRIP_FACTOR = 140 / (5 * BASE_ROUND_TRIP); // ~0.8235
-const MONTHLY_ONEWAY_FACTOR = 345 / (SCHOOL_DAYS_PER_MONTH * BASE_ONE_WAY); // ~0.7949
-const MONTHLY_ROUNDTRIP_FACTOR = 580 / (SCHOOL_DAYS_PER_MONTH * BASE_ROUND_TRIP); // ~0.7861
+const TIER1 = { oneway: 15, roundtrip: 24, child2: 205, child3plus: 143, label: "0-5 mi" };
+const TIER2 = { oneway: 20, roundtrip: 34, child2: 290, child3plus: 205, label: "5-9 mi" };
 
-const SECOND_CHILD_MONTHLY = 290;
-const THIRD_PLUS_CHILD_MONTHLY = 205;
+// Derived so these exactly reproduce the locked rate card in docs/03-pricing.md
+// when a trip is within a tier's flat radius (no overage).
+const WEEKLY_ONEWAY_FACTOR = 84 / (5 * TIER2.oneway); // 0.84
+const WEEKLY_ROUNDTRIP_FACTOR = 140 / (5 * TIER2.roundtrip); // ~0.8235
+const MONTHLY_ONEWAY_FACTOR = 345 / (SCHOOL_DAYS_PER_MONTH * TIER2.oneway); // ~0.7949
+const MONTHLY_ROUNDTRIP_FACTOR = 580 / (SCHOOL_DAYS_PER_MONTH * TIER2.roundtrip); // ~0.7861
+
 const SECOND_CHILD_PCT = 0.5;
 const THIRD_PLUS_CHILD_PCT = 0.35;
 
@@ -57,37 +61,38 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Unable to calculate distance right now. Please try again shortly." }, 502);
   }
 
-  const overageMiles = Math.max(0, miles - FLAT_RADIUS_MILES);
+  const tier = miles <= TIER1_MAX_MILES ? TIER1 : TIER2;
+  const overageMiles = Math.max(0, miles - TIER2_MAX_MILES);
   const overageCharge = round2(overageMiles * OVERAGE_PER_MILE);
 
-  const oneWayPrice = round2(BASE_ONE_WAY + overageCharge);
-  const roundTripPrice = round2(BASE_ROUND_TRIP + overageCharge);
+  const oneWayPrice = round2(tier.oneway + overageCharge);
+  const roundTripPrice = round2(tier.roundtrip + overageCharge);
 
   let basePrice, label, isMonthly = false;
   switch (category) {
     case "oneway":
-      basePrice = oneWayPrice; label = "One-way"; break;
+      basePrice = oneWayPrice; label = `One-way (${tier.label})`; break;
     case "roundtrip":
-      basePrice = roundTripPrice; label = "Round trip"; break;
+      basePrice = roundTripPrice; label = `Round trip (${tier.label})`; break;
     case "weekly-oneway":
-      basePrice = round2(oneWayPrice * 5 * WEEKLY_ONEWAY_FACTOR); label = "Weekly (one-way only)"; break;
+      basePrice = round2(oneWayPrice * 5 * WEEKLY_ONEWAY_FACTOR); label = `Weekly, one-way only (${tier.label})`; break;
     case "weekly-roundtrip":
-      basePrice = round2(roundTripPrice * 5 * WEEKLY_ROUNDTRIP_FACTOR); label = "Weekly (round trip)"; break;
+      basePrice = round2(roundTripPrice * 5 * WEEKLY_ROUNDTRIP_FACTOR); label = `Weekly, round trip (${tier.label})`; break;
     case "monthly-oneway":
-      basePrice = round2(oneWayPrice * SCHOOL_DAYS_PER_MONTH * MONTHLY_ONEWAY_FACTOR); label = "Monthly (one route/day)"; isMonthly = true; break;
+      basePrice = round2(oneWayPrice * SCHOOL_DAYS_PER_MONTH * MONTHLY_ONEWAY_FACTOR); label = `Monthly, one route/day (${tier.label})`; isMonthly = true; break;
     case "monthly-roundtrip":
-      basePrice = round2(roundTripPrice * SCHOOL_DAYS_PER_MONTH * MONTHLY_ROUNDTRIP_FACTOR); label = "Monthly (two routes/day)"; isMonthly = true; break;
+      basePrice = round2(roundTripPrice * SCHOOL_DAYS_PER_MONTH * MONTHLY_ROUNDTRIP_FACTOR); label = `Monthly, two routes/day (${tier.label})`; isMonthly = true; break;
   }
 
   const childCount = Math.max(1, Math.min(6, Number(children) || 1));
   const breakdown = [{ label, amount: basePrice }];
   if (overageCharge > 0) {
-    breakdown.push({ label: `Beyond ${FLAT_RADIUS_MILES} mi (+${round1(overageMiles)} mi @ $${OVERAGE_PER_MILE}/mi)`, amount: overageCharge, note: true });
+    breakdown.push({ label: `Beyond ${TIER2_MAX_MILES} mi (+${round1(overageMiles)} mi @ $${OVERAGE_PER_MILE}/mi)`, amount: overageCharge, note: true });
   }
   let childrenSurcharge = 0;
   for (let i = 2; i <= childCount; i++) {
     const add = isMonthly
-      ? (i === 2 ? SECOND_CHILD_MONTHLY : THIRD_PLUS_CHILD_MONTHLY)
+      ? (i === 2 ? tier.child2 : tier.child3plus)
       : round2(basePrice * (i === 2 ? SECOND_CHILD_PCT : THIRD_PLUS_CHILD_PCT));
     childrenSurcharge += add;
     breakdown.push({ label: `Child ${i}`, amount: add });
@@ -97,6 +102,7 @@ export async function onRequestPost({ request, env }) {
 
   return json({
     distanceMiles: round1(miles),
+    tier: tier.label,
     withinFlatRadius: overageMiles === 0,
     breakdown,
     total,

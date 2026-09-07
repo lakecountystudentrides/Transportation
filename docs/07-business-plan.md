@@ -32,8 +32,8 @@ See `08-startup-budget.md` for the three-tier startup budget and `03-pricing.md`
 
 | Item | Monthly estimate |
 |---|---|
-| Revenue at ~15 recurring students (round trip) at $580/mo each | $8,700 |
-| Revenue at ~8 recurring students (round trip, more conservative ramp) | $4,640 |
+| Revenue at ~15 recurring students (round trip, blended Tier 1/Tier 2 average ~$495/mo each) | $7,425 |
+| Revenue at ~8 recurring students (round trip, more conservative ramp) | $3,960 |
 | Fuel | $350–$600 |
 | Commercial auto + GL insurance | $250–$500 |
 | Vehicle maintenance reserve | $150–$250 |
@@ -44,7 +44,7 @@ See `08-startup-budget.md` for the three-tier startup budget and `03-pricing.md`
 | Misc (background-check renewals, first-aid supplies, etc., amortized) | $50–$100 |
 | **Estimated monthly overhead (excl. owner draw)** | **~$1,170–$2,150** |
 
-At the conservative 8-student scenario ($4,640/mo revenue), overhead of ~$1,700 leaves roughly **$2,940/month** before owner compensation/taxes — thinner than earlier drafts of this plan, reflecting the final locked $20 one-way / $580 monthly rate (down from an initial $25/$725 draft). See `14-pricing-and-business-model.md` for the full per-child cost breakdown and unit economics behind these numbers. Treat these as planning numbers, not guarantees; revisit after your first full month of real bookings.
+At the conservative 8-student scenario ($3,960/mo revenue), overhead of ~$1,700 leaves roughly **$2,260/month** before owner compensation/taxes, assuming an even mix of Tier 1 (0–5 mi, $409/mo) and Tier 2 (5–9 mi, $580/mo) customers. See `14-pricing-and-business-model.md` for the full per-tier cost breakdown and unit economics behind these numbers. Treat these as planning numbers, not guarantees — the real tier mix will only be known after real bookings come in.
 
 ## Marketing strategy & customer acquisition
 See `09-marketing-plan.md`.
