@@ -69,6 +69,13 @@
           amount: lastQuote.total,
           description: `${category} for ${childName || 'your child'}`,
           customerEmail: parentEmail,
+          category,
+          childName,
+          parentName: form.parentName.value.trim(),
+          parentPhone: form.parentPhone.value.trim(),
+          pickupAddress: form.pickupAddress.value.trim(),
+          dropoffAddress: form.dropoffAddress.value.trim(),
+          instructions: form.instructions.value.trim(),
         }),
       });
       const data = await res.json();

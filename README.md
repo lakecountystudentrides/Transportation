@@ -2,9 +2,15 @@
 
 Business plan, launch documentation, and website for **Lake County Student Rides** (`lakecountystudentrides.com`) — a private child transportation business in Lake County, Florida.
 
-Live site: [`index.html`](index.html) (homepage) + [`book.html`](book.html) (booking + instant pricing) + [`assets/`](assets/) (styles/scripts), deployed via Cloudflare Pages. Backend logic lives in [`functions/api/`](functions/api/) as Cloudflare Pages Functions — `price.js` calculates the quote, `checkout.js` creates the Stripe Checkout Session. Both require environment variables to be set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before they'll work.
+Live site: [`index.html`](index.html) (homepage), [`book.html`](book.html) (booking + instant pricing), [`driver.html`](driver.html) (driver dashboard — Start Trip/Arrived), and [`assets/`](assets/) (styles/scripts), deployed via Cloudflare Pages. Backend logic lives in [`functions/api/`](functions/api/) as Cloudflare Pages Functions:
+- `price.js` — calculates the two-tier quote
+- `checkout.js` — creates the Stripe Checkout Session, carrying booking details as metadata
+- `webhook.js` — on a completed payment, saves a trip record to Cloudflare KV (`TRIPS_KV` binding)
+- `trips.js` / `trip-status.js` — power the driver dashboard; pressing Start Trip or Arrived emails the parent via Resend (`functions/_lib/email.js`)
 
-Parents book and pay online for safe, background-checked transportation for their children to and from school, daycare, after-school programs, sports, camps, and tutoring — with a driver dashboard for trip management and a parent dashboard for live trip status.
+All of this requires environment variables and a KV binding set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before it works end to end.
+
+Parents book and pay online for safe, background-checked transportation for their children to and from school, daycare, after-school programs, sports, camps, and tutoring — with a driver dashboard for trip management and pickup/drop-off email notifications.
 
 ## Documents
 

@@ -1,8 +1,16 @@
 // POST /api/checkout
-// Body: { amount: number (dollars), description: string, customerEmail?: string }
+// Body: { amount, description, customerEmail, category, childName, parentName,
+//         parentPhone, pickupAddress, dropoffAddress, instructions }
 // Creates a Stripe Checkout Session and returns its hosted URL. Amount is computed
 // server-side by /api/price beforehand -- the client only ever passes back a value
-// it already saw and confirmed, never something it invents.
+// it already saw and confirmed, never something it invents. The booking details are
+// carried as Stripe metadata so /api/webhook can turn a completed payment into a
+// trip record for the driver dashboard (see docs/04-website-booking-system.md).
+
+const METADATA_FIELDS = [
+  "category", "childName", "parentName", "parentPhone",
+  "pickupAddress", "dropoffAddress", "instructions",
+];
 
 export async function onRequestPost({ request, env }) {
   let body;
@@ -35,6 +43,11 @@ export async function onRequestPost({ request, env }) {
   params.append("line_items[0][price_data][unit_amount]", String(amountCents));
   params.append("line_items[0][quantity]", "1");
   if (customerEmail) params.append("customer_email", customerEmail);
+
+  for (const field of METADATA_FIELDS) {
+    const value = body?.[field];
+    if (value) params.append(`metadata[${field}]`, String(value).slice(0, 480));
+  }
 
   let res, session;
   try {

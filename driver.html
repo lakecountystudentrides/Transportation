@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Dashboard | Lake County Student Rides</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-mark.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
+        <span class="brand-name">Lake County<br>Student Rides</span>
+      </a>
+      <span style="font-weight:700; color:var(--navy-dark);">Driver Dashboard</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="section booking-section">
+      <div class="wrap booking-wrap">
+
+        <div id="login-panel">
+          <h1>Driver Login</h1>
+          <p class="section-lede">Enter your driver access code to see today's trips.</p>
+          <div class="form-row">
+            <label for="driverToken">Access code</label>
+            <input id="driverToken" type="password" autocomplete="off" />
+          </div>
+          <button id="login-btn" class="btn btn-primary btn-lg">Unlock Dashboard</button>
+          <div id="login-error" class="price-error" role="alert" hidden></div>
+        </div>
+
+        <div id="trips-panel" hidden>
+          <h1>Today's Trips</h1>
+          <p class="section-lede">Most recent bookings first.</p>
+          <button id="refresh-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Refresh</button>
+          <div id="trip-list"></div>
+          <div id="trips-error" class="price-error" role="alert" hidden></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/driver.js"></script>
+</body>
+</html>

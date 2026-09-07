@@ -8,16 +8,18 @@ Working through this one step at a time, verifying each before moving on. Nothin
 - [x] 1. Create Cloudflare Pages project, connected to this GitHub repo — live at https://transportation-6bx.pages.dev/
 - [x] 2. Confirm DNS is fully cut over to Cloudflare nameservers (in progress from earlier setup) and email still works
 - [x] 3. Point the custom domain at the Cloudflare Pages project — both root and www domains showing Active
-- [ ] 4. Set environment variables in Cloudflare Pages (Production + Preview): `GOOGLE_MAPS_API_KEY`, `DISPATCH_ORIGIN_ADDRESS` (your private dispatch address — enter directly in the Cloudflare dashboard, never in this repo), `STRIPE_SECRET_KEY`, `SITE_URL`. See `.env.example` for the full list of names.
+- [ ] 4. Set environment variables in Cloudflare Pages (Production + Preview): `GOOGLE_MAPS_API_KEY`, `DISPATCH_ORIGIN_ADDRESS` (your private dispatch address — enter directly in the Cloudflare dashboard, never in this repo), `STRIPE_SECRET_KEY`, `SITE_URL`, `RESEND_API_KEY`, `NOTIFICATION_FROM_EMAIL`, `DRIVER_ACCESS_TOKEN` (pick a long random passphrase). See `.env.example` for the full list of names.
 - [x] 5. Confirm a test deploy is live at the `*.pages.dev` URL before attaching the custom domain
+- [ ] 5a. Create a Cloudflare KV namespace and bind it to the Pages project as `TRIPS_KV` (Pages project → Settings → Functions → KV namespace bindings). This is what stores each completed booking for the driver dashboard — see `functions/api/webhook.js`, `functions/api/trips.js`, `functions/api/trip-status.js`.
+- [ ] 5b. Create a Resend account (resend.com), verify the sending domain (`lakecountystudentrides.com`) by adding the DNS records Resend gives you — straightforward since DNS is already on Cloudflare. Get the API key and set it as `RESEND_API_KEY`.
 
 ## Stripe — test mode
 - [ ] 6. Create Stripe account, confirm Test mode is active
 - [ ] 7. Retrieve test Publishable key + Secret key
 - [x] 8. **Design decision:** skipped fixed Stripe Products/Prices in favor of dynamically-priced Checkout Sessions (`price_data` created per booking) — necessary since the real price varies with distance-overage and number of children, so a fixed catalog price wouldn't match what `/api/price` calculates. `functions/api/checkout.js` builds the session amount from the server-computed quote each time.
 - [x] 9. Checkout integration built: `functions/api/price.js` (quote calculation) + `functions/api/checkout.js` (Stripe Checkout Session creation) + `book.html`/`assets/booking.js` (front end) + `booking-success.html`. **Code-complete, not yet testable** — needs `GOOGLE_MAPS_API_KEY`, `DISPATCH_ORIGIN_ADDRESS`, and `STRIPE_SECRET_KEY` set in Cloudflare Pages first (item 4/7).
-- [ ] 10. Set up Stripe webhook endpoint + retrieve webhook signing secret (test mode) — not yet needed for the current flow (Stripe's own success/cancel redirect handles the customer side); add this once a real booking database exists to record payment confirmations server-side (see `16-conversion-trust-and-systems.md` admin dashboard section)
-- [ ] 11. End-to-end test: book a ride on the live-but-test site, pay with a Stripe test card, confirm the price calculation and Checkout redirect both work
+- [ ] 10. Set up the Stripe webhook: Stripe Dashboard → Developers → Webhooks → Add endpoint → URL `https://<your-domain>/api/webhook`, event `checkout.session.completed`. Copy the signing secret it gives you into `STRIPE_WEBHOOK_SECRET` in Cloudflare Pages. This is what turns a completed payment into a trip record (`functions/api/webhook.js`) for the driver dashboard and pickup/drop-off notifications — **now needed**, not deferred, since `driver.html` depends on it.
+- [ ] 11. End-to-end test: book a ride on the live-but-test site, pay with a Stripe test card, confirm (a) the price calculation and Checkout redirect both work, (b) the trip shows up at `/driver.html` after payment, (c) pressing Start Trip / Arrived sends the parent an email (needs item 5b done first).
 
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)
