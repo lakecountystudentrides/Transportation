@@ -8,7 +8,7 @@
 
 const BASE_ONE_WAY = 20;
 const BASE_ROUND_TRIP = 34;
-const FLAT_RADIUS_MILES = 10;
+const FLAT_RADIUS_MILES = 5;
 const OVERAGE_PER_MILE = 1.2;
 const SCHOOL_DAYS_PER_MONTH = 21.7;
 
