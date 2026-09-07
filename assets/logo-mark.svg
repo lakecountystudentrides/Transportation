@@ -66,7 +66,7 @@
     <circle cx="58" cy="118" r="6.5" fill="#12283d"/>
   </g>
 
-  <!-- Route accent: from the pickup pin up to the letter R -->
-  <path d="M64 122 C86 112 118 98 143 82" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
-  <circle cx="146" cy="80" r="6" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
+  <!-- Route accent: from the pickup pin up to the lower part of the letter R -->
+  <path d="M64 122 C90 118 118 112 143 107" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
+  <circle cx="146" cy="106" r="6" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
 </svg>
