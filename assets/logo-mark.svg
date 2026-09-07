@@ -31,12 +31,6 @@
       <stop offset="100%" stop-color="#fde3a7"/>
     </linearGradient>
 
-    <linearGradient id="vanBody" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="55%" stop-color="#d7dee3"/>
-      <stop offset="100%" stop-color="#9fabb4"/>
-    </linearGradient>
-
     <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
       <feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.45"/>
     </filter>
@@ -66,29 +60,13 @@
   <!-- LCSR lettering, metallic gold with depth -->
   <text x="100" y="86" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="54" letter-spacing="1" fill="url(#goldText)" stroke="#7a4d10" stroke-width="1.5" paint-order="stroke" filter="url(#softShadow)">LCSR</text>
 
-  <!-- Motion/speed lines -->
-  <g stroke="url(#goldRoute)" stroke-width="2.5" stroke-linecap="round" opacity="0.5">
-    <line x1="18" y1="126" x2="33" y2="126"/>
-    <line x1="14" y1="134" x2="31" y2="134"/>
-    <line x1="18" y1="142" x2="33" y2="142"/>
-  </g>
-
-  <!-- Passenger van silhouette (facing right; rear at left, front at right) -->
+  <!-- Pickup pin marker -->
   <g filter="url(#softShadow)">
-    <rect x="36" y="114" width="112" height="32" rx="10" fill="url(#vanBody)" stroke="#7d8b96" stroke-width="1"/>
-    <!-- row of passenger windows, three bays -->
-    <rect x="44" y="118" width="22" height="13" rx="3" fill="#12283d" opacity="0.55"/>
-    <rect x="70" y="118" width="22" height="13" rx="3" fill="#12283d" opacity="0.68"/>
-    <rect x="96" y="118" width="34" height="13" rx="3" fill="#12283d" opacity="0.85"/>
-    <!-- rear (back) wheel -->
-    <circle cx="58" cy="148" r="10" fill="#1c2530"/>
-    <circle cx="58" cy="148" r="4.5" fill="#c7ced4"/>
-    <!-- front wheel -->
-    <circle cx="126" cy="148" r="10" fill="#1c2530"/>
-    <circle cx="126" cy="148" r="4.5" fill="#c7ced4"/>
+    <path d="M58 152 C58 138 72 132 72 118 C72 108 65 101 58 101 C51 101 44 108 44 118 C44 132 58 138 58 152 Z" fill="url(#goldRing)" stroke="#8a5a10" stroke-width="1.2"/>
+    <circle cx="58" cy="118" r="6.5" fill="#12283d"/>
   </g>
 
-  <!-- Route accent: from the back (rear) tire up to the letter R -->
-  <path d="M58 148 C78 118 112 96 143 82" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
+  <!-- Route accent: from the pickup pin up to the letter R -->
+  <path d="M64 122 C86 112 118 98 143 82" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
   <circle cx="146" cy="80" r="6" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
 </svg>
