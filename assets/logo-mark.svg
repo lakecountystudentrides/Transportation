@@ -1,18 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="LCSR — Lake County Student Rides logo">
   <defs>
     <linearGradient id="lcsrBg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1c3d5c"/>
-      <stop offset="1" stop-color="#0c1e33"/>
+      <stop offset="0" stop-color="#234e73"/>
+      <stop offset="0.55" stop-color="#173855"/>
+      <stop offset="1" stop-color="#0a1a2c"/>
     </linearGradient>
+
+    <radialGradient id="glossHighlight" cx="32%" cy="22%" r="65%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldRing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde3a7"/>
+      <stop offset="35%" stop-color="#f0b23e"/>
+      <stop offset="70%" stop-color="#c9861f"/>
+      <stop offset="100%" stop-color="#8a5a10"/>
+    </linearGradient>
+
+    <linearGradient id="goldText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff2c4"/>
+      <stop offset="35%" stop-color="#f9c766"/>
+      <stop offset="70%" stop-color="#e8a33d"/>
+      <stop offset="100%" stop-color="#b5761a"/>
+    </linearGradient>
+
+    <linearGradient id="goldRoute" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c9861f"/>
+      <stop offset="100%" stop-color="#fde3a7"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+
+    <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
+
+  <!-- Badge base -->
   <rect x="4" y="4" width="192" height="192" rx="38" fill="url(#lcsrBg)"/>
 
-  <!-- Lake County, FL outline (traced from reference), as a background watermark -->
-  <path d="M103.9,15 L103.9,54.9 L101.9,56.3 L101.9,70.9 L100.4,72.3 L60,72.7 L60,180 L73.7,180 L73.7,176.9 L83.9,176.9 L83.9,180 L101.9,180 L101.9,139.7 L100.8,137.2 L101.9,104.9 L103.3,101.0 L134.4,99.7 L135.3,94.9 L137.75,89.9 L139.6,84.1 L140.0,78.2 L138.7,72.7 L136.5,67.7 L133.8,63.0 L130.9,58.4 L128.2,53.8 L125.1,49.1 L122.0,44.6 L118.5,40.3 L115.0,36.1 L112.0,32.0 L107.9,28.5 L104.8,27.4 Z" fill="#ffffff" opacity="0.4"/>
+  <!-- Lake County, FL outline, traced from reference, as a background watermark -->
+  <path d="M103.9,15 L103.9,54.9 L101.9,56.3 L101.9,70.9 L100.4,72.3 L60,72.7 L60,180 L73.7,180 L73.7,176.9 L83.9,176.9 L83.9,180 L101.9,180 L101.9,139.7 L100.8,137.2 L101.9,104.9 L103.3,101.0 L134.4,99.7 L135.3,94.9 L137.75,89.9 L139.6,84.1 L140.0,78.2 L138.7,72.7 L136.5,67.7 L133.8,63.0 L130.9,58.4 L128.2,53.8 L125.1,49.1 L122.0,44.6 L118.5,40.3 L115.0,36.1 L112.0,32.0 L107.9,28.5 L104.8,27.4 Z" fill="#ffffff" opacity="0.35"/>
 
-  <rect x="4" y="4" width="192" height="192" rx="38" fill="none" stroke="#e8a33d" stroke-width="3" opacity="0.55"/>
-  <text x="100" y="98" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="56" fill="#f3b459" letter-spacing="1">LCSR</text>
-  <path d="M46 148 C75 132 125 132 154 116" fill="none" stroke="#e8a33d" stroke-width="6" stroke-linecap="round"/>
+  <!-- Glossy glass highlight overlay -->
+  <rect x="4" y="4" width="192" height="192" rx="38" fill="url(#glossHighlight)"/>
+
+  <!-- Metallic gold bezel ring -->
+  <rect x="6" y="6" width="188" height="188" rx="36" fill="none" stroke="url(#goldRing)" stroke-width="5"/>
+  <rect x="6" y="6" width="188" height="188" rx="36" fill="none" stroke="#ffffff" stroke-width="0.75" opacity="0.5"/>
+
+  <!-- LCSR lettering, metallic gold with depth -->
+  <text x="100" y="99" text-anchor="middle" dominant-baseline="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="58" letter-spacing="1" fill="url(#goldText)" stroke="#7a4d10" stroke-width="1.5" paint-order="stroke" filter="url(#softShadow)">LCSR</text>
+
+  <!-- Route accent: pickup to a glowing arrival point -->
+  <path d="M46 148 C75 132 125 132 154 116" fill="none" stroke="url(#goldRoute)" stroke-width="6" stroke-linecap="round" filter="url(#softShadow)"/>
   <circle cx="46" cy="148" r="4" fill="#f3b459"/>
-  <circle cx="154" cy="116" r="6.5" fill="#e8a33d" stroke="#f8faf9" stroke-width="2"/>
+  <circle cx="154" cy="116" r="7" fill="#fde3a7" stroke="#8a5a10" stroke-width="1.5" filter="url(#dotGlow)"/>
 </svg>
