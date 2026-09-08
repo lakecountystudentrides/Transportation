@@ -2,11 +2,12 @@
 
 Business plan, launch documentation, and website for **Lake County Student Rides** (`lakecountystudentrides.com`) — a private child transportation business in Lake County, Florida.
 
-Live site: [`index.html`](index.html) (homepage), [`book.html`](book.html) (booking + instant pricing), [`driver.html`](driver.html) (driver dashboard — Start Trip/Arrived), and [`assets/`](assets/) (styles/scripts), deployed via Cloudflare Pages. Backend logic lives in [`functions/api/`](functions/api/) as Cloudflare Pages Functions:
+Live site: [`index.html`](index.html) (homepage), [`book.html`](book.html) (booking + instant pricing), [`driver.html`](driver.html) (driver dashboard — Start Trip/Arrived), [`parent-portal.html`](parent-portal.html) (parent login — trip history and amounts paid), and [`assets/`](assets/) (styles/scripts), deployed via Cloudflare Pages. Backend logic lives in [`functions/api/`](functions/api/) as Cloudflare Pages Functions:
 - `price.js` — calculates the two-tier quote
 - `checkout.js` — creates the Stripe Checkout Session, carrying booking details as metadata
 - `webhook.js` — on a completed payment, saves a trip record to Cloudflare KV (`TRIPS_KV` binding)
 - `trips.js` / `trip-status.js` — power the driver dashboard; pressing Start Trip or Arrived emails the parent via Resend (`functions/_lib/email.js`)
+- `parent-signup.js` / `parent-login.js` / `parent-logout.js` / `parent-trips.js` — parent accounts (email + password, hashed and stored in `TRIPS_KV`) and a signed session cookie (`functions/_lib/session.js`, `functions/_lib/password.js`); trips are matched to an account by the email used at checkout
 
 All of this requires environment variables and a KV binding set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before it works end to end.
 

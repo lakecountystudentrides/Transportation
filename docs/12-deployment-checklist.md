@@ -21,6 +21,10 @@ Working through this one step at a time, verifying each before moving on. Nothin
 - [x] 10. Set up the Stripe webhook: Stripe Dashboard → Developers → Webhooks → Add endpoint → URL `https://<your-domain>/api/webhook`, event `checkout.session.completed`. Copy the signing secret it gives you into `STRIPE_WEBHOOK_SECRET` in Cloudflare Pages. This is what turns a completed payment into a trip record (`functions/api/webhook.js`) for the driver dashboard and pickup/drop-off notifications. Set up as **two separate Stripe webhook endpoints**: one pointing at the preview URL (for testing, with its own signing secret in the Preview environment variables) and one pointing at `https://lakecountystudentrides.com/api/webhook` (for after go-live, secret in Production).
 - [x] 11. End-to-end test — **passed on the preview deployment**: booked a ride, price calculator returned a quote, Stripe Checkout redirect worked, paid with test card `4242 4242 4242 4242`, landed on `booking-success.html`, trip appeared at `/driver.html`, pressing Start Trip and Arrived both sent parent notification emails via Resend.
 
+## Parent portal
+- [ ] 11a. Set `PARENT_SESSION_SECRET` in Cloudflare Pages (Production + Preview) — a long random passphrase, different from `DRIVER_ACCESS_TOKEN`. Signs the login cookie for `/parent-portal.html`. See `functions/_lib/session.js`, `functions/api/parent-signup.js`, `functions/api/parent-login.js`, `functions/api/parent-trips.js`. No new KV namespace needed — parent accounts reuse the existing `TRIPS_KV` binding under a `parent:<email>` key.
+- [ ] 11b. Test it: create a parent account at `/parent-portal.html` using the same email used at checkout, confirm past trips (with dates, route, status, and amount paid) show up, and confirm signing out and back in works.
+
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)
 - [ ] 13. Enter live Stripe secret key + live webhook secret directly into Cloudflare Pages env vars (recommend: you do this step yourself, key never pasted into this chat)
