@@ -1,8 +1,10 @@
 // GET /api/parent-trips -- returns the signed-in parent's trip history
-// (dates, route, status, amount paid), matched by email against trip records
-// saved by /api/webhook. Requires a valid parent session cookie.
+// (dates, route, status, amount paid) and any past-due balance, matched by
+// email against trip records saved by /api/webhook. Requires a valid parent
+// session cookie.
 
 import { verifySessionCookie } from "../_lib/session.js";
+import { getPastDue } from "../_lib/pastDue.js";
 
 export async function onRequestGet({ request, env }) {
   if (!env.PARENT_SESSION_SECRET) {
@@ -27,7 +29,9 @@ export async function onRequestGet({ request, env }) {
     if ((trip.parentEmail || "").toLowerCase() === email) trips.push(trip);
   }
 
-  return json({ trips });
+  const pastDue = await getPastDue(env, email);
+
+  return json({ trips, pastDue });
 }
 
 function json(obj, status = 200) {

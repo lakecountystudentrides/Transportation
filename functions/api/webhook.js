@@ -9,9 +9,13 @@
 // Card payments settle instantly, so the trip starts out with paymentStatus
 // "paid". Bank transfer (ACH) payments settle a few business days later, so
 // the trip starts out "pending" and gets updated to "paid" or "failed" once
-// the matching async_payment_succeeded/failed event arrives.
+// the matching async_payment_succeeded/failed event arrives. A failed bank
+// transfer adds the trip's amount to the parent's past-due balance
+// (functions/_lib/pastDue.js) -- functions/api/checkout.js blocks new
+// bookings for that email until it's paid off via functions/api/pay-past-due.js.
 
 import { verifyStripeSignature } from "../_lib/stripeVerify.js";
+import { addPastDue, clearPastDue } from "../_lib/pastDue.js";
 
 export async function onRequestPost({ request, env }) {
   const signature = request.headers.get("stripe-signature");
@@ -36,11 +40,29 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (event.type === "checkout.session.completed") {
-    await createTrip(event.data.object, env);
+    const session = event.data.object;
+    if (session.metadata?.type === "past_due_payoff") {
+      if (session.payment_status === "paid") await clearPastDue(env, session.metadata.email);
+      // else (bank transfer, still pending): wait for async_payment_succeeded below.
+    } else {
+      await createTrip(session, env);
+    }
   } else if (event.type === "checkout.session.async_payment_succeeded") {
-    await setPaymentStatus(event.data.object.id, "paid", env);
+    const session = event.data.object;
+    if (session.metadata?.type === "past_due_payoff") {
+      await clearPastDue(env, session.metadata.email);
+    } else {
+      await setPaymentStatus(session.id, "paid", env);
+    }
   } else if (event.type === "checkout.session.async_payment_failed") {
-    await setPaymentStatus(event.data.object.id, "failed", env);
+    const session = event.data.object;
+    if (session.metadata?.type !== "past_due_payoff") {
+      const trip = await setPaymentStatus(session.id, "failed", env);
+      if (trip?.parentEmail && trip.total) {
+        await addPastDue(env, trip.parentEmail, trip.total);
+      }
+    }
+    // Past-due payoff itself failing: balance is simply still there -- nothing to add.
   }
 
   return new Response("ok", { status: 200 });
@@ -77,7 +99,8 @@ async function createTrip(session, env) {
 
 // Bank transfers clear days after the trip record is created, so find it by
 // the Stripe session ID stashed on it and update its payment status in place
-// rather than creating a second trip record.
+// rather than creating a second trip record. Returns the updated trip so the
+// caller can act on it (e.g. adding to the parent's past-due balance).
 async function setPaymentStatus(stripeSessionId, paymentStatus, env) {
   const indexRaw = await env.TRIPS_KV.get("trip-index");
   const index = indexRaw ? JSON.parse(indexRaw) : [];
@@ -89,7 +112,8 @@ async function setPaymentStatus(stripeSessionId, paymentStatus, env) {
     if (trip.stripeSessionId === stripeSessionId) {
       trip.paymentStatus = paymentStatus;
       await env.TRIPS_KV.put(`trip:${id}`, JSON.stringify(trip));
-      return;
+      return trip;
     }
   }
+  return null;
 }

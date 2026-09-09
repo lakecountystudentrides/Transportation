@@ -65,6 +65,11 @@
 
         <div id="trips-panel" hidden>
           <h1>Your Trips</h1>
+          <div id="past-due-banner" class="price-error" hidden>
+            <p id="past-due-text" style="margin:0 0 0.75rem;"></p>
+            <button id="pay-past-due-btn" class="btn btn-primary">Pay Past Due Balance</button>
+            <p id="past-due-error" role="alert" hidden style="color:#8a1f1f; font-weight:600; margin:0.75rem 0 0;"></p>
+          </div>
           <p class="section-lede">Most recent bookings first.</p>
           <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Sign Out</button>
           <div id="trip-list"></div>

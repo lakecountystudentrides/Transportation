@@ -16,6 +16,11 @@
   const tripList = document.getElementById('trip-list');
   const tripsError = document.getElementById('trips-error');
 
+  const pastDueBanner = document.getElementById('past-due-banner');
+  const pastDueText = document.getElementById('past-due-text');
+  const payPastDueBtn = document.getElementById('pay-past-due-btn');
+  const pastDueError = document.getElementById('past-due-error');
+
   const STATUS_LABELS = { scheduled: 'Scheduled', started: 'In Progress', arrived: 'Completed' };
 
   tabSignin.addEventListener('click', () => showTab('signin'));
@@ -84,6 +89,7 @@
   logoutBtn.addEventListener('click', async () => {
     try { await fetch('/api/parent-logout', { method: 'POST' }); } catch {}
     tripsPanel.hidden = true;
+    pastDueBanner.hidden = true;
     authPanel.hidden = false;
     showTab('signin');
   });
@@ -99,12 +105,43 @@
         return;
       }
       renderTrips(data.trips || []);
+      renderPastDue(data.pastDue || 0);
       authPanel.hidden = true;
       tripsPanel.hidden = false;
     } catch {
       showError(tripsError, 'Unable to reach the server. Please try again.');
     }
   }
+
+  function renderPastDue(amount) {
+    if (!amount || amount <= 0) {
+      pastDueBanner.hidden = true;
+      return;
+    }
+    pastDueText.textContent = `You have a past due balance of $${Number(amount).toFixed(2)} from a failed bank transfer. New bookings are on hold until this is paid.`;
+    pastDueBanner.hidden = false;
+  }
+
+  payPastDueBtn.addEventListener('click', async () => {
+    pastDueError.hidden = true;
+    payPastDueBtn.disabled = true;
+    payPastDueBtn.textContent = 'Redirecting to payment…';
+    try {
+      const res = await fetch('/api/pay-past-due', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        showError(pastDueError, data.error || 'Unable to start payment.');
+        payPastDueBtn.disabled = false;
+        payPastDueBtn.textContent = 'Pay Past Due Balance';
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      showError(pastDueError, 'Unable to reach the server. Please try again.');
+      payPastDueBtn.disabled = false;
+      payPastDueBtn.textContent = 'Pay Past Due Balance';
+    }
+  });
 
   function renderTrips(trips) {
     if (!trips.length) {

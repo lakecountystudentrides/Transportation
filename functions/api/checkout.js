@@ -7,6 +7,8 @@
 // carried as Stripe metadata so /api/webhook can turn a completed payment into a
 // trip record for the driver dashboard (see docs/04-website-booking-system.md).
 
+import { getPastDue } from "../_lib/pastDue.js";
+
 const METADATA_FIELDS = [
   "category", "childName", "parentName", "parentPhone",
   "pickupAddress", "dropoffAddress", "instructions",
@@ -29,6 +31,15 @@ export async function onRequestPost({ request, env }) {
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) {
     return json({ error: "Online payment isn't active yet. Please contact us to complete your booking." }, 503);
+  }
+
+  if (customerEmail && env.TRIPS_KV) {
+    const pastDue = await getPastDue(env, customerEmail);
+    if (pastDue > 0) {
+      return json({
+        error: `Your account has a past due balance of $${pastDue.toFixed(2)} from a failed bank transfer. Please pay this from the parent portal before booking another trip.`,
+      }, 402);
+    }
   }
 
   const siteUrl = env.SITE_URL || new URL(request.url).origin;
