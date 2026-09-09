@@ -103,6 +103,7 @@
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
         ${paymentBadge(t.paymentStatus)}
+        <div class="price-row"><span>Date &amp; Time</span><span>${formatTripDateTime(t)}</span></div>
         <div class="price-row"><span>Pickup</span><span>${addressLink(t.pickupAddress)}</span></div>
         <div class="price-row"><span>Drop-off</span><span>${addressLink(t.dropoffAddress)}</span></div>
         <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${t.parentPhone ? '· ' + escapeHtml(t.parentPhone) : ''}</span></div>
@@ -110,6 +111,21 @@
         <div style="margin-top:0.75rem;">${actionBtn}</div>
       </div>
     `;
+  }
+
+  function formatTripDateTime(t) {
+    if (t.startDate) {
+      const d = new Date(t.pickupTime ? `${t.startDate}T${t.pickupTime}` : `${t.startDate}T00:00`);
+      if (!isNaN(d)) {
+        return t.pickupTime
+          ? d.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+          : d.toLocaleDateString('en-US', { dateStyle: 'medium' });
+      }
+    }
+    if (t.createdAt) {
+      return new Date(t.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) + ' (booked)';
+    }
+    return '—';
   }
 
   function paymentBadge(paymentStatus) {

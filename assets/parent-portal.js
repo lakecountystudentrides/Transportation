@@ -153,9 +153,7 @@
 
   function tripCard(t) {
     const statusLabel = STATUS_LABELS[t.status] || t.status;
-    const date = t.createdAt
-      ? new Date(t.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
-      : '—';
+    const date = formatTripDateTime(t);
     const amount = t.total != null ? `$${Number(t.total).toFixed(2)}` : '—';
     const amountLabel = t.paymentStatus === 'pending' ? 'Amount (bank transfer processing)'
       : t.paymentStatus === 'failed' ? 'Amount (bank transfer failed)'
@@ -163,13 +161,28 @@
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
-        <div class="price-row"><span>Date</span><span>${date}</span></div>
+        <div class="price-row"><span>Date &amp; Time</span><span>${date}</span></div>
         <div class="price-row"><span>Service</span><span>${escapeHtml(t.category) || '—'}</span></div>
         <div class="price-row"><span>Pickup</span><span>${escapeHtml(t.pickupAddress) || '—'}</span></div>
         <div class="price-row"><span>Drop-off</span><span>${escapeHtml(t.dropoffAddress) || '—'}</span></div>
         <div class="price-row price-row-total"><span>${amountLabel}</span><span>${amount}</span></div>
       </div>
     `;
+  }
+
+  function formatTripDateTime(t) {
+    if (t.startDate) {
+      const d = new Date(t.pickupTime ? `${t.startDate}T${t.pickupTime}` : `${t.startDate}T00:00`);
+      if (!isNaN(d)) {
+        return t.pickupTime
+          ? d.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+          : d.toLocaleDateString('en-US', { dateStyle: 'medium' });
+      }
+    }
+    if (t.createdAt) {
+      return new Date(t.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) + ' (booked)';
+    }
+    return '—';
   }
 
   function showError(el, msg) { el.textContent = msg; el.hidden = false; }

@@ -75,6 +75,8 @@
           parentPhone: form.parentPhone.value.trim(),
           pickupAddress: form.pickupAddress.value.trim(),
           dropoffAddress: form.dropoffAddress.value.trim(),
+          startDate: form.startDate.value,
+          pickupTime: form.pickupTime.value,
           instructions: form.instructions.value.trim(),
         }),
       });
