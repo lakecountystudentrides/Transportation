@@ -26,6 +26,12 @@ Working through this one step at a time, verifying each before moving on. Nothin
 - [ ] 11b. Test it: create a parent account at `/parent-portal.html` using the same email used at checkout, confirm past trips (with dates, route, status, and amount paid) show up, and confirm signing out and back in works.
 - [ ] 11c. Test "Forgot your password?" (`/reset-password.html`): request a reset link for that same account, confirm the email arrives via Resend, click the link, set a new password, and sign in with it. No new env vars needed — reuses `PARENT_SESSION_SECRET` and `RESEND_API_KEY`.
 
+## Bank transfer (ACH) payments
+Card fees are 2.9% + $0.30; bank transfer is 0.8% capped at $5 — worth it especially on the $259–$580/month plans. `functions/api/checkout.js` now offers both `card` and `us_bank_account` as payment methods.
+- [ ] 11d. In the Stripe Dashboard, go to **Settings → Payment methods** and confirm/enable **ACH Direct Debit** (also called "US bank account" / "Bank transfer") for your account — Stripe may require basic bank-transfer eligibility verification first.
+- [ ] 11e. On **both** Stripe webhook endpoints (preview and production, from step 10), add two more events beyond `checkout.session.completed`: **`checkout.session.async_payment_succeeded`** and **`checkout.session.async_payment_failed`**. Bank transfers settle a few business days later than cards, so `functions/api/webhook.js` only creates the trip record once one of these async events confirms the money actually cleared — a card payment is unaffected and still creates the trip immediately.
+- [ ] 11f. Test it: book a ride, choose the bank transfer tab on the Stripe Checkout page (test mode has a fake instant-verification test bank for this — Stripe's checkout page walks you through it), confirm the trip does **not** appear at `/driver.html` immediately, then confirm it appears once Stripe's test mode fires the simulated `async_payment_succeeded` event (Stripe Dashboard → Webhooks → your endpoint → send a test event, or wait for the test-mode simulated delay).
+
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)
 - [ ] 13. Enter live Stripe secret key + live webhook secret directly into Cloudflare Pages env vars (recommend: you do this step yourself, key never pasted into this chat)

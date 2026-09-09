@@ -36,6 +36,13 @@ export async function onRequestPost({ request, env }) {
 
   const params = new URLSearchParams();
   params.append("mode", "payment");
+  // Bank transfer (ACH direct debit) costs 0.8% capped at $5, vs. 2.9% + $0.30 for
+  // cards -- meaningful savings on the monthly plans. It settles in a few business
+  // days rather than instantly, which is why webhook.js has to also watch for
+  // checkout.session.async_payment_succeeded/failed instead of trusting
+  // checkout.session.completed alone.
+  params.append("payment_method_types[0]", "card");
+  params.append("payment_method_types[1]", "us_bank_account");
   params.append("success_url", `${siteUrl}/booking-success.html?session_id={CHECKOUT_SESSION_ID}`);
   params.append("cancel_url", `${siteUrl}/book.html`);
   params.append("line_items[0][price_data][currency]", "usd");
