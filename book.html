@@ -103,14 +103,18 @@
               </select>
               <p class="price-note" style="margin-top:0.4rem;">Exact price depends on your pickup distance — calculated below once you enter your address.</p>
             </div>
+            <div class="form-row">
+              <label for="startDate">Start date</label>
+              <input id="startDate" name="startDate" type="date" required />
+            </div>
             <div class="form-row form-row-split">
               <div>
-                <label for="startDate">Start date</label>
-                <input id="startDate" name="startDate" type="date" required />
+                <label for="pickupTime">Time to be picked up</label>
+                <input id="pickupTime" name="pickupTime" type="time" required />
               </div>
               <div>
-                <label for="pickupTime">Pickup time</label>
-                <input id="pickupTime" name="pickupTime" type="time" required />
+                <label for="dropoffTime">Time to be dropped off</label>
+                <input id="dropoffTime" name="dropoffTime" type="time" required />
               </div>
             </div>
             <div class="form-row">

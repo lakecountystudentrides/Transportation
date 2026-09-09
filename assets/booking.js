@@ -77,6 +77,7 @@
           dropoffAddress: form.dropoffAddress.value.trim(),
           startDate: form.startDate.value,
           pickupTime: form.pickupTime.value,
+          dropoffTime: form.dropoffTime.value,
           instructions: form.instructions.value.trim(),
         }),
       });

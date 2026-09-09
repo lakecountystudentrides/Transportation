@@ -11,7 +11,7 @@ import { getPastDue } from "../_lib/pastDue.js";
 
 const METADATA_FIELDS = [
   "category", "childName", "parentName", "parentPhone",
-  "pickupAddress", "dropoffAddress", "startDate", "pickupTime", "instructions",
+  "pickupAddress", "dropoffAddress", "startDate", "pickupTime", "dropoffTime", "instructions",
 ];
 
 export async function onRequestPost({ request, env }) {

@@ -103,9 +103,9 @@
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
         ${paymentBadge(t.paymentStatus)}
-        <div class="price-row"><span>Date &amp; Time</span><span>${formatTripDateTime(t)}</span></div>
-        <div class="price-row"><span>Pickup</span><span>${addressLink(t.pickupAddress)}</span></div>
-        <div class="price-row"><span>Drop-off</span><span>${addressLink(t.dropoffAddress)}</span></div>
+        <div class="price-row"><span>Date</span><span>${formatDate(t)}</span></div>
+        <div class="price-row"><span>Pickup</span><span>${addressLink(t.pickupAddress)}${t.pickupTime ? ' at ' + formatTime(t.pickupTime) : ''}</span></div>
+        <div class="price-row"><span>Drop-off</span><span>${addressLink(t.dropoffAddress)}${t.dropoffTime ? ' at ' + formatTime(t.dropoffTime) : ''}</span></div>
         <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${t.parentPhone ? '· ' + escapeHtml(t.parentPhone) : ''}</span></div>
         ${t.instructions ? `<div class="price-row price-row-note"><span>Notes</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
         <div style="margin-top:0.75rem;">${actionBtn}</div>
@@ -113,19 +113,23 @@
     `;
   }
 
-  function formatTripDateTime(t) {
+  function formatDate(t) {
     if (t.startDate) {
-      const d = new Date(t.pickupTime ? `${t.startDate}T${t.pickupTime}` : `${t.startDate}T00:00`);
-      if (!isNaN(d)) {
-        return t.pickupTime
-          ? d.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
-          : d.toLocaleDateString('en-US', { dateStyle: 'medium' });
-      }
+      const d = new Date(`${t.startDate}T00:00`);
+      if (!isNaN(d)) return d.toLocaleDateString('en-US', { dateStyle: 'medium' });
     }
     if (t.createdAt) {
-      return new Date(t.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) + ' (booked)';
+      return new Date(t.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' }) + ' (booked)';
     }
     return '—';
+  }
+
+  function formatTime(timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return '';
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
   }
 
   function paymentBadge(paymentStatus) {

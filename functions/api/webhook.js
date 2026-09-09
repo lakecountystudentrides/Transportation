@@ -87,6 +87,7 @@ async function createTrip(session, env) {
     dropoffAddress: md.dropoffAddress || "",
     startDate: md.startDate || "",
     pickupTime: md.pickupTime || "",
+    dropoffTime: md.dropoffTime || "",
     instructions: md.instructions || "",
     total: session.amount_total ? session.amount_total / 100 : null,
   };
