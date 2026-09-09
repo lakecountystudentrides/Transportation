@@ -111,6 +111,12 @@ a { color: var(--navy); }
   border-color: var(--border);
 }
 .btn-ghost:hover { border-color: var(--navy); }
+.btn-navy {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+.btn-navy:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
 .btn-lg { padding: 0.85rem 1.75rem; font-size: 1rem; }
 
 /* Hero */
