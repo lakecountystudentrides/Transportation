@@ -4,12 +4,13 @@ Business plan, launch documentation, and website for **Lake County Student Rides
 
 Live site: [`index.html`](index.html) (homepage), [`book.html`](book.html) (booking + instant pricing), [`driver.html`](driver.html) (driver dashboard — Start Trip/Arrived), [`parent-portal.html`](parent-portal.html) (parent login — trip history and amounts paid), and [`assets/`](assets/) (styles/scripts), deployed via Cloudflare Pages. Backend logic lives in [`functions/api/`](functions/api/) as Cloudflare Pages Functions:
 - `price.js` — calculates the two-tier quote
-- `checkout.js` — creates the Stripe Checkout Session, carrying booking details as metadata; offers both card and bank transfer (ACH) as payment methods
-- `webhook.js` — on a completed *and paid* booking, saves a trip record to Cloudflare KV (`TRIPS_KV` binding). Cards pay instantly; bank transfers settle a few business days later, so the trip is only created once Stripe confirms the money actually cleared
+- `checkout.js` — creates the Stripe Checkout Session, carrying booking details as metadata; offers both card and bank transfer (ACH) as payment methods. Monthly plans create a real Stripe Subscription (auto-billed every month) instead of a one-time payment
+- `webhook.js` — on a completed checkout, saves a trip record to Cloudflare KV (`TRIPS_KV` binding) right away so the ride can be dispatched without waiting on a bank transfer to clear; also keeps each monthly plan's next billing date in sync on every renewal (`invoice.paid` / `invoice.payment_failed`)
+- `cancel-subscription.js` — cancels a parent's monthly plan at the end of the already-paid period (never mid-period)
 - `trips.js` / `trip-status.js` — power the driver dashboard; pressing Start Trip or Arrived emails the parent via Resend (`functions/_lib/email.js`)
 - `parent-signup.js` / `parent-login.js` / `parent-logout.js` / `parent-trips.js` — parent accounts (email + password, hashed and stored in `TRIPS_KV`) and a signed session cookie (`functions/_lib/session.js`, `functions/_lib/password.js`); trips are matched to an account by the email used at checkout
 - `parent-forgot-password.js` / `parent-reset-password.js` — emails a time-limited reset link via Resend (`functions/_lib/resetToken.js`); see [`reset-password.html`](reset-password.html)
-- `pay-past-due.js` — pays off a parent's past-due balance (from a failed bank transfer, tracked in `functions/_lib/pastDue.js`); `checkout.js` blocks new bookings for that email until it's cleared
+- `pay-past-due.js` — pays off a parent's past-due balance (from a failed bank transfer or failed monthly renewal, tracked in `functions/_lib/pastDue.js`); `checkout.js` blocks new bookings for that email until it's cleared
 
 All of this requires environment variables and a KV binding set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before it works end to end.
 

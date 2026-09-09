@@ -149,6 +149,33 @@
       return;
     }
     tripList.innerHTML = trips.map(tripCard).join('');
+
+    tripList.querySelectorAll('[data-cancel-trip-id]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!window.confirm('Cancel this monthly plan? You will not be charged again after the current billing period ends.')) return;
+        btn.disabled = true;
+        btn.textContent = 'Canceling…';
+        try {
+          const res = await fetch('/api/cancel-subscription', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ tripId: btn.getAttribute('data-cancel-trip-id') }),
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            showError(tripsError, data.error || 'Unable to cancel this plan.');
+            btn.disabled = false;
+            btn.textContent = 'Cancel Plan';
+            return;
+          }
+          await loadTrips();
+        } catch {
+          showError(tripsError, 'Unable to reach the server. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Cancel Plan';
+        }
+      });
+    });
   }
 
   function tripCard(t) {
@@ -159,6 +186,14 @@
       : 'Amount Paid';
     const pickup = (escapeHtml(t.pickupAddress) || '—') + (t.pickupTime ? ' at ' + formatTime(t.pickupTime) : '');
     const dropoff = (escapeHtml(t.dropoffAddress) || '—') + (t.dropoffTime ? ' at ' + formatTime(t.dropoffTime) : '');
+    const billingRow = t.subscriptionId
+      ? `<div class="price-row"><span>Next Billing Date</span><span>${t.nextBillingDate ? formatFullDate(t.nextBillingDate) : 'Pending'}</span></div>`
+      : '';
+    const cancelBtn = t.subscriptionId
+      ? (t.cancelPending
+          ? '<p class="price-note">Auto-pay canceled — this plan will not renew.</p>'
+          : `<button class="btn btn-ghost" data-cancel-trip-id="${t.id}" style="margin-top:0.5rem;">Cancel Plan</button>`)
+      : '';
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
@@ -167,8 +202,15 @@
         <div class="price-row"><span>Pickup</span><span>${pickup}</span></div>
         <div class="price-row"><span>Drop-off</span><span>${dropoff}</span></div>
         <div class="price-row price-row-total"><span>${amountLabel}</span><span>${amount}</span></div>
+        ${billingRow}
+        ${cancelBtn}
       </div>
     `;
+  }
+
+  function formatFullDate(isoString) {
+    const d = new Date(isoString);
+    return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { dateStyle: 'medium' });
   }
 
   function formatTime(timeStr) {

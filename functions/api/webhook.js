@@ -1,10 +1,11 @@
 // POST /api/webhook -- Stripe webhook endpoint.
 // Configure this URL in the Stripe Dashboard (Developers -> Webhooks), listening
 // for "checkout.session.completed", "checkout.session.async_payment_succeeded",
-// and "checkout.session.async_payment_failed". Saves a trip record to KV
-// (env.TRIPS_KV) as soon as checkout completes, so the ride can be dispatched
-// right away -- the driver shouldn't wait days for a bank transfer to clear
-// before showing up to drive.
+// "checkout.session.async_payment_failed", "invoice.paid", and
+// "invoice.payment_failed". Saves a trip record to KV (env.TRIPS_KV) as soon
+// as checkout completes, so the ride can be dispatched right away -- the
+// driver shouldn't wait days for a bank transfer to clear before showing up
+// to drive.
 //
 // Card payments settle instantly, so the trip starts out with paymentStatus
 // "paid". Bank transfer (ACH) payments settle a few business days later, so
@@ -13,6 +14,12 @@
 // transfer adds the trip's amount to the parent's past-due balance
 // (functions/_lib/pastDue.js) -- functions/api/checkout.js blocks new
 // bookings for that email until it's paid off via functions/api/pay-past-due.js.
+//
+// Monthly plans are Stripe Subscriptions (functions/api/checkout.js sets
+// mode "subscription"), so Stripe re-bills automatically every month -- no
+// code runs the charge itself. invoice.paid/invoice.payment_failed just keep
+// the trip record's nextBillingDate and paymentStatus in sync with each
+// renewal, matched by the subscription ID stashed on the trip.
 
 import { verifyStripeSignature } from "../_lib/stripeVerify.js";
 import { addPastDue, clearPastDue } from "../_lib/pastDue.js";
@@ -63,6 +70,23 @@ export async function onRequestPost({ request, env }) {
       }
     }
     // Past-due payoff itself failing: balance is simply still there -- nothing to add.
+  } else if (event.type === "invoice.paid") {
+    const invoice = event.data.object;
+    if (invoice.subscription) {
+      const periodEnd = invoice.lines?.data?.[0]?.period?.end;
+      await updateSubscriptionTrip(invoice.subscription, env, {
+        paymentStatus: "paid",
+        nextBillingDate: periodEnd ? new Date(periodEnd * 1000).toISOString() : "",
+      });
+    }
+  } else if (event.type === "invoice.payment_failed") {
+    const invoice = event.data.object;
+    if (invoice.subscription) {
+      const trip = await updateSubscriptionTrip(invoice.subscription, env, { paymentStatus: "failed" });
+      if (trip?.parentEmail && invoice.amount_due) {
+        await addPastDue(env, trip.parentEmail, invoice.amount_due / 100);
+      }
+    }
   }
 
   return new Response("ok", { status: 200 });
@@ -78,6 +102,8 @@ async function createTrip(session, env) {
     status: "scheduled",
     paymentStatus: session.payment_status === "paid" ? "paid" : "pending",
     stripeSessionId: session.id,
+    subscriptionId: session.subscription || null,
+    nextBillingDate: "",
     category: md.category || "",
     childName: md.childName || "",
     parentName: md.parentName || "",
@@ -114,6 +140,28 @@ async function setPaymentStatus(stripeSessionId, paymentStatus, env) {
     const trip = JSON.parse(raw);
     if (trip.stripeSessionId === stripeSessionId) {
       trip.paymentStatus = paymentStatus;
+      await env.TRIPS_KV.put(`trip:${id}`, JSON.stringify(trip));
+      return trip;
+    }
+  }
+  return null;
+}
+
+// Matches a subscription renewal (invoice.paid/invoice.payment_failed) back
+// to the trip created when the subscription started, by subscription ID, and
+// merges the given fields into it. Returns the updated trip, or null if no
+// matching trip is found (e.g. an event for a subscription from before this
+// feature existed).
+async function updateSubscriptionTrip(subscriptionId, env, fields) {
+  const indexRaw = await env.TRIPS_KV.get("trip-index");
+  const index = indexRaw ? JSON.parse(indexRaw) : [];
+
+  for (const id of index) {
+    const raw = await env.TRIPS_KV.get(`trip:${id}`);
+    if (!raw) continue;
+    const trip = JSON.parse(raw);
+    if (trip.subscriptionId === subscriptionId) {
+      Object.assign(trip, fields);
       await env.TRIPS_KV.put(`trip:${id}`, JSON.stringify(trip));
       return trip;
     }

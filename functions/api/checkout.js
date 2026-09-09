@@ -22,7 +22,7 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid request." }, 400);
   }
 
-  const { amount, description, customerEmail } = body || {};
+  const { amount, description, customerEmail, category } = body || {};
   const amountNum = Number(amount);
   if (!amountNum || amountNum <= 0 || amountNum > 5000) {
     return json({ error: "Invalid amount." }, 400);
@@ -44,9 +44,13 @@ export async function onRequestPost({ request, env }) {
 
   const siteUrl = env.SITE_URL || new URL(request.url).origin;
   const amountCents = Math.round(amountNum * 100);
+  // Monthly plans are true auto-renewing subscriptions, billed on the same
+  // calendar date every month (the date of the first charge). Everything
+  // else (one-way, round trip, weekly) stays a single one-time payment.
+  const isMonthly = String(category || "").toLowerCase().startsWith("monthly");
 
   const params = new URLSearchParams();
-  params.append("mode", "payment");
+  params.append("mode", isMonthly ? "subscription" : "payment");
   // Bank transfer (ACH direct debit) costs 0.8% capped at $5, vs. 2.9% + $0.30 for
   // cards -- meaningful savings on the monthly plans. It settles in a few business
   // days rather than instantly, which is why webhook.js has to also watch for
@@ -59,6 +63,7 @@ export async function onRequestPost({ request, env }) {
   params.append("line_items[0][price_data][currency]", "usd");
   params.append("line_items[0][price_data][product_data][name]", description || "Lake County Student Rides — Booking");
   params.append("line_items[0][price_data][unit_amount]", String(amountCents));
+  if (isMonthly) params.append("line_items[0][price_data][recurring][interval]", "month");
   params.append("line_items[0][quantity]", "1");
   if (customerEmail) params.append("customer_email", customerEmail);
 

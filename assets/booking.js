@@ -6,6 +6,7 @@
 
   let lastQuote = null; // { total, category, breakdown } once a price has been fetched
   let stage = 'quote'; // 'quote' -> 'pay'
+  let isMonthly = false;
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -44,9 +45,10 @@
       }
 
       lastQuote = data;
+      isMonthly = category.startsWith('monthly');
       renderQuote(data, category);
       stage = 'pay';
-      setLoading(false, `Book & Pay $${data.total.toFixed(2)}`);
+      setLoading(false, payButtonLabel());
     } catch {
       showError('Something went wrong calculating your price. Please try again.');
       setLoading(false, 'Get Price');
@@ -88,15 +90,19 @@
           data.error ||
             'Online payment is temporarily unavailable. Please email transportation@lakecountystudentrides.com with your quoted price to complete booking.'
         );
-        setLoading(false, `Book & Pay $${lastQuote.total.toFixed(2)}`);
+        setLoading(false, payButtonLabel());
         return;
       }
 
       window.location.href = data.url;
     } catch {
       showError('Unable to reach the payment processor. Please try again, or email us to complete your booking.');
-      setLoading(false, `Book & Pay $${lastQuote.total.toFixed(2)}`);
+      setLoading(false, payButtonLabel());
     }
+  }
+
+  function payButtonLabel() {
+    return `${isMonthly ? 'Subscribe & Pay' : 'Book & Pay'} $${lastQuote.total.toFixed(2)}`;
   }
 
   function renderQuote(data, category) {
@@ -106,14 +112,25 @@
     const radiusNote = data.withinFlatRadius
       ? ''
       : `<p class="price-note">Pickup is ${data.distanceMiles} mi from our base — a small distance add-on is included above.</p>`;
+    const autoPayNote = isMonthly ? `<p class="price-note">${autoPayMessage(data.total)}</p>` : '';
 
     resultEl.innerHTML = `
       <h3>Your Price</h3>
       ${rows}
       <div class="price-row price-row-total"><span>Total</span><span>$${data.total.toFixed(2)}</span></div>
       ${radiusNote}
+      ${autoPayNote}
     `;
     resultEl.hidden = false;
+  }
+
+  function autoPayMessage(total) {
+    const startDateVal = form.startDate.value;
+    if (!startDateVal) {
+      return `This is a monthly plan — you'll be automatically charged $${total.toFixed(2)} every month on your start date until you cancel from the parent portal.`;
+    }
+    const startDate = new Date(`${startDateVal}T00:00`).toLocaleDateString('en-US', { dateStyle: 'medium' });
+    return `This is a monthly plan — you'll be automatically charged $${total.toFixed(2)} starting ${startDate}, then on that same date every month until you cancel from the parent portal.`;
   }
 
   function setLoading(isLoading, label) {
