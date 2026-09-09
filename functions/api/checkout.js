@@ -1,6 +1,10 @@
 // POST /api/checkout
 // Body: { amount, description, customerEmail, category, childName, parentName,
-//         parentPhone, pickupAddress, dropoffAddress, instructions }
+//         parentPhone, pickupAddress, dropoffAddress, startDate, pickupTime,
+//         dropoffTime, instructions, autoPay }
+// autoPay only matters for a monthly category -- true creates a real Stripe
+// subscription (auto-billed every month); false/omitted is a one-time
+// payment for just that month, same as any other category.
 // Creates a Stripe Checkout Session and returns its hosted URL. Amount is computed
 // server-side by /api/price beforehand -- the client only ever passes back a value
 // it already saw and confirmed, never something it invents. The booking details are
@@ -22,7 +26,7 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid request." }, 400);
   }
 
-  const { amount, description, customerEmail, category } = body || {};
+  const { amount, description, customerEmail, category, autoPay } = body || {};
   const amountNum = Number(amount);
   if (!amountNum || amountNum <= 0 || amountNum > 5000) {
     return json({ error: "Invalid amount." }, 400);
@@ -44,13 +48,16 @@ export async function onRequestPost({ request, env }) {
 
   const siteUrl = env.SITE_URL || new URL(request.url).origin;
   const amountCents = Math.round(amountNum * 100);
-  // Monthly plans are true auto-renewing subscriptions, billed on the same
-  // calendar date every month (the date of the first charge). Everything
-  // else (one-way, round trip, weekly) stays a single one-time payment.
+  // Monthly plans can auto-renew as a true Stripe subscription (billed on
+  // the same calendar date every month), but only if the parent explicitly
+  // checked the auto-pay box on the booking form -- left unchecked, even a
+  // monthly-category booking is just a single one-time payment for that
+  // month, same as one-way/round-trip/weekly.
   const isMonthly = String(category || "").toLowerCase().startsWith("monthly");
+  const useSubscription = isMonthly && autoPay === true;
 
   const params = new URLSearchParams();
-  params.append("mode", isMonthly ? "subscription" : "payment");
+  params.append("mode", useSubscription ? "subscription" : "payment");
   // Bank transfer (ACH direct debit) costs 0.8% capped at $5, vs. 2.9% + $0.30 for
   // cards -- meaningful savings on the monthly plans. It settles in a few business
   // days rather than instantly, which is why webhook.js has to also watch for
@@ -63,7 +70,7 @@ export async function onRequestPost({ request, env }) {
   params.append("line_items[0][price_data][currency]", "usd");
   params.append("line_items[0][price_data][product_data][name]", description || "Lake County Student Rides — Booking");
   params.append("line_items[0][price_data][unit_amount]", String(amountCents));
-  if (isMonthly) params.append("line_items[0][price_data][recurring][interval]", "month");
+  if (useSubscription) params.append("line_items[0][price_data][recurring][interval]", "month");
   params.append("line_items[0][quantity]", "1");
   if (customerEmail) params.append("customer_email", customerEmail);
 

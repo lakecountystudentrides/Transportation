@@ -47,6 +47,7 @@
       lastQuote = data;
       isMonthly = category.startsWith('monthly');
       renderQuote(data, category);
+      wireAutoPayCheckbox();
       stage = 'pay';
       setLoading(false, payButtonLabel());
     } catch {
@@ -81,6 +82,7 @@
           pickupTime: form.pickupTime.value,
           dropoffTime: form.dropoffTime.value,
           instructions: form.instructions.value.trim(),
+          autoPay: isAutoPayChecked(),
         }),
       });
       const data = await res.json();
@@ -102,7 +104,22 @@
   }
 
   function payButtonLabel() {
-    return `${isMonthly ? 'Subscribe & Pay' : 'Book & Pay'} $${lastQuote.total.toFixed(2)}`;
+    const label = isMonthly && isAutoPayChecked() ? 'Subscribe & Pay' : 'Book & Pay';
+    return `${label} $${lastQuote.total.toFixed(2)}`;
+  }
+
+  function isAutoPayChecked() {
+    const cb = document.getElementById('autoPayCheckbox');
+    return !!(cb && cb.checked);
+  }
+
+  function wireAutoPayCheckbox() {
+    const cb = document.getElementById('autoPayCheckbox');
+    if (!cb) return;
+    cb.addEventListener('change', () => {
+      document.getElementById('autoPayNote').textContent = autoPayMessage(lastQuote.total, cb.checked);
+      setLoading(false, payButtonLabel());
+    });
   }
 
   function renderQuote(data, category) {
@@ -112,25 +129,35 @@
     const radiusNote = data.withinFlatRadius
       ? ''
       : `<p class="price-note">Pickup is ${data.distanceMiles} mi from our base — a small distance add-on is included above.</p>`;
-    const autoPayNote = isMonthly ? `<p class="price-note">${autoPayMessage(data.total)}</p>` : '';
+    const autoPaySection = isMonthly ? `
+      <div class="form-row" style="margin-top:0.75rem;">
+        <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600;">
+          <input type="checkbox" id="autoPayCheckbox" style="width:auto;" />
+          Set up automatic monthly payments
+        </label>
+        <p class="price-note" id="autoPayNote">${autoPayMessage(data.total, false)}</p>
+      </div>
+    ` : '';
 
     resultEl.innerHTML = `
       <h3>Your Price</h3>
       ${rows}
       <div class="price-row price-row-total"><span>Total</span><span>$${data.total.toFixed(2)}</span></div>
       ${radiusNote}
-      ${autoPayNote}
+      ${autoPaySection}
     `;
     resultEl.hidden = false;
   }
 
-  function autoPayMessage(total) {
+  function autoPayMessage(total, checked) {
     const startDateVal = form.startDate.value;
-    if (!startDateVal) {
-      return `This is a monthly plan — you'll be automatically charged $${total.toFixed(2)} every month on your start date until you cancel from the parent portal.`;
+    const startDate = startDateVal
+      ? new Date(`${startDateVal}T00:00`).toLocaleDateString('en-US', { dateStyle: 'medium' })
+      : 'your start date';
+    if (checked) {
+      return `You'll be automatically charged $${total.toFixed(2)} starting ${startDate}, then on that same date every month until you cancel from the parent portal.`;
     }
-    const startDate = new Date(`${startDateVal}T00:00`).toLocaleDateString('en-US', { dateStyle: 'medium' });
-    return `This is a monthly plan — you'll be automatically charged $${total.toFixed(2)} starting ${startDate}, then on that same date every month until you cancel from the parent portal.`;
+    return `This charges $${total.toFixed(2)} for this month only — you'll need to come back and book (and pay) again next month. Check the box above to have it charged automatically every month instead.`;
   }
 
   function setLoading(isLoading, label) {
