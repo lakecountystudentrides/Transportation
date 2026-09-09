@@ -71,7 +71,10 @@
             <p id="past-due-error" role="alert" hidden style="color:#8a1f1f; font-weight:600; margin:0.75rem 0 0;"></p>
           </div>
           <p class="section-lede">Most recent bookings first.</p>
-          <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Sign Out</button>
+          <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
+            <a href="/book.html" class="btn btn-primary">Book a Ride</a>
+            <button id="logout-btn" class="btn btn-ghost">Sign Out</button>
+          </div>
           <div id="trip-list"></div>
           <div id="trips-error" class="price-error" role="alert" hidden></div>
         </div>
