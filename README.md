@@ -8,6 +8,7 @@ Live site: [`index.html`](index.html) (homepage), [`book.html`](book.html) (book
 - `webhook.js` — on a completed payment, saves a trip record to Cloudflare KV (`TRIPS_KV` binding)
 - `trips.js` / `trip-status.js` — power the driver dashboard; pressing Start Trip or Arrived emails the parent via Resend (`functions/_lib/email.js`)
 - `parent-signup.js` / `parent-login.js` / `parent-logout.js` / `parent-trips.js` — parent accounts (email + password, hashed and stored in `TRIPS_KV`) and a signed session cookie (`functions/_lib/session.js`, `functions/_lib/password.js`); trips are matched to an account by the email used at checkout
+- `parent-forgot-password.js` / `parent-reset-password.js` — emails a time-limited reset link via Resend (`functions/_lib/resetToken.js`); see [`reset-password.html`](reset-password.html)
 
 All of this requires environment variables and a KV binding set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before it works end to end.
 

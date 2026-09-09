@@ -24,6 +24,7 @@ Working through this one step at a time, verifying each before moving on. Nothin
 ## Parent portal
 - [ ] 11a. Set `PARENT_SESSION_SECRET` in Cloudflare Pages (Production + Preview) — a long random passphrase, different from `DRIVER_ACCESS_TOKEN`. Signs the login cookie for `/parent-portal.html`. See `functions/_lib/session.js`, `functions/api/parent-signup.js`, `functions/api/parent-login.js`, `functions/api/parent-trips.js`. No new KV namespace needed — parent accounts reuse the existing `TRIPS_KV` binding under a `parent:<email>` key.
 - [ ] 11b. Test it: create a parent account at `/parent-portal.html` using the same email used at checkout, confirm past trips (with dates, route, status, and amount paid) show up, and confirm signing out and back in works.
+- [ ] 11c. Test "Forgot your password?" (`/reset-password.html`): request a reset link for that same account, confirm the email arrives via Resend, click the link, set a new password, and sign in with it. No new env vars needed — reuses `PARENT_SESSION_SECRET` and `RESEND_API_KEY`.
 
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)
