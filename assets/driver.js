@@ -102,13 +102,19 @@
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
-        <div class="price-row"><span>Pickup</span><span>${escapeHtml(t.pickupAddress) || '—'}</span></div>
-        <div class="price-row"><span>Drop-off</span><span>${escapeHtml(t.dropoffAddress) || '—'}</span></div>
+        <div class="price-row"><span>Pickup</span><span>${addressLink(t.pickupAddress)}</span></div>
+        <div class="price-row"><span>Drop-off</span><span>${addressLink(t.dropoffAddress)}</span></div>
         <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${t.parentPhone ? '· ' + escapeHtml(t.parentPhone) : ''}</span></div>
         ${t.instructions ? `<div class="price-row price-row-note"><span>Notes</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
         <div style="margin-top:0.75rem;">${actionBtn}</div>
       </div>
     `;
+  }
+
+  function addressLink(address) {
+    if (!address) return '—';
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+    return `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(address)}</a>`;
   }
 
   function showError(el, msg) { el.textContent = msg; el.hidden = false; }
