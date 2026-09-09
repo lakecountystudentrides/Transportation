@@ -1,14 +1,15 @@
 // POST /api/webhook -- Stripe webhook endpoint.
 // Configure this URL in the Stripe Dashboard (Developers -> Webhooks), listening
 // for "checkout.session.completed", "checkout.session.async_payment_succeeded",
-// and "checkout.session.async_payment_failed". On a completed, paid booking,
-// saves a trip record to KV (env.TRIPS_KV) for the driver dashboard to see.
+// and "checkout.session.async_payment_failed". Saves a trip record to KV
+// (env.TRIPS_KV) as soon as checkout completes, so the ride can be dispatched
+// right away -- the driver shouldn't wait days for a bank transfer to clear
+// before showing up to drive.
 //
-// Card payments settle instantly, so checkout.session.completed already has
-// payment_status "paid". Bank transfer (ACH) payments settle a few business
-// days later -- completed fires with payment_status "unpaid", and the trip
-// isn't created until the matching async_payment_succeeded event arrives (or
-// never, if async_payment_failed arrives instead).
+// Card payments settle instantly, so the trip starts out with paymentStatus
+// "paid". Bank transfer (ACH) payments settle a few business days later, so
+// the trip starts out "pending" and gets updated to "paid" or "failed" once
+// the matching async_payment_succeeded/failed event arrives.
 
 import { verifyStripeSignature } from "../_lib/stripeVerify.js";
 
@@ -35,18 +36,12 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    // Cards: payment_status is already "paid" here -- create the trip now.
-    // Bank transfers: payment_status is "unpaid" until the debit clears, a few
-    // business days later -- wait for async_payment_succeeded instead.
-    if (session.payment_status === "paid") {
-      await createTrip(session, env);
-    }
-  } else if (event.type === "checkout.session.async_payment_succeeded") {
     await createTrip(event.data.object, env);
+  } else if (event.type === "checkout.session.async_payment_succeeded") {
+    await setPaymentStatus(event.data.object.id, "paid", env);
+  } else if (event.type === "checkout.session.async_payment_failed") {
+    await setPaymentStatus(event.data.object.id, "failed", env);
   }
-  // checkout.session.async_payment_failed: no trip created -- nothing to do.
-  // The failed charge is visible in the Stripe Dashboard.
 
   return new Response("ok", { status: 200 });
 }
@@ -59,6 +54,8 @@ async function createTrip(session, env) {
     id: tripId,
     createdAt: new Date().toISOString(),
     status: "scheduled",
+    paymentStatus: session.payment_status === "paid" ? "paid" : "pending",
+    stripeSessionId: session.id,
     category: md.category || "",
     childName: md.childName || "",
     parentName: md.parentName || "",
@@ -76,4 +73,23 @@ async function createTrip(session, env) {
   const index = indexRaw ? JSON.parse(indexRaw) : [];
   index.unshift(tripId);
   await env.TRIPS_KV.put("trip-index", JSON.stringify(index.slice(0, 200)));
+}
+
+// Bank transfers clear days after the trip record is created, so find it by
+// the Stripe session ID stashed on it and update its payment status in place
+// rather than creating a second trip record.
+async function setPaymentStatus(stripeSessionId, paymentStatus, env) {
+  const indexRaw = await env.TRIPS_KV.get("trip-index");
+  const index = indexRaw ? JSON.parse(indexRaw) : [];
+
+  for (const id of index) {
+    const raw = await env.TRIPS_KV.get(`trip:${id}`);
+    if (!raw) continue;
+    const trip = JSON.parse(raw);
+    if (trip.stripeSessionId === stripeSessionId) {
+      trip.paymentStatus = paymentStatus;
+      await env.TRIPS_KV.put(`trip:${id}`, JSON.stringify(trip));
+      return;
+    }
+  }
 }

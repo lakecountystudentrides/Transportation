@@ -120,6 +120,9 @@
       ? new Date(t.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
       : '—';
     const amount = t.total != null ? `$${Number(t.total).toFixed(2)}` : '—';
+    const amountLabel = t.paymentStatus === 'pending' ? 'Amount (bank transfer processing)'
+      : t.paymentStatus === 'failed' ? 'Amount (bank transfer failed)'
+      : 'Amount Paid';
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
@@ -127,7 +130,7 @@
         <div class="price-row"><span>Service</span><span>${escapeHtml(t.category) || '—'}</span></div>
         <div class="price-row"><span>Pickup</span><span>${escapeHtml(t.pickupAddress) || '—'}</span></div>
         <div class="price-row"><span>Drop-off</span><span>${escapeHtml(t.dropoffAddress) || '—'}</span></div>
-        <div class="price-row price-row-total"><span>Amount Paid</span><span>${amount}</span></div>
+        <div class="price-row price-row-total"><span>${amountLabel}</span><span>${amount}</span></div>
       </div>
     `;
   }
