@@ -201,6 +201,7 @@
         <div class="price-row"><span>Service</span><span>${escapeHtml(t.category) || '—'}</span></div>
         <div class="price-row"><span>Pickup</span><span>${pickup}</span></div>
         <div class="price-row"><span>Drop-off</span><span>${dropoff}</span></div>
+        ${t.activityAddress ? `<div class="price-row"><span>Then to</span><span>${escapeHtml(t.activityAddress)}</span></div>` : ''}
         <div class="price-row price-row-total"><span>${amountLabel}</span><span>${amount}</span></div>
         ${billingRow}
         ${cancelBtn}

@@ -106,6 +106,7 @@
         <div class="price-row"><span>Date</span><span>${formatDate(t)}</span></div>
         <div class="price-row"><span>Pickup</span><span>${addressLink(t.pickupAddress)}${t.pickupTime ? ' at ' + formatTime(t.pickupTime) : ''}</span></div>
         <div class="price-row"><span>Drop-off</span><span>${addressLink(t.dropoffAddress)}${t.dropoffTime ? ' at ' + formatTime(t.dropoffTime) : ''}</span></div>
+        ${t.activityAddress ? `<div class="price-row"><span>Then to</span><span>${addressLink(t.activityAddress)}</span></div>` : ''}
         <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${t.parentPhone ? '· ' + escapeHtml(t.parentPhone) : ''}</span></div>
         ${t.instructions ? `<div class="price-row price-row-note"><span>Notes</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
         <div style="margin-top:0.75rem;">${actionBtn}</div>

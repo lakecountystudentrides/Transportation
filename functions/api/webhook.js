@@ -111,6 +111,7 @@ async function createTrip(session, env) {
     parentPhone: md.parentPhone || "",
     pickupAddress: md.pickupAddress || "",
     dropoffAddress: md.dropoffAddress || "",
+    activityAddress: md.activityAddress || "",
     startDate: md.startDate || "",
     pickupTime: md.pickupTime || "",
     dropoffTime: md.dropoffTime || "",

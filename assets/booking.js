@@ -90,6 +90,7 @@
           parentPhone: form.parentPhone.value.trim(),
           pickupAddress: form.pickupAddress.value.trim(),
           dropoffAddress: form.dropoffAddress.value.trim(),
+          activityAddress: form.activityAddress.value.trim(),
           startDate: form.startDate.value,
           pickupTime: form.pickupTime.value,
           dropoffTime: form.dropoffTime.value,
