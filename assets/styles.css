@@ -122,12 +122,12 @@ a { color: var(--navy); }
   border-color: var(--navy);
 }
 .btn-navy:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
-.btn-navy-gold {
+.btn-navy-white {
   background: var(--navy);
-  color: var(--gold);
+  color: #fff;
   border-color: var(--navy);
 }
-.btn-navy-gold:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
+.btn-navy-white:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
 .btn-lg { padding: 0.85rem 1.75rem; font-size: 1rem; }
 
 /* Hero */
