@@ -1,13 +1,15 @@
 // POST /api/trip-status -- driver presses Start Trip or Arrived.
 // Body: { tripId, action: "start" | "arrive" }
-// Requires header: x-driver-token matching env.DRIVER_ACCESS_TOKEN.
+// Requires header: x-driver-token -- either the owner code (DRIVER_ACCESS_TOKEN)
+// or an individual driver's code (see functions/_lib/driverAuth.js).
 // Updates the trip's status in KV and emails the parent.
 
 import { sendEmail, escapeHtml } from "../_lib/email.js";
+import { isAuthorizedDriver } from "../_lib/driverAuth.js";
 
 export async function onRequestPost({ request, env }) {
   const token = request.headers.get("x-driver-token");
-  if (!env.DRIVER_ACCESS_TOKEN || token !== env.DRIVER_ACCESS_TOKEN) {
+  if (!(await isAuthorizedDriver(env, token))) {
     return json({ error: "Unauthorized" }, 401);
   }
   if (!env.TRIPS_KV) {

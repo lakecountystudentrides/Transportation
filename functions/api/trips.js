@@ -1,9 +1,12 @@
 // GET /api/trips -- returns recent trips for the driver dashboard.
-// Requires header: x-driver-token matching env.DRIVER_ACCESS_TOKEN.
+// Requires header: x-driver-token -- either the owner code (DRIVER_ACCESS_TOKEN)
+// or an individual driver's code (see functions/_lib/driverAuth.js).
+
+import { isAuthorizedDriver } from "../_lib/driverAuth.js";
 
 export async function onRequestGet({ request, env }) {
   const token = request.headers.get("x-driver-token");
-  if (!env.DRIVER_ACCESS_TOKEN || token !== env.DRIVER_ACCESS_TOKEN) {
+  if (!(await isAuthorizedDriver(env, token))) {
     return json({ error: "Unauthorized" }, 401);
   }
   if (!env.TRIPS_KV) {

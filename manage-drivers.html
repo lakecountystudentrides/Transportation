@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Drivers | Lake County Student Rides</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-mark.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
+        <span class="brand-name">Lake County<br>Student Rides</span>
+      </a>
+      <span style="font-weight:700; color:var(--navy-dark);">Manage Drivers</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="section booking-section">
+      <div class="wrap booking-wrap">
+
+        <div id="login-panel">
+          <h1>Owner Login</h1>
+          <p class="section-lede">Enter your owner access code to manage drivers.</p>
+          <div class="form-row">
+            <label for="ownerToken">Access code</label>
+            <input id="ownerToken" type="password" autocomplete="off" />
+          </div>
+          <button id="login-btn" class="btn btn-primary btn-lg">Unlock</button>
+          <div id="login-error" class="price-error" role="alert" hidden></div>
+        </div>
+
+        <div id="drivers-panel" hidden>
+          <h1>Drivers</h1>
+          <p class="section-lede">Each driver signs in at /driver.html with their own code below.</p>
+
+          <div class="price-result" style="margin-top:0;">
+            <h3>Add a Driver</h3>
+            <div class="form-row">
+              <label for="newDriverName">Driver's name</label>
+              <input id="newDriverName" type="text" />
+            </div>
+            <button id="add-driver-btn" class="btn btn-primary">Add Driver</button>
+            <div id="add-driver-error" class="price-error" role="alert" hidden></div>
+            <p id="new-driver-code" class="price-note" hidden></p>
+          </div>
+
+          <div id="driver-list" style="margin-top:1.5rem;"></div>
+          <div id="drivers-error" class="price-error" role="alert" hidden></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/manage-drivers.js"></script>
+</body>
+</html>

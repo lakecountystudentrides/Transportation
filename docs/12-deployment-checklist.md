@@ -41,6 +41,10 @@ Monthly categories (`monthly-oneway`, `monthly-roundtrip`) can create a real Str
 - [x] 11h. On **both** Stripe webhook endpoints (preview and production), add two more events: **`invoice.paid`** and **`invoice.payment_failed`**. These fire on every monthly renewal (not just the first payment) and keep each trip's `nextBillingDate` current, or add to the parent's past-due balance and block new bookings if a renewal fails — the same past-due system as failed one-time bank transfers, reused here.
 - [x] 11i. End-to-end test — **passed on the preview deployment**: booking a monthly plan with the auto-pay box unchecked produced a normal one-time payment; checking it produced a real Stripe subscription (Checkout page showed recurring language), the trip showed a "Next Billing Date" on both the driver dashboard and parent portal, and "Cancel Plan" correctly marked it "Auto-pay canceled" without cutting off the paid period.
 
+## Individual driver access codes
+`DRIVER_ACCESS_TOKEN` is now your **owner/master** code — it still works at `/driver.html`, and it's also what unlocks `/manage-drivers.html`, where you add each driver and get them their own individual access code (stored in the existing `TRIPS_KV`, no new env var or KV namespace needed). Deactivating a driver there instantly blocks that code without affecting anyone else's.
+- [ ] 11j. Test it: go to `/manage-drivers.html`, sign in with your existing `DRIVER_ACCESS_TOKEN`, add a driver, and copy the code it generates. In a different/incognito browser, sign in at `/driver.html` with that new individual code and confirm it works. Back on `/manage-drivers.html`, click "Deactivate" on that driver and confirm the same code now fails to sign in at `/driver.html`, while your own owner code still works.
+
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)
 - [ ] 13. Enter live Stripe secret key + live webhook secret directly into Cloudflare Pages env vars (recommend: you do this step yourself, key never pasted into this chat)
