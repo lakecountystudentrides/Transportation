@@ -24,7 +24,6 @@
   <main>
     <section class="section booking-section">
       <div class="wrap booking-wrap">
-
         <div id="login-panel">
           <h1>Driver Login</h1>
           <p class="section-lede">Enter your driver access code to see today's trips.</p>
@@ -35,15 +34,25 @@
           <button id="login-btn" class="btn btn-primary btn-lg">Unlock Dashboard</button>
           <div id="login-error" class="price-error" role="alert" hidden></div>
         </div>
+      </div>
+    </section>
 
-        <div id="trips-panel" hidden>
-          <h1>Today's Trips</h1>
-          <p class="section-lede">Most recent bookings first.</p>
-          <button id="refresh-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Refresh</button>
-          <div id="trip-list"></div>
-          <div id="trips-error" class="price-error" role="alert" hidden></div>
+    <section class="section booking-section">
+      <div class="wrap">
+        <div id="trips-panel" class="driver-columns" hidden>
+          <div>
+            <h1>Today's Trips</h1>
+            <p class="section-lede">Most recent bookings first.</p>
+            <button id="refresh-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Refresh</button>
+            <div id="trip-list"></div>
+            <div id="trips-error" class="price-error" role="alert" hidden></div>
+          </div>
+          <div>
+            <h2>Today's Roster</h2>
+            <p class="section-lede">Resets automatically every day.</p>
+            <div id="today-summary"></div>
+          </div>
         </div>
-
       </div>
     </section>
   </main>

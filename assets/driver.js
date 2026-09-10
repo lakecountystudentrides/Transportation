@@ -7,6 +7,7 @@
   const refreshBtn = document.getElementById('refresh-btn');
   const tripList = document.getElementById('trip-list');
   const tripsError = document.getElementById('trips-error');
+  const todaySummaryEl = document.getElementById('today-summary');
 
   const STORAGE_KEY = 'lcsr_driver_token';
 
@@ -50,6 +51,7 @@
         return true;
       }
       renderTrips(data.trips || [], token);
+      renderTodaySummary(data.trips || []);
       return true;
     } catch {
       showError(tripsError, 'Unable to reach the server. Please try again.');
@@ -139,6 +141,62 @@
       }
       return `<div style="margin-top:0.5rem;">${btn}</div>`;
     }).join('');
+  }
+
+  function actualTodayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function isActiveToday(t) {
+    return isRecurring(t.category) || t.startDate === actualTodayString();
+  }
+
+  // Today's Roster: every child on today's schedule, split into who still
+  // needs to be dropped off at school vs. picked up from school -- resets
+  // automatically each day since it's built from today's dailyProgress.
+  function renderTodaySummary(trips) {
+    const active = trips.filter(isActiveToday);
+    const dropoffs = [];
+    const pickups = [];
+
+    active.forEach((t) => {
+      const legs = legsFor(t.category);
+      const dateKey = todayDateKey(t);
+      const today = (t.dailyProgress && t.dailyProgress[dateKey]) || {};
+      const name = escapeHtml(t.childName) || 'Child';
+
+      dropoffs.push({ name, time: t.dropoffTime || '', done: today.dropoff === 'arrived' });
+      if (legs.includes('pickup')) {
+        pickups.push({ name, time: t.pickupTime || '', done: today.pickup === 'arrived' });
+      }
+    });
+
+    const byTime = (a, b) => (a.time || '99:99').localeCompare(b.time || '99:99');
+    dropoffs.sort(byTime);
+    pickups.sort(byTime);
+
+    if (!dropoffs.length && !pickups.length) {
+      todaySummaryEl.innerHTML = '<p>No trips scheduled for today.</p>';
+      return;
+    }
+
+    todaySummaryEl.innerHTML = `
+      <h3 style="margin-bottom:0.25rem;">Drop-off to School</h3>
+      ${rosterList(dropoffs)}
+      <h3 style="margin:1.25rem 0 0.25rem;">Pickup from School</h3>
+      ${rosterList(pickups)}
+    `;
+  }
+
+  function rosterList(items) {
+    if (!items.length) return '<p class="price-row-note">None today.</p>';
+    return items.map((item) => `
+      <div class="roster-item${item.done ? ' roster-done' : ''}">
+        <span>${item.name}</span>
+        <span>${item.time ? formatTime(item.time) : '—'}</span>
+      </div>
+    `).join('');
   }
 
   function overallStatusLabel(t) {
