@@ -43,16 +43,16 @@
           <fieldset>
             <legend>Parent / Guardian</legend>
             <div class="form-row">
-              <label for="parentName">Full name</label>
+              <label for="parentName">Full name<span class="required-mark">*</span></label>
               <input id="parentName" name="parentName" type="text" required autocomplete="name" />
             </div>
             <div class="form-row form-row-split">
               <div>
-                <label for="parentEmail">Email</label>
+                <label for="parentEmail">Email<span class="required-mark">*</span></label>
                 <input id="parentEmail" name="parentEmail" type="email" required autocomplete="email" />
               </div>
               <div>
-                <label for="parentPhone">Phone</label>
+                <label for="parentPhone">Phone<span class="required-mark">*</span></label>
                 <input id="parentPhone" name="parentPhone" type="tel" required autocomplete="tel" />
               </div>
             </div>
@@ -62,11 +62,11 @@
             <legend>Child</legend>
             <div class="form-row form-row-split">
               <div>
-                <label for="childName">Child's name</label>
+                <label for="childName">Child's name<span class="required-mark">*</span></label>
                 <input id="childName" name="childName" type="text" required />
               </div>
               <div>
-                <label for="childAge">Age</label>
+                <label for="childAge">Age<span class="required-mark">*</span></label>
                 <input id="childAge" name="childAge" type="number" min="0" max="18" required />
               </div>
             </div>
@@ -84,11 +84,11 @@
           <fieldset>
             <legend>Trip</legend>
             <div class="form-row">
-              <label for="pickupAddress">Pickup address</label>
+              <label for="pickupAddress">Pickup address<span class="required-mark">*</span></label>
               <input id="pickupAddress" name="pickupAddress" type="text" placeholder="e.g. 123 Main St, Clermont, FL" required />
             </div>
             <div class="form-row">
-              <label for="dropoffAddress">Drop-off address</label>
+              <label for="dropoffAddress">Drop-off address<span class="required-mark">*</span></label>
               <input id="dropoffAddress" name="dropoffAddress" type="text" placeholder="e.g. Clermont Elementary School" required />
             </div>
             <div class="form-row">
@@ -104,16 +104,16 @@
               <p class="price-note" style="margin-top:0.4rem;">Exact price depends on your pickup distance — calculated below once you enter your address.</p>
             </div>
             <div class="form-row">
-              <label for="startDate">Start date</label>
+              <label for="startDate">Start date<span class="required-mark">*</span></label>
               <input id="startDate" name="startDate" type="date" required />
             </div>
             <div class="form-row form-row-split">
               <div>
-                <label for="dropoffTime">Time to be dropped off to school</label>
+                <label for="dropoffTime">Time to be dropped off to school<span class="required-mark">*</span></label>
                 <input id="dropoffTime" name="dropoffTime" type="time" required />
               </div>
               <div>
-                <label for="pickupTime">Time to be picked up from school</label>
+                <label for="pickupTime">Time to be picked up from school<span class="required-mark">*</span></label>
                 <input id="pickupTime" name="pickupTime" type="time" required />
               </div>
             </div>

@@ -336,6 +336,7 @@ a { color: var(--navy); }
   margin-bottom: 0.35rem;
   color: var(--text);
 }
+.required-mark { color: #c0392b; margin-left: 0.15rem; }
 .form-row input,
 .form-row select,
 .form-row textarea {
