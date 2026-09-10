@@ -170,7 +170,7 @@
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${childLabel}</span><span>${statusLabel}</span></div>
         ${paymentBadge(t.paymentStatus)}
-        <div class="price-row"><span>Date</span><span>${formatDate(t)}</span></div>
+        <div class="price-row"><span>Start Date</span><span>${formatDate(t)}</span></div>
         <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${t.parentPhone ? '· ' + escapeHtml(t.parentPhone) : ''}</span></div>
         <div class="price-row"><span>Pickup address</span><span>${addressLink(t.pickupAddress)}</span></div>
         <div class="price-row"><span>Drop-off address</span><span>${addressLink(t.dropoffAddress)}</span></div>
