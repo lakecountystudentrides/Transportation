@@ -19,6 +19,18 @@
     }
   });
 
+  // If they already have a price and then change the service or number of
+  // children, refresh the price automatically instead of silently charging
+  // them for whatever they originally picked.
+  form.category.addEventListener('change', refreshPriceIfAlreadyQuoted);
+  form.numChildren.addEventListener('change', refreshPriceIfAlreadyQuoted);
+
+  async function refreshPriceIfAlreadyQuoted() {
+    if (!lastQuote) return;
+    stage = 'quote';
+    await getPrice();
+  }
+
   async function getPrice() {
     const pickupAddress = form.pickupAddress.value.trim();
     const category = form.category.value;
