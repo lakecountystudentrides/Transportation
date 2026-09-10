@@ -3,7 +3,8 @@
   const driversPanel = document.getElementById('drivers-panel');
   const loginBtn = document.getElementById('login-btn');
   const loginError = document.getElementById('login-error');
-  const tokenInput = document.getElementById('ownerToken');
+  const usernameInput = document.getElementById('ownerUsername');
+  const passwordInput = document.getElementById('ownerPassword');
 
   const addDriverBtn = document.getElementById('add-driver-btn');
   const addDriverError = document.getElementById('add-driver-error');
@@ -12,50 +13,60 @@
 
   const driverList = document.getElementById('driver-list');
   const driversError = document.getElementById('drivers-error');
+  const logoutBtn = document.getElementById('logout-btn');
 
-  const STORAGE_KEY = 'lcsr_owner_token';
+  // If a valid session cookie already exists from a previous visit, skip straight to the drivers list.
+  loadDrivers();
 
-  const savedToken = safeStorageGet(STORAGE_KEY);
-  if (savedToken) {
-    tokenInput.value = savedToken;
-    tryLoad(savedToken);
-  }
-
-  loginBtn.addEventListener('click', function () {
-    const token = tokenInput.value.trim();
-    if (!token) return;
-    tryLoad(token);
-  });
-
-  async function tryLoad(token) {
+  loginBtn.addEventListener('click', async () => {
     hideError(loginError);
-    const ok = await loadDrivers(token);
-    if (ok) {
-      safeStorageSet(STORAGE_KEY, token);
-      loginPanel.hidden = true;
-      driversPanel.hidden = false;
-    } else {
-      showError(loginError, 'Incorrect access code.');
-    }
-  }
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) return;
 
-  async function loadDrivers(token) {
-    hideError(driversError);
+    loginBtn.disabled = true;
     try {
-      const res = await fetch('/api/drivers', { headers: { 'x-driver-token': token } });
+      const res = await fetch('/api/owner-login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
       const data = await res.json();
       if (!res.ok || data.error) {
-        if (res.status === 401) return false;
-        showError(driversError, data.error || 'Unable to load drivers.');
-        return true;
+        showError(loginError, data.error || 'Incorrect username or password.');
+        return;
       }
-      renderDrivers(data.drivers || [], token);
-      return true;
+      await loadDrivers();
+    } catch {
+      showError(loginError, 'Unable to reach the server. Please try again.');
+    } finally {
+      loginBtn.disabled = false;
+    }
+  });
+
+  async function loadDrivers() {
+    hideError(driversError);
+    try {
+      const res = await fetch('/api/drivers');
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        loginPanel.hidden = false;
+        driversPanel.hidden = true;
+        return;
+      }
+      renderDrivers(data.drivers || []);
+      loginPanel.hidden = true;
+      driversPanel.hidden = false;
     } catch {
       showError(driversError, 'Unable to reach the server. Please try again.');
-      return true;
     }
   }
+
+  logoutBtn.addEventListener('click', async () => {
+    try { await fetch('/api/owner-logout', { method: 'POST' }); } catch {}
+    driversPanel.hidden = true;
+    loginPanel.hidden = false;
+  });
 
   addDriverBtn.addEventListener('click', async () => {
     hideError(addDriverError);
@@ -63,12 +74,11 @@
     const name = newDriverName.value.trim();
     if (!name) return;
 
-    const token = safeStorageGet(STORAGE_KEY);
     addDriverBtn.disabled = true;
     try {
       const res = await fetch('/api/drivers', {
         method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-driver-token': token },
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name }),
       });
       const data = await res.json();
@@ -79,7 +89,7 @@
       newDriverName.value = '';
       newDriverCode.textContent = `${data.name}'s access code: ${data.code} — give this to them to sign in at /driver.html`;
       newDriverCode.hidden = false;
-      await loadDrivers(token);
+      await loadDrivers();
     } catch {
       showError(addDriverError, 'Unable to reach the server. Please try again.');
     } finally {
@@ -87,7 +97,7 @@
     }
   });
 
-  function renderDrivers(drivers, token) {
+  function renderDrivers(drivers) {
     if (!drivers.length) {
       driverList.innerHTML = '<p>No drivers added yet.</p>';
       return;
@@ -102,7 +112,7 @@
         try {
           const res = await fetch('/api/driver-deactivate', {
             method: 'POST',
-            headers: { 'content-type': 'application/json', 'x-driver-token': token },
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ code, active: nextActive }),
           });
           const data = await res.json();
@@ -111,7 +121,7 @@
             btn.disabled = false;
             return;
           }
-          await loadDrivers(token);
+          await loadDrivers();
         } catch {
           showError(driversError, 'Unable to reach the server. Please try again.');
           btn.disabled = false;
@@ -140,12 +150,5 @@
     const div = document.createElement('div');
     div.textContent = str || '';
     return div.innerHTML;
-  }
-
-  function safeStorageGet(key) {
-    try { return localStorage.getItem(key); } catch { return null; }
-  }
-  function safeStorageSet(key, val) {
-    try { localStorage.setItem(key, val); } catch {}
   }
 })();

@@ -27,18 +27,23 @@
 
         <div id="login-panel">
           <h1>Owner Login</h1>
-          <p class="section-lede">Enter your owner access code to manage drivers.</p>
+          <p class="section-lede">Sign in to manage drivers.</p>
           <div class="form-row">
-            <label for="ownerToken">Access code</label>
-            <input id="ownerToken" type="password" autocomplete="off" />
+            <label for="ownerUsername">Username</label>
+            <input id="ownerUsername" type="text" autocomplete="username" />
           </div>
-          <button id="login-btn" class="btn btn-primary btn-lg">Unlock</button>
+          <div class="form-row">
+            <label for="ownerPassword">Password</label>
+            <input id="ownerPassword" type="password" autocomplete="current-password" />
+          </div>
+          <button id="login-btn" class="btn btn-primary btn-lg">Sign In</button>
           <div id="login-error" class="price-error" role="alert" hidden></div>
         </div>
 
         <div id="drivers-panel" hidden>
           <h1>Drivers</h1>
           <p class="section-lede">Each driver signs in at /driver.html with their own code below.</p>
+          <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Sign Out</button>
 
           <div class="price-result" style="margin-top:0;">
             <h3>Add a Driver</h3>

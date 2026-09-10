@@ -1,11 +1,14 @@
 // GET /api/drivers -- lists all drivers (owner only).
 // POST /api/drivers -- Body: { name } -- creates a new driver with a
 // randomly generated access code (owner only).
-// Requires header: x-driver-token matching env.DRIVER_ACCESS_TOKEN exactly --
-// individual driver codes cannot manage other drivers.
+// Requires a valid owner session cookie -- see /api/owner-login and
+// functions/_lib/ownerSession.js. Individual driver codes cannot manage
+// other drivers.
+
+import { verifyOwnerSessionCookie } from "../_lib/ownerSession.js";
 
 export async function onRequestGet({ request, env }) {
-  if (!isOwner(request, env)) return json({ error: "Unauthorized" }, 401);
+  if (!(await isOwner(request, env))) return json({ error: "Unauthorized" }, 401);
   if (!env.TRIPS_KV) return json({ error: "Trip storage not configured" }, 503);
 
   const list = await env.TRIPS_KV.list({ prefix: "driver:" });
@@ -22,7 +25,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!isOwner(request, env)) return json({ error: "Unauthorized" }, 401);
+  if (!(await isOwner(request, env))) return json({ error: "Unauthorized" }, 401);
   if (!env.TRIPS_KV) return json({ error: "Trip storage not configured" }, 503);
 
   let body;
@@ -42,9 +45,10 @@ export async function onRequestPost({ request, env }) {
   return json({ code, ...driver });
 }
 
-function isOwner(request, env) {
-  const token = request.headers.get("x-driver-token");
-  return !!(env.DRIVER_ACCESS_TOKEN && token === env.DRIVER_ACCESS_TOKEN);
+async function isOwner(request, env) {
+  if (!env.OWNER_SESSION_SECRET) return false;
+  const username = await verifyOwnerSessionCookie(request.headers.get("cookie"), env.OWNER_SESSION_SECRET);
+  return !!username;
 }
 
 function json(obj, status = 200) {

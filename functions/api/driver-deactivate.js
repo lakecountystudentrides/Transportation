@@ -1,12 +1,13 @@
 // POST /api/driver-deactivate -- Body: { code, active }
 // Activates or deactivates a driver's access code without deleting their
-// history. Owner only (must match env.DRIVER_ACCESS_TOKEN exactly).
+// history. Requires a valid owner session cookie (see /api/owner-login).
+
+import { verifyOwnerSessionCookie } from "../_lib/ownerSession.js";
 
 export async function onRequestPost({ request, env }) {
-  const token = request.headers.get("x-driver-token");
-  if (!env.DRIVER_ACCESS_TOKEN || token !== env.DRIVER_ACCESS_TOKEN) {
-    return json({ error: "Unauthorized" }, 401);
-  }
+  if (!env.OWNER_SESSION_SECRET) return json({ error: "Owner login isn't configured yet." }, 503);
+  const username = await verifyOwnerSessionCookie(request.headers.get("cookie"), env.OWNER_SESSION_SECRET);
+  if (!username) return json({ error: "Unauthorized" }, 401);
   if (!env.TRIPS_KV) return json({ error: "Trip storage not configured" }, 503);
 
   let body;
