@@ -5,6 +5,7 @@
   const loginError = document.getElementById('login-error');
   const tokenInput = document.getElementById('driverToken');
   const refreshBtn = document.getElementById('refresh-btn');
+  const logoutBtn = document.getElementById('logout-btn');
   const tripList = document.getElementById('trip-list');
   const tripsError = document.getElementById('trips-error');
   const todaySummaryEl = document.getElementById('today-summary');
@@ -26,6 +27,13 @@
   refreshBtn.addEventListener('click', function () {
     const token = safeStorageGet(STORAGE_KEY);
     if (token) loadTrips(token);
+  });
+
+  logoutBtn.addEventListener('click', function () {
+    safeStorageRemove(STORAGE_KEY);
+    tokenInput.value = '';
+    tripsPanel.hidden = true;
+    loginPanel.hidden = false;
   });
 
   async function tryLoad(token) {
@@ -297,5 +305,8 @@
   }
   function safeStorageSet(key, val) {
     try { localStorage.setItem(key, val); } catch {}
+  }
+  function safeStorageRemove(key) {
+    try { localStorage.removeItem(key); } catch {}
   }
 })();
