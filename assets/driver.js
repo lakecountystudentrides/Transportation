@@ -164,7 +164,8 @@
 
   function tripCard(t) {
     const statusLabel = overallStatusLabel(t);
-    const childLabel = [escapeHtml(t.childName) || 'Child', t.childAge ? `age ${escapeHtml(t.childAge)}` : ''].filter(Boolean).join(' — ');
+    const ageGrade = [t.childAge ? `age ${escapeHtml(t.childAge)}` : '', t.childGrade ? `grade ${escapeHtml(t.childGrade)}` : ''].filter(Boolean).join(', ');
+    const childLabel = [escapeHtml(t.childName) || 'Child', ageGrade].filter(Boolean).join(' — ');
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${childLabel}</span><span>${statusLabel}</span></div>

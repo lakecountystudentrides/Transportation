@@ -60,14 +60,34 @@
 
           <fieldset>
             <legend>Child</legend>
+            <div class="form-row">
+              <label for="childName">Child's name<span class="required-mark">*</span></label>
+              <input id="childName" name="childName" type="text" required />
+            </div>
             <div class="form-row form-row-split">
-              <div>
-                <label for="childName">Child's name<span class="required-mark">*</span></label>
-                <input id="childName" name="childName" type="text" required />
-              </div>
               <div>
                 <label for="childAge">Age<span class="required-mark">*</span></label>
                 <input id="childAge" name="childAge" type="number" min="0" max="18" required />
+              </div>
+              <div>
+                <label for="childGrade">Grade</label>
+                <select id="childGrade" name="childGrade">
+                  <option value="">Select grade</option>
+                  <option value="Pre-K">Pre-K</option>
+                  <option value="Kindergarten">Kindergarten</option>
+                  <option value="1st">1st</option>
+                  <option value="2nd">2nd</option>
+                  <option value="3rd">3rd</option>
+                  <option value="4th">4th</option>
+                  <option value="5th">5th</option>
+                  <option value="6th">6th</option>
+                  <option value="7th">7th</option>
+                  <option value="8th">8th</option>
+                  <option value="9th">9th</option>
+                  <option value="10th">10th</option>
+                  <option value="11th">11th</option>
+                  <option value="12th">12th</option>
+                </select>
               </div>
             </div>
             <div class="form-row">

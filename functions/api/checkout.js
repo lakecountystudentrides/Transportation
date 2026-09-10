@@ -14,7 +14,7 @@
 import { getPastDue } from "../_lib/pastDue.js";
 
 const METADATA_FIELDS = [
-  "category", "childName", "childAge", "parentName", "parentPhone",
+  "category", "childName", "childAge", "childGrade", "parentName", "parentPhone",
   "pickupAddress", "dropoffAddress", "activityAddress", "startDate", "pickupTime", "dropoffTime", "instructions",
 ];
 

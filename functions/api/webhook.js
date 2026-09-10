@@ -107,6 +107,7 @@ async function createTrip(session, env) {
     category: md.category || "",
     childName: md.childName || "",
     childAge: md.childAge || "",
+    childGrade: md.childGrade || "",
     parentName: md.parentName || "",
     parentEmail: session.customer_details?.email || md.parentEmail || "",
     parentPhone: md.parentPhone || "",
