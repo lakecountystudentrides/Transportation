@@ -171,7 +171,7 @@
         <div class="price-row price-row-total"><span>${childLabel}</span><span>${statusLabel}</span></div>
         ${paymentBadge(t.paymentStatus)}
         <div class="price-row"><span>Start Date</span><span>${formatDate(t)}</span></div>
-        <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${t.parentPhone ? '· ' + escapeHtml(t.parentPhone) : ''}</span></div>
+        <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${phoneLink(t.parentPhone)}</span></div>
         <div class="price-row"><span>Pickup address</span><span>${addressLink(t.pickupAddress)}</span></div>
         <div class="price-row"><span>Drop-off address</span><span>${addressLink(t.dropoffAddress)}</span></div>
         ${t.activityAddress ? `<div class="price-row"><span>Then to</span><span>${addressLink(t.activityAddress)}</span></div>` : ''}
@@ -217,6 +217,12 @@
     if (!address) return '—';
     const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
     return `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(address)}</a>`;
+  }
+
+  function phoneLink(phone) {
+    if (!phone) return '';
+    const dialable = phone.replace(/[^\d+]/g, '');
+    return `· <a href="tel:${dialable}">${escapeHtml(phone)}</a>`;
   }
 
   function showError(el, msg) { el.textContent = msg; el.hidden = false; }
