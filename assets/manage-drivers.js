@@ -78,7 +78,7 @@
     loginPanel.hidden = false;
   });
 
-  rosterRefreshBtn.addEventListener('click', loadRoster);
+  rosterRefreshBtn.addEventListener('click', () => window.location.reload());
 
   async function loadRoster() {
     hideError(rosterError);

@@ -25,8 +25,7 @@
   });
 
   refreshBtn.addEventListener('click', function () {
-    const token = safeStorageGet(STORAGE_KEY);
-    if (token) loadTrips(token);
+    window.location.reload();
   });
 
   logoutBtn.addEventListener('click', function () {
