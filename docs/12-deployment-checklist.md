@@ -45,6 +45,10 @@ Monthly categories (`monthly-oneway`, `monthly-roundtrip`) can create a real Str
 `DRIVER_ACCESS_TOKEN` is now your **owner/master** code — it still works at `/driver.html`, and it's also what unlocks `/manage-drivers.html`, where you add each driver and get them their own individual access code (stored in the existing `TRIPS_KV`, no new env var or KV namespace needed). Deactivating a driver there instantly blocks that code without affecting anyone else's.
 - [ ] 11j. Test it: go to `/manage-drivers.html`, sign in with your existing `DRIVER_ACCESS_TOKEN`, add a driver, and copy the code it generates. In a different/incognito browser, sign in at `/driver.html` with that new individual code and confirm it works. Back on `/manage-drivers.html`, click "Deactivate" on that driver and confirm the same code now fails to sign in at `/driver.html`, while your own owner code still works.
 
+## Driver dashboard: round-trip legs and daily repeat
+A round-trip booking now shows two separate buttons on `/driver.html` -- "Start Drop-off"/"Arrived at School" for the morning run, and "Start Pickup"/"Arrived Home" for the afternoon run -- each emailing the parent separately. Weekly and monthly plans reset both legs every school day (keyed by today's date) instead of staying stuck on "Completed" after the first day.
+- [ ] 11k. Test it: book a **round trip** (not weekly/monthly) and confirm `/driver.html` shows two separate leg buttons; complete both and confirm two separate parent emails arrive (drop-off arrival, then pickup arrival). Then book a **weekly or monthly round trip**, complete both legs for "today," and confirm the card shows a "Recurring weekly/monthly plan — continue through [date range]" note; there's no way to fast-forward a real calendar day in testing, but confirm the date-range note and both fresh "Start" buttons appear as expected for the plan.
+
 ## Going live
 - [ ] 12. Activate Stripe live mode (business details, bank account — Stripe's own verification flow)
 - [ ] 13. Enter live Stripe secret key + live webhook secret directly into Cloudflare Pages env vars (recommend: you do this step yourself, key never pasted into this chat)

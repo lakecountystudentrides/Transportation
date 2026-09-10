@@ -1,8 +1,14 @@
-// POST /api/trip-status -- driver presses Start Trip or Arrived.
-// Body: { tripId, action: "start" | "arrive" }
+// POST /api/trip-status -- driver presses Start/Arrived for one leg of a trip.
+// Body: { tripId, leg: "dropoff" | "pickup", action: "start" | "arrive" }
 // Requires header: x-driver-token -- either the owner code (DRIVER_ACCESS_TOKEN)
 // or an individual driver's code (see functions/_lib/driverAuth.js).
-// Updates the trip's status in KV and emails the parent.
+//
+// A one-way trip has a single "dropoff" leg (pickupAddress -> dropoffAddress).
+// A round trip also has a "pickup" leg (the return run, dropoffAddress ->
+// pickupAddress, in the afternoon). Weekly/monthly plans repeat every school
+// day, so their progress is keyed by *today's* date (Florida time) rather
+// than the trip's original start date -- the buttons reset automatically
+// each morning instead of staying stuck on "Completed" after day one.
 
 import { sendEmail, escapeHtml } from "../_lib/email.js";
 import { isAuthorizedDriver } from "../_lib/driverAuth.js";
@@ -23,41 +29,88 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid request." }, 400);
   }
 
-  const { tripId, action } = body || {};
-  if (!tripId || !["start", "arrive"].includes(action)) {
+  const { tripId, leg, action } = body || {};
+  if (!tripId || !["dropoff", "pickup"].includes(leg) || !["start", "arrive"].includes(action)) {
     return json({ error: "Invalid request." }, 400);
   }
 
   const raw = await env.TRIPS_KV.get(`trip:${tripId}`);
   if (!raw) return json({ error: "Trip not found." }, 404);
-
   const trip = JSON.parse(raw);
-  trip.status = action === "start" ? "started" : "arrived";
-  trip[action === "start" ? "startedAt" : "arrivedAt"] = new Date().toISOString();
+
+  const legs = legsFor(trip.category);
+  if (!legs.includes(leg)) {
+    return json({ error: "This trip doesn't have that leg." }, 400);
+  }
+
+  const dateKey = getDateKey(trip);
+  trip.dailyProgress = trip.dailyProgress || {};
+  trip.dailyProgress[dateKey] = trip.dailyProgress[dateKey] || {};
+  trip.dailyProgress[dateKey][leg] = action === "start" ? "started" : "arrived";
+  trip.dailyProgress[dateKey][`${leg}At`] = new Date().toISOString();
+
+  const today = trip.dailyProgress[dateKey];
+  const allArrived = legs.every((l) => today[l] === "arrived");
+  const anyStarted = legs.some((l) => today[l] === "started" || today[l] === "arrived");
+  trip.status = allArrived ? "arrived" : anyStarted ? "started" : "scheduled";
+
   await env.TRIPS_KV.put(`trip:${tripId}`, JSON.stringify(trip));
 
+  const emailResult = await notifyParent(env, trip, leg, action);
+
+  return json({ ok: true, status: trip.status, dailyProgress: trip.dailyProgress[dateKey], notified: emailResult.sent });
+}
+
+async function notifyParent(env, trip, leg, action) {
+  if (!trip.parentEmail) return { sent: false };
+
   const childName = escapeHtml(trip.childName) || "Your child";
-  let subject, html;
-  if (action === "start") {
-    subject = "Your child's trip has started";
-    html = `<p>Hi${trip.parentName ? " " + escapeHtml(trip.parentName) : ""},</p>
-      <p><strong>${childName}'s trip has started.</strong></p>
-      <p>Pickup: ${escapeHtml(trip.pickupAddress) || "—"}<br/>
-      Drop-off: ${escapeHtml(trip.dropoffAddress) || "—"}</p>
-      <p>— Lake County Student Rides</p>`;
+  const greeting = `Hi${trip.parentName ? " " + escapeHtml(trip.parentName) : ""},`;
+  let subject, body;
+
+  if (leg === "dropoff" && action === "start") {
+    subject = `${childName}'s ride to school has started`;
+    body = `<strong>${childName}'s trip has started</strong> — heading to ${escapeHtml(trip.dropoffAddress) || "school"}.`;
+  } else if (leg === "dropoff" && action === "arrive") {
+    subject = `${childName} has arrived at school`;
+    body = `<strong>${childName} has arrived safely at ${escapeHtml(trip.dropoffAddress) || "school"}.</strong>`;
+  } else if (leg === "pickup" && action === "start") {
+    subject = `${childName} has been picked up from school`;
+    body = `<strong>${childName} has been picked up from ${escapeHtml(trip.dropoffAddress) || "school"}</strong> and is heading to ${escapeHtml(trip.pickupAddress) || "home"}.`;
   } else {
-    subject = `${childName} has arrived safely`;
-    html = `<p>Hi${trip.parentName ? " " + escapeHtml(trip.parentName) : ""},</p>
-      <p><strong>${childName} has arrived safely at ${escapeHtml(trip.dropoffAddress) || "the destination"}.</strong></p>
-      <p>— Lake County Student Rides</p>`;
+    subject = `${childName} has arrived home safely`;
+    body = `<strong>${childName} has arrived safely at ${escapeHtml(trip.pickupAddress) || "home"}.</strong>`;
   }
 
-  let emailResult = { sent: false };
-  if (trip.parentEmail) {
-    emailResult = await sendEmail(env, { to: trip.parentEmail, subject, html });
-  }
+  const html = `<p>${greeting}</p><p>${body}</p><p>— Lake County Student Rides</p>`;
+  return sendEmail(env, { to: trip.parentEmail, subject, html });
+}
 
-  return json({ ok: true, status: trip.status, notified: emailResult.sent });
+function legsFor(category) {
+  return isRoundTrip(category) ? ["dropoff", "pickup"] : ["dropoff"];
+}
+
+function isRoundTrip(category) {
+  return /round trip/i.test(category || "");
+}
+
+function isRecurring(category) {
+  return /^(weekly|monthly)/i.test(String(category || "").trim());
+}
+
+// Recurring plans reset every school day -- key progress by today's date
+// (Florida time) so yesterday's "Completed" doesn't carry over. One-off
+// trips key by their own start date so there's exactly one day of progress.
+function getDateKey(trip) {
+  if (isRecurring(trip.category)) {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+  }
+  return trip.startDate || (trip.createdAt || "").slice(0, 10);
 }
 
 function json(obj, status = 200) {

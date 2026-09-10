@@ -86,6 +86,7 @@
           customerEmail: parentEmail,
           category,
           childName,
+          childAge: form.childAge.value,
           parentName: form.parentName.value.trim(),
           parentPhone: form.parentPhone.value.trim(),
           pickupAddress: form.pickupAddress.value.trim(),
