@@ -25,6 +25,14 @@
   const CARD_SURCHARGE_RATE = 0.03; // must match functions/api/pay-past-due.js
   let pastDueAmount = 0;
 
+  const PROFILE_FIELDS = [
+    'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelationship',
+    'authorizedPickupName', 'authorizedPickupPhone', 'authorizedPickupRelationship',
+  ];
+  const saveProfileBtn = document.getElementById('save-profile-btn');
+  const profileMessage = document.getElementById('profile-message');
+  const profileError = document.getElementById('profile-error');
+
   const STATUS_LABELS = { scheduled: 'Scheduled', started: 'In Progress', arrived: 'Completed' };
 
   tabSignin.addEventListener('click', () => showTab('signin'));
@@ -96,6 +104,10 @@
     pastDueBanner.hidden = true;
     authPanel.hidden = false;
     showTab('signin');
+    for (const field of PROFILE_FIELDS) {
+      const el = document.getElementById(field);
+      if (el) el.value = '';
+    }
   });
 
   async function loadTrips() {
@@ -112,10 +124,55 @@
       renderPastDue(data.pastDue || 0);
       authPanel.hidden = true;
       tripsPanel.hidden = false;
+      loadProfile();
     } catch {
       showError(tripsError, 'Unable to reach the server. Please try again.');
     }
   }
+
+  async function loadProfile() {
+    try {
+      const res = await fetch('/api/parent-profile');
+      const data = await res.json();
+      if (!res.ok || data.error) return;
+      for (const field of PROFILE_FIELDS) {
+        const el = document.getElementById(field);
+        if (el) el.value = data.profile?.[field] || '';
+      }
+    } catch {
+      // Non-critical -- the form just stays blank if this fails.
+    }
+  }
+
+  saveProfileBtn.addEventListener('click', async () => {
+    profileError.hidden = true;
+    profileMessage.hidden = true;
+    saveProfileBtn.disabled = true;
+    saveProfileBtn.textContent = 'Saving…';
+    try {
+      const body = {};
+      for (const field of PROFILE_FIELDS) {
+        body[field] = document.getElementById(field).value.trim();
+      }
+      const res = await fetch('/api/parent-profile', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        showError(profileError, data.error || 'Unable to save. Please try again.');
+        return;
+      }
+      profileMessage.textContent = 'Saved.';
+      profileMessage.hidden = false;
+    } catch {
+      showError(profileError, 'Unable to reach the server. Please try again.');
+    } finally {
+      saveProfileBtn.disabled = false;
+      saveProfileBtn.textContent = 'Save';
+    }
+  });
 
   function renderPastDue(amount) {
     if (!amount || amount <= 0) {
