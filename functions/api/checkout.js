@@ -70,7 +70,7 @@ export async function onRequestPost({ request, env }) {
   const useSubscription = isMonthly && autoPay === true;
 
   const lineItemName = wantsCard
-    ? `${description || "Lake County Student Rides — Booking"} (includes 3% card processing fee)`
+    ? `${description || "Lake County Student Rides — Booking"} (includes 3% credit card processing fee)`
     : (description || "Lake County Student Rides — Booking");
 
   const params = new URLSearchParams();

@@ -42,7 +42,7 @@ export async function onRequestPost({ request, env }) {
   const siteUrl = env.SITE_URL || new URL(request.url).origin;
   const amountCents = Math.round(chargeAmount * 100);
   const lineItemName = wantsCard
-    ? "Lake County Student Rides — Past Due Balance (includes 3% card processing fee)"
+    ? "Lake County Student Rides — Past Due Balance (includes 3% credit card processing fee)"
     : "Lake County Student Rides — Past Due Balance";
 
   const params = new URLSearchParams();

@@ -165,7 +165,7 @@
   function paymentMethodMessage() {
     if (selectedPaymentMethod() === 'card') {
       const fee = round2(lastQuote.total * CARD_SURCHARGE_RATE);
-      return `Card payments include a 3% card processing fee ($${fee.toFixed(2)}) — your total is $${displayTotal().toFixed(2)}.`;
+      return `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${displayTotal().toFixed(2)}.`;
     }
     return `Bank transfer (ACH) has no processing fee — your total is $${displayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
   }
@@ -192,7 +192,7 @@
         <label style="font-weight:600; display:block; margin-bottom:0.4rem;">How would you like to pay?</label>
         <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
           <input type="radio" name="paymentMethod" value="card" style="width:auto;" checked />
-          Card (+3% card processing fee)
+          Credit Card (+3% credit card processing fee)
         </label>
         <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400;">
           <input type="radio" name="paymentMethod" value="bank_transfer" style="width:auto;" />
@@ -227,7 +227,7 @@
     if (method === 'card') {
       const fee = round2(baseTotal * CARD_SURCHARGE_RATE);
       const total = round2(baseTotal * (1 + CARD_SURCHARGE_RATE));
-      return `Card payments include a 3% card processing fee ($${fee.toFixed(2)}) — your total is $${total.toFixed(2)}.`;
+      return `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${total.toFixed(2)}.`;
     }
     return `Bank transfer (ACH) has no processing fee — your total is $${baseTotal.toFixed(2)}. Bank transfers take a few business days to clear.`;
   }

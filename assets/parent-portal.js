@@ -154,7 +154,7 @@
   function updatePastDueMethodNote() {
     if (selectedPastDuePaymentMethod() === 'card') {
       const fee = round2(pastDueAmount * CARD_SURCHARGE_RATE);
-      pastDueMethodNote.textContent = `Card payments include a 3% card processing fee ($${fee.toFixed(2)}) — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
+      pastDueMethodNote.textContent = `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
     } else {
       pastDueMethodNote.textContent = `Bank transfer (ACH) has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
     }
