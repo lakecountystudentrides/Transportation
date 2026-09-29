@@ -138,11 +138,13 @@
 
   function selectedPastDuePaymentMethod() {
     const checked = document.querySelector('input[name="pastDuePaymentMethod"]:checked');
-    return checked ? checked.value : 'card';
+    return checked ? checked.value : 'credit_card';
   }
 
+  // Only a credit card carries the surcharge -- Florida law doesn't allow
+  // surcharging debit cards.
   function pastDueDisplayTotal() {
-    return selectedPastDuePaymentMethod() === 'card'
+    return selectedPastDuePaymentMethod() === 'credit_card'
       ? round2(pastDueAmount * (1 + CARD_SURCHARGE_RATE))
       : pastDueAmount;
   }
@@ -152,9 +154,12 @@
   }
 
   function updatePastDueMethodNote() {
-    if (selectedPastDuePaymentMethod() === 'card') {
+    const method = selectedPastDuePaymentMethod();
+    if (method === 'credit_card') {
       const fee = round2(pastDueAmount * CARD_SURCHARGE_RATE);
       pastDueMethodNote.textContent = `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
+    } else if (method === 'debit_card') {
+      pastDueMethodNote.textContent = `Debit card has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
     } else {
       pastDueMethodNote.textContent = `Bank transfer (ACH) has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
     }

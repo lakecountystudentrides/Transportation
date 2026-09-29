@@ -134,14 +134,15 @@
 
   function selectedPaymentMethod() {
     const checked = document.querySelector('input[name="paymentMethod"]:checked');
-    return checked ? checked.value : 'card';
+    return checked ? checked.value : 'credit_card';
   }
 
   // Mirrors the surcharge functions/api/checkout.js actually applies -- shown
   // here only so the parent sees the real total before paying, never charged
-  // client-side.
+  // client-side. Only a credit card carries the surcharge -- Florida law
+  // doesn't allow surcharging debit cards.
   function displayTotal() {
-    return selectedPaymentMethod() === 'card'
+    return selectedPaymentMethod() === 'credit_card'
       ? round2(lastQuote.total * (1 + CARD_SURCHARGE_RATE))
       : lastQuote.total;
   }
@@ -163,11 +164,7 @@
   }
 
   function paymentMethodMessage() {
-    if (selectedPaymentMethod() === 'card') {
-      const fee = round2(lastQuote.total * CARD_SURCHARGE_RATE);
-      return `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${displayTotal().toFixed(2)}.`;
-    }
-    return `Bank transfer (ACH) has no processing fee — your total is $${displayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
+    return paymentMethodMessageFor(lastQuote.total, selectedPaymentMethod());
   }
 
   function wireAutoPayCheckbox() {
@@ -191,14 +188,18 @@
       <div class="form-row" style="margin-top:0.75rem;">
         <label style="font-weight:600; display:block; margin-bottom:0.4rem;">How would you like to pay?</label>
         <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
-          <input type="radio" name="paymentMethod" value="card" style="width:auto;" checked />
+          <input type="radio" name="paymentMethod" value="credit_card" style="width:auto;" checked />
           Credit Card (+3% credit card processing fee)
+        </label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
+          <input type="radio" name="paymentMethod" value="debit_card" style="width:auto;" />
+          Debit Card (no fee)
         </label>
         <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400;">
           <input type="radio" name="paymentMethod" value="bank_transfer" style="width:auto;" />
           Bank transfer / ACH (no fee, takes a few business days)
         </label>
-        <p class="price-note" id="paymentMethodNote">${paymentMethodMessageFor(data.total, 'card')}</p>
+        <p class="price-note" id="paymentMethodNote">${paymentMethodMessageFor(data.total, 'credit_card')}</p>
       </div>
     `;
 
@@ -224,10 +225,13 @@
   }
 
   function paymentMethodMessageFor(baseTotal, method) {
-    if (method === 'card') {
+    if (method === 'credit_card') {
       const fee = round2(baseTotal * CARD_SURCHARGE_RATE);
       const total = round2(baseTotal * (1 + CARD_SURCHARGE_RATE));
       return `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${total.toFixed(2)}.`;
+    }
+    if (method === 'debit_card') {
+      return `Debit card has no processing fee — your total is $${baseTotal.toFixed(2)}.`;
     }
     return `Bank transfer (ACH) has no processing fee — your total is $${baseTotal.toFixed(2)}. Bank transfers take a few business days to clear.`;
   }

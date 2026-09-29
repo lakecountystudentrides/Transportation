@@ -5,10 +5,12 @@
 // autoPay only matters for a monthly category -- true creates a real Stripe
 // subscription (auto-billed every month); false/omitted is a one-time
 // payment for just that month, same as any other category.
-// paymentMethod is "card" (default) or "bank_transfer" -- card adds the 3%
-// surcharge below and restricts the Stripe session to card only, so the
-// parent is never offered a different payment method than the one their
-// quoted total (with or without the surcharge) actually reflects.
+// paymentMethod is "credit_card" (default), "debit_card", or "bank_transfer" --
+// only credit_card adds the 3% surcharge (Florida law doesn't allow surcharging
+// debit cards); credit_card and debit_card both use Stripe's "card" payment
+// method type, bank_transfer uses "us_bank_account". Restricting the Stripe
+// session to just the chosen type means the parent is never offered a
+// different payment method than the one their quoted total actually reflects.
 // Creates a Stripe Checkout Session and returns its hosted URL. Amount is computed
 // server-side by /api/price beforehand -- the client only ever passes back a value
 // it already saw and confirmed, never something it invents; the card surcharge is
@@ -18,9 +20,10 @@
 
 import { getPastDue } from "../_lib/pastDue.js";
 
-// Card payments carry a 3% surcharge to cover processing cost; bank transfer
-// (ACH) does not. Applied here, server-side, rather than trusting a client-
-// computed total -- the client only ever sends the base /api/price amount.
+// Only a credit card carries a surcharge, to cover processing cost -- debit
+// card and bank transfer (ACH) do not. Applied here, server-side, rather
+// than trusting a client-computed total -- the client only ever sends the
+// base /api/price amount.
 const CARD_SURCHARGE_RATE = 0.03;
 
 const METADATA_FIELDS = [
@@ -42,8 +45,11 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid amount." }, 400);
   }
 
-  const wantsCard = paymentMethod !== "bank_transfer";
-  const chargeAmount = wantsCard ? round2(amountNum * (1 + CARD_SURCHARGE_RATE)) : amountNum;
+  const isBankTransfer = paymentMethod === "bank_transfer";
+  const isDebitCard = paymentMethod === "debit_card";
+  const isCard = !isBankTransfer; // covers credit_card, debit_card, and any missing/unrecognized value
+  const isCreditCard = isCard && !isDebitCard; // surcharge applies unless explicitly debit or bank transfer
+  const chargeAmount = isCreditCard ? round2(amountNum * (1 + CARD_SURCHARGE_RATE)) : amountNum;
 
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) {
@@ -69,7 +75,7 @@ export async function onRequestPost({ request, env }) {
   const isMonthly = String(category || "").toLowerCase().startsWith("monthly");
   const useSubscription = isMonthly && autoPay === true;
 
-  const lineItemName = wantsCard
+  const lineItemName = isCreditCard
     ? `${description || "Lake County Student Rides — Booking"} (includes 3% credit card processing fee)`
     : (description || "Lake County Student Rides — Booking");
 
@@ -77,12 +83,13 @@ export async function onRequestPost({ request, env }) {
   params.append("mode", useSubscription ? "subscription" : "payment");
   // Only the payment method the parent actually chose (and was quoted a price
   // for) is offered here -- bank transfer (ACH) costs 0.8% capped at $5 with
-  // no surcharge, vs. cards which carry the 3% surcharge above to cover the
+  // no surcharge, debit card has no surcharge either (Florida law doesn't
+  // allow it), and credit card carries the 3% surcharge above to cover the
   // ~2.9% + $0.30 processing cost. ACH settles in a few business days rather
   // than instantly, which is why webhook.js has to also watch for
   // checkout.session.async_payment_succeeded/failed instead of trusting
   // checkout.session.completed alone.
-  params.append("payment_method_types[0]", wantsCard ? "card" : "us_bank_account");
+  params.append("payment_method_types[0]", isCard ? "card" : "us_bank_account");
   params.append("success_url", `${siteUrl}/booking-success.html?session_id={CHECKOUT_SESSION_ID}`);
   params.append("cancel_url", `${siteUrl}/book.html`);
   params.append("line_items[0][price_data][currency]", "usd");
@@ -92,8 +99,8 @@ export async function onRequestPost({ request, env }) {
   params.append("line_items[0][quantity]", "1");
   if (customerEmail) params.append("customer_email", customerEmail);
 
-  params.append("metadata[paymentMethod]", wantsCard ? "card" : "bank_transfer");
-  if (wantsCard) params.append("metadata[cardSurchargeAmount]", String(round2(chargeAmount - amountNum)));
+  params.append("metadata[paymentMethod]", isBankTransfer ? "bank_transfer" : (isDebitCard ? "debit_card" : "credit_card"));
+  if (isCreditCard) params.append("metadata[cardSurchargeAmount]", String(round2(chargeAmount - amountNum)));
 
   for (const field of METADATA_FIELDS) {
     const value = body?.[field];
