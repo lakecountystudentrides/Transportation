@@ -17,6 +17,10 @@
     if (stage === 'quote') {
       await getPrice();
     } else {
+      if (!document.getElementById('agreeCheckbox').checked) {
+        showError('Please check the box certifying you are the parent/guardian and agree to the Parent Transportation Agreement, Terms & Conditions, Liability Waiver, Emergency Medical Authorization, and Privacy Policy before booking.');
+        return;
+      }
       await goToCheckout();
     }
   });
