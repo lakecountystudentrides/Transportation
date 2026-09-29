@@ -63,42 +63,49 @@ export async function onRequestPost({ request, env }) {
 
   const tier = miles <= TIER1_MAX_MILES ? TIER1 : TIER2;
   const overageMiles = Math.max(0, miles - TIER2_MAX_MILES);
-  const overageCharge = round2(overageMiles * OVERAGE_PER_MILE);
+  const overagePerTrip = round2(overageMiles * OVERAGE_PER_MILE);
 
-  const oneWayPrice = round2(tier.oneway + overageCharge);
-  const roundTripPrice = round2(tier.roundtrip + overageCharge);
-
-  let basePrice, label, isMonthly = false;
+  // basePrice is always the plain, published tier rate — the overage add-on
+  // is tracked separately (below) so the breakdown shown to the parent is
+  // "regular price" + "extra miles" = "total", never a number that already
+  // has the overage folded in silently.
+  let basePrice, label, isMonthly = false, overageTrips = 0;
   switch (category) {
     case "oneway":
-      basePrice = oneWayPrice; label = `One-way (${tier.label})`; break;
+      basePrice = tier.oneway; label = `One-way (${tier.label})`; overageTrips = 1; break;
     case "roundtrip":
-      basePrice = roundTripPrice; label = `Round trip (${tier.label})`; break;
+      basePrice = tier.roundtrip; label = `Round trip (${tier.label})`; overageTrips = 1; break;
     case "weekly-oneway":
-      basePrice = round2(oneWayPrice * 5 * WEEKLY_ONEWAY_FACTOR); label = `Weekly, one-way only (${tier.label})`; break;
+      basePrice = round2(tier.oneway * 5 * WEEKLY_ONEWAY_FACTOR); label = `Weekly, one-way only (${tier.label})`; overageTrips = 5; break;
     case "weekly-roundtrip":
-      basePrice = round2(roundTripPrice * 5 * WEEKLY_ROUNDTRIP_FACTOR); label = `Weekly, round trip (${tier.label})`; break;
+      basePrice = round2(tier.roundtrip * 5 * WEEKLY_ROUNDTRIP_FACTOR); label = `Weekly, round trip (${tier.label})`; overageTrips = 5; break;
     case "monthly-oneway":
-      basePrice = round2(oneWayPrice * SCHOOL_DAYS_PER_MONTH * MONTHLY_ONEWAY_FACTOR); label = `Monthly, one route/day (${tier.label})`; isMonthly = true; break;
+      basePrice = round2(tier.oneway * SCHOOL_DAYS_PER_MONTH * MONTHLY_ONEWAY_FACTOR); label = `Monthly, one route/day (${tier.label})`; isMonthly = true; overageTrips = SCHOOL_DAYS_PER_MONTH; break;
     case "monthly-roundtrip":
-      basePrice = round2(roundTripPrice * SCHOOL_DAYS_PER_MONTH * MONTHLY_ROUNDTRIP_FACTOR); label = `Monthly, two routes/day (${tier.label})`; isMonthly = true; break;
+      basePrice = round2(tier.roundtrip * SCHOOL_DAYS_PER_MONTH * MONTHLY_ROUNDTRIP_FACTOR); label = `Monthly, two routes/day (${tier.label})`; isMonthly = true; overageTrips = SCHOOL_DAYS_PER_MONTH; break;
   }
+
+  // Overage recurs every school day for weekly/monthly plans, not just once —
+  // the pickup address doesn't get closer to the base on day 2.
+  const overageTotal = round2(overagePerTrip * overageTrips);
+  const perChildBase = round2(basePrice + overageTotal);
 
   const childCount = Math.max(1, Math.min(6, Number(children) || 1));
   const breakdown = [{ label, amount: basePrice }];
-  if (overageCharge > 0) {
-    breakdown.push({ label: `Beyond ${TIER2_MAX_MILES} mi (+${round1(overageMiles)} mi @ $${OVERAGE_PER_MILE}/mi)`, amount: overageCharge, note: true });
+  if (overageTotal > 0) {
+    const freq = overageTrips === 1 ? "" : overageTrips === 5 ? " x 5 days/week" : " x ~21.7 days/month";
+    breakdown.push({ label: `Extra distance (+${round1(overageMiles)} mi beyond ${TIER2_MAX_MILES} mi @ $${OVERAGE_PER_MILE}/mi${freq})`, amount: overageTotal, note: true });
   }
   let childrenSurcharge = 0;
   for (let i = 2; i <= childCount; i++) {
     const add = isMonthly
       ? (i === 2 ? tier.child2 : tier.child3plus)
-      : round2(basePrice * (i === 2 ? SECOND_CHILD_PCT : THIRD_PLUS_CHILD_PCT));
+      : round2(perChildBase * (i === 2 ? SECOND_CHILD_PCT : THIRD_PLUS_CHILD_PCT));
     childrenSurcharge += add;
     breakdown.push({ label: `Child ${i}`, amount: add });
   }
 
-  const total = round2(basePrice + childrenSurcharge);
+  const total = round2(basePrice + overageTotal + childrenSurcharge);
 
   return json({
     distanceMiles: round1(miles),
