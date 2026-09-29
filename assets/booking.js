@@ -4,6 +4,8 @@
   const resultEl = document.getElementById('price-result');
   const errorEl = document.getElementById('price-error');
 
+  const CARD_SURCHARGE_RATE = 0.03; // must match functions/api/checkout.js
+
   let lastQuote = null; // { total, category, breakdown } once a price has been fetched
   let stage = 'quote'; // 'quote' -> 'pay'
   let isMonthly = false;
@@ -59,6 +61,7 @@
       lastQuote = data;
       isMonthly = category.startsWith('monthly');
       renderQuote(data, category);
+      wirePaymentMethodRadios();
       wireAutoPayCheckbox();
       stage = 'pay';
       setLoading(false, payButtonLabel());
@@ -98,6 +101,7 @@
           dropoffTime: form.dropoffTime.value,
           instructions: form.instructions.value.trim(),
           autoPay: isAutoPayChecked(),
+          paymentMethod: selectedPaymentMethod(),
         }),
       });
       const data = await res.json();
@@ -120,7 +124,7 @@
 
   function payButtonLabel() {
     const label = isMonthly && isAutoPayChecked() ? 'Subscribe & Pay' : 'Book & Pay';
-    return `${label} $${lastQuote.total.toFixed(2)}`;
+    return `${label} $${displayTotal().toFixed(2)}`;
   }
 
   function isAutoPayChecked() {
@@ -128,11 +132,49 @@
     return !!(cb && cb.checked);
   }
 
+  function selectedPaymentMethod() {
+    const checked = document.querySelector('input[name="paymentMethod"]:checked');
+    return checked ? checked.value : 'card';
+  }
+
+  // Mirrors the surcharge functions/api/checkout.js actually applies -- shown
+  // here only so the parent sees the real total before paying, never charged
+  // client-side.
+  function displayTotal() {
+    return selectedPaymentMethod() === 'card'
+      ? round2(lastQuote.total * (1 + CARD_SURCHARGE_RATE))
+      : lastQuote.total;
+  }
+
+  function round2(n) {
+    return Math.round(n * 100) / 100;
+  }
+
+  function wirePaymentMethodRadios() {
+    document.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        document.getElementById('paymentMethodNote').textContent = paymentMethodMessage();
+        if (isMonthly) {
+          document.getElementById('autoPayNote').textContent = autoPayMessage(displayTotal(), isAutoPayChecked());
+        }
+        setLoading(false, payButtonLabel());
+      });
+    });
+  }
+
+  function paymentMethodMessage() {
+    if (selectedPaymentMethod() === 'card') {
+      const fee = round2(lastQuote.total * CARD_SURCHARGE_RATE);
+      return `Card payments include a 3% card processing fee ($${fee.toFixed(2)}) — your total is $${displayTotal().toFixed(2)}.`;
+    }
+    return `Bank transfer (ACH) has no processing fee — your total is $${displayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
+  }
+
   function wireAutoPayCheckbox() {
     const cb = document.getElementById('autoPayCheckbox');
     if (!cb) return;
     cb.addEventListener('change', () => {
-      document.getElementById('autoPayNote').textContent = autoPayMessage(lastQuote.total, cb.checked);
+      document.getElementById('autoPayNote').textContent = autoPayMessage(displayTotal(), cb.checked);
       setLoading(false, payButtonLabel());
     });
   }
@@ -144,6 +186,22 @@
     const radiusNote = data.withinFlatRadius
       ? ''
       : `<p class="price-note">Pickup is ${data.distanceMiles} mi from our base — a small distance add-on is included above.</p>`;
+
+    const paymentMethodSection = `
+      <div class="form-row" style="margin-top:0.75rem;">
+        <label style="font-weight:600; display:block; margin-bottom:0.4rem;">How would you like to pay?</label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
+          <input type="radio" name="paymentMethod" value="card" style="width:auto;" checked />
+          Card (+3% card processing fee)
+        </label>
+        <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400;">
+          <input type="radio" name="paymentMethod" value="bank_transfer" style="width:auto;" />
+          Bank transfer / ACH (no fee, takes a few business days)
+        </label>
+        <p class="price-note" id="paymentMethodNote">${paymentMethodMessageFor(data.total, 'card')}</p>
+      </div>
+    `;
+
     const autoPaySection = isMonthly ? `
       <div class="form-row" style="margin-top:0.75rem;">
         <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600;">
@@ -159,9 +217,19 @@
       ${rows}
       <div class="price-row price-row-total"><span>Total</span><span>$${data.total.toFixed(2)}</span></div>
       ${radiusNote}
+      ${paymentMethodSection}
       ${autoPaySection}
     `;
     resultEl.hidden = false;
+  }
+
+  function paymentMethodMessageFor(baseTotal, method) {
+    if (method === 'card') {
+      const fee = round2(baseTotal * CARD_SURCHARGE_RATE);
+      const total = round2(baseTotal * (1 + CARD_SURCHARGE_RATE));
+      return `Card payments include a 3% card processing fee ($${fee.toFixed(2)}) — your total is $${total.toFixed(2)}.`;
+    }
+    return `Bank transfer (ACH) has no processing fee — your total is $${baseTotal.toFixed(2)}. Bank transfers take a few business days to clear.`;
   }
 
   function autoPayMessage(total, checked) {

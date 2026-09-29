@@ -69,6 +69,17 @@
           <h1>Your Trips</h1>
           <div id="past-due-banner" class="price-error" hidden>
             <p id="past-due-text" style="margin:0 0 0.75rem;"></p>
+            <div style="margin-bottom:0.75rem;">
+              <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
+                <input type="radio" name="pastDuePaymentMethod" value="card" style="width:auto;" checked />
+                Card (+3% card processing fee)
+              </label>
+              <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400;">
+                <input type="radio" name="pastDuePaymentMethod" value="bank_transfer" style="width:auto;" />
+                Bank transfer / ACH (no fee, takes a few business days)
+              </label>
+              <p id="past-due-method-note" class="price-note" style="margin-top:0.5rem;"></p>
+            </div>
             <button id="pay-past-due-btn" class="btn btn-primary">Pay Past Due Balance</button>
             <p id="past-due-error" role="alert" hidden style="color:#8a1f1f; font-weight:600; margin:0.75rem 0 0;"></p>
           </div>

@@ -18,8 +18,12 @@
 
   const pastDueBanner = document.getElementById('past-due-banner');
   const pastDueText = document.getElementById('past-due-text');
+  const pastDueMethodNote = document.getElementById('past-due-method-note');
   const payPastDueBtn = document.getElementById('pay-past-due-btn');
   const pastDueError = document.getElementById('past-due-error');
+
+  const CARD_SURCHARGE_RATE = 0.03; // must match functions/api/pay-past-due.js
+  let pastDueAmount = 0;
 
   const STATUS_LABELS = { scheduled: 'Scheduled', started: 'In Progress', arrived: 'Completed' };
 
@@ -118,8 +122,46 @@
       pastDueBanner.hidden = true;
       return;
     }
-    pastDueText.textContent = `You have a past due balance of $${Number(amount).toFixed(2)} from a failed bank transfer. New bookings are on hold until this is paid.`;
+    pastDueAmount = Number(amount);
+    pastDueText.textContent = `You have a past due balance of $${pastDueAmount.toFixed(2)} from a failed bank transfer. New bookings are on hold until this is paid.`;
+    updatePastDueMethodNote();
+    payPastDueBtn.textContent = pastDuePayButtonLabel();
     pastDueBanner.hidden = false;
+  }
+
+  document.querySelectorAll('input[name="pastDuePaymentMethod"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      updatePastDueMethodNote();
+      payPastDueBtn.textContent = pastDuePayButtonLabel();
+    });
+  });
+
+  function selectedPastDuePaymentMethod() {
+    const checked = document.querySelector('input[name="pastDuePaymentMethod"]:checked');
+    return checked ? checked.value : 'card';
+  }
+
+  function pastDueDisplayTotal() {
+    return selectedPastDuePaymentMethod() === 'card'
+      ? round2(pastDueAmount * (1 + CARD_SURCHARGE_RATE))
+      : pastDueAmount;
+  }
+
+  function pastDuePayButtonLabel() {
+    return `Pay Past Due Balance ($${pastDueDisplayTotal().toFixed(2)})`;
+  }
+
+  function updatePastDueMethodNote() {
+    if (selectedPastDuePaymentMethod() === 'card') {
+      const fee = round2(pastDueAmount * CARD_SURCHARGE_RATE);
+      pastDueMethodNote.textContent = `Card payments include a 3% card processing fee ($${fee.toFixed(2)}) — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
+    } else {
+      pastDueMethodNote.textContent = `Bank transfer (ACH) has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
+    }
+  }
+
+  function round2(n) {
+    return Math.round(n * 100) / 100;
   }
 
   payPastDueBtn.addEventListener('click', async () => {
@@ -127,19 +169,23 @@
     payPastDueBtn.disabled = true;
     payPastDueBtn.textContent = 'Redirecting to payment…';
     try {
-      const res = await fetch('/api/pay-past-due', { method: 'POST' });
+      const res = await fetch('/api/pay-past-due', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ paymentMethod: selectedPastDuePaymentMethod() }),
+      });
       const data = await res.json();
       if (!res.ok || data.error) {
         showError(pastDueError, data.error || 'Unable to start payment.');
         payPastDueBtn.disabled = false;
-        payPastDueBtn.textContent = 'Pay Past Due Balance';
+        payPastDueBtn.textContent = pastDuePayButtonLabel();
         return;
       }
       window.location.href = data.url;
     } catch {
       showError(pastDueError, 'Unable to reach the server. Please try again.');
       payPastDueBtn.disabled = false;
-      payPastDueBtn.textContent = 'Pay Past Due Balance';
+      payPastDueBtn.textContent = pastDuePayButtonLabel();
     }
   });
 

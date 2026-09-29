@@ -1,4 +1,5 @@
 // POST /api/pay-past-due -- requires a valid parent session cookie.
+// Body: { paymentMethod } -- "card" (default) or "bank_transfer".
 // Creates a Stripe Checkout Session for the parent's full past-due balance
 // (from a previously failed bank transfer). Does not create a trip record --
 // functions/api/webhook.js clears the balance on success instead, matched by
@@ -6,6 +7,10 @@
 
 import { verifySessionCookie } from "../_lib/session.js";
 import { getPastDue } from "../_lib/pastDue.js";
+
+// Must match functions/api/checkout.js -- card payments carry a 3% surcharge,
+// bank transfer (ACH) does not.
+const CARD_SURCHARGE_RATE = 0.03;
 
 export async function onRequestPost({ request, env }) {
   if (!env.PARENT_SESSION_SECRET) {
@@ -19,10 +24,15 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Trip storage not configured" }, 503);
   }
 
+  let body = {};
+  try { body = await request.json(); } catch {}
+  const wantsCard = body?.paymentMethod !== "bank_transfer";
+
   const pastDue = await getPastDue(env, email);
   if (pastDue <= 0) {
     return json({ error: "You don't have a past due balance." }, 400);
   }
+  const chargeAmount = wantsCard ? round2(pastDue * (1 + CARD_SURCHARGE_RATE)) : pastDue;
 
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) {
@@ -30,21 +40,24 @@ export async function onRequestPost({ request, env }) {
   }
 
   const siteUrl = env.SITE_URL || new URL(request.url).origin;
-  const amountCents = Math.round(pastDue * 100);
+  const amountCents = Math.round(chargeAmount * 100);
+  const lineItemName = wantsCard
+    ? "Lake County Student Rides — Past Due Balance (includes 3% card processing fee)"
+    : "Lake County Student Rides — Past Due Balance";
 
   const params = new URLSearchParams();
   params.append("mode", "payment");
-  params.append("payment_method_types[0]", "card");
-  params.append("payment_method_types[1]", "us_bank_account");
+  params.append("payment_method_types[0]", wantsCard ? "card" : "us_bank_account");
   params.append("success_url", `${siteUrl}/parent-portal.html`);
   params.append("cancel_url", `${siteUrl}/parent-portal.html`);
   params.append("customer_email", email);
   params.append("line_items[0][price_data][currency]", "usd");
-  params.append("line_items[0][price_data][product_data][name]", "Lake County Student Rides — Past Due Balance");
+  params.append("line_items[0][price_data][product_data][name]", lineItemName);
   params.append("line_items[0][price_data][unit_amount]", String(amountCents));
   params.append("line_items[0][quantity]", "1");
   params.append("metadata[type]", "past_due_payoff");
   params.append("metadata[email]", email);
+  params.append("metadata[paymentMethod]", wantsCard ? "card" : "bank_transfer");
 
   let res, session;
   try {
@@ -66,6 +79,10 @@ export async function onRequestPost({ request, env }) {
   }
 
   return json({ url: session.url });
+}
+
+function round2(n) {
+  return Math.round(n * 100) / 100;
 }
 
 function json(obj, status = 200) {
