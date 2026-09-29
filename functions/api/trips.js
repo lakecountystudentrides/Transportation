@@ -3,6 +3,7 @@
 // or an individual driver's code (see functions/_lib/driverAuth.js).
 
 import { isAuthorizedDriver } from "../_lib/driverAuth.js";
+import { attachParentProfiles } from "../_lib/tripProfile.js";
 
 export async function onRequestGet({ request, env }) {
   const token = request.headers.get("x-driver-token");
@@ -22,6 +23,7 @@ export async function onRequestGet({ request, env }) {
     if (raw) trips.push(JSON.parse(raw));
   }
 
+  await attachParentProfiles(env, trips);
   return json({ trips });
 }
 

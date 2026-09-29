@@ -3,6 +3,7 @@
 // /api/owner-login) -- separate from the driver dashboard's token auth.
 
 import { verifyOwnerSessionCookie } from "../_lib/ownerSession.js";
+import { attachParentProfiles } from "../_lib/tripProfile.js";
 
 export async function onRequestGet({ request, env }) {
   if (!env.OWNER_SESSION_SECRET) {
@@ -25,6 +26,7 @@ export async function onRequestGet({ request, env }) {
     if (raw) trips.push(JSON.parse(raw));
   }
 
+  await attachParentProfiles(env, trips);
   return json({ trips });
 }
 

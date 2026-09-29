@@ -89,44 +89,27 @@
           </div>
           <div id="profile-section" style="background:var(--bg-alt); border-radius:8px; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
             <h2 style="font-size:1.25rem; margin:0 0 0.25rem;">Emergency Contact &amp; Authorized Pickup</h2>
-            <p class="price-note" style="margin:0 0 1rem;">Keep this on file with us in case of an emergency, or if someone other than you may need to drop off or pick up your child.</p>
+            <p class="price-note" style="margin:0 0 1rem;">This is shared with your driver and Lake County Student Rides so your child is recognized and only ever released to someone you've authorized.</p>
 
-            <p style="font-weight:700; margin:0 0 0.5rem;">Emergency Contact</p>
-            <div class="form-row form-row-split">
-              <div>
-                <label for="emergencyContactName">Name</label>
-                <input id="emergencyContactName" type="text" autocomplete="name" />
-              </div>
-              <div>
-                <label for="emergencyContactPhone">Phone</label>
-                <input id="emergencyContactPhone" type="tel" autocomplete="tel" />
-              </div>
-            </div>
-            <div class="form-row">
-              <label for="emergencyContactRelationship">Relationship to child (optional)</label>
-              <input id="emergencyContactRelationship" type="text" placeholder="e.g., Grandparent, Aunt" />
-            </div>
+            <p style="font-weight:700; margin:0 0 0.5rem;">Children</p>
+            <p class="price-note" style="margin:0 0 0.75rem;">Add a photo for each child so your driver can recognize them at pickup.</p>
+            <div id="children-list"></div>
+            <button id="add-child-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;">+ Add Child</button>
 
-            <p style="font-weight:700; margin:1rem 0 0.5rem;">Authorized Pickup / Drop-off Adult</p>
-            <p class="price-note" style="margin:0 0 0.75rem;">Someone besides you who's allowed to drop off or pick up your child, if needed.</p>
-            <div class="form-row form-row-split">
-              <div>
-                <label for="authorizedPickupName">Name</label>
-                <input id="authorizedPickupName" type="text" autocomplete="name" />
-              </div>
-              <div>
-                <label for="authorizedPickupPhone">Phone</label>
-                <input id="authorizedPickupPhone" type="tel" autocomplete="tel" />
-              </div>
-            </div>
-            <div class="form-row">
-              <label for="authorizedPickupRelationship">Relationship to child (optional)</label>
-              <input id="authorizedPickupRelationship" type="text" placeholder="e.g., Grandparent, Neighbor, Babysitter" />
-            </div>
+            <p style="font-weight:700; margin:1rem 0 0.5rem;">Emergency Contacts</p>
+            <div id="emergency-contacts-list"></div>
+            <button id="add-emergency-contact-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;">+ Add Emergency Contact</button>
 
-            <button id="save-profile-btn" class="btn btn-primary">Save</button>
-            <p id="profile-message" class="price-note" role="status" hidden></p>
-            <p id="profile-error" class="price-error" role="alert" hidden></p>
+            <p style="font-weight:700; margin:1rem 0 0.5rem;">Authorized Pickup / Drop-off Adults</p>
+            <p class="price-note" style="margin:0 0 0.75rem;">Anyone besides you who's allowed to drop off or pick up your child, if needed.</p>
+            <div id="authorized-pickups-list"></div>
+            <button id="add-authorized-pickup-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;">+ Add Authorized Adult</button>
+
+            <div>
+              <button id="save-profile-btn" class="btn btn-primary">Save</button>
+              <p id="profile-message" class="price-note" role="status" hidden></p>
+              <p id="profile-error" class="price-error" role="alert" hidden></p>
+            </div>
           </div>
 
           <p class="section-lede">Most recent bookings first.</p>

@@ -233,7 +233,10 @@
     const childLabel = [escapeHtml(t.childName) || 'Child', ageGrade].filter(Boolean).join(' — ');
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
-        <div class="price-row price-row-total"><span>${childLabel}</span><span>${statusLabel}</span></div>
+        <div class="price-row price-row-total">
+          <span style="display:flex; align-items:center; gap:0.5rem;">${childPhotoImg(t.childPhoto)}${childLabel}</span>
+          <span>${statusLabel}</span>
+        </div>
         ${paymentBadge(t.paymentStatus)}
         <div class="price-row"><span>Start Date</span><span>${formatDate(t)}</span></div>
         <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${phoneLink(t.parentPhone)}</span></div>
@@ -243,10 +246,26 @@
         <div class="price-row"><span>Time to be dropped off to school</span><span>${t.dropoffTime ? formatTime(t.dropoffTime) : '—'}</span></div>
         <div class="price-row"><span>Time to be picked up from school</span><span>${t.pickupTime ? formatTime(t.pickupTime) : '—'}</span></div>
         ${t.instructions ? `<div class="price-row price-row-note"><span>Notes</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
+        ${contactListRows('Emergency Contact', t.emergencyContacts)}
+        ${contactListRows('Authorized Pickup/Drop-off', t.authorizedPickups)}
         ${recurringNote(t)}
         ${legButtons(t)}
       </div>
     `;
+  }
+
+  function childPhotoImg(photo) {
+    if (!photo) return '';
+    return `<img src="${photo}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:6px; flex-shrink:0;" />`;
+  }
+
+  function contactListRows(label, contacts) {
+    if (!contacts || !contacts.length) return '';
+    return contacts.map((c) => {
+      const name = escapeHtml(c.name) || '—';
+      const rel = c.relationship ? ` (${escapeHtml(c.relationship)})` : '';
+      return `<div class="price-row price-row-note"><span>${label}</span><span>${name}${rel} ${phoneLink(c.phone)}</span></div>`;
+    }).join('');
   }
 
   function formatDate(t) {

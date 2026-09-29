@@ -1,24 +1,31 @@
 // GET/POST /api/parent-profile -- requires a valid parent session cookie.
-// Stores each parent's emergency contact and authorized pickup/drop-off
-// adult, merged into their existing "parent:<email>" KV record alongside
-// their passwordHash -- this is the same record functions/api/parent-*.js
-// already reads/writes, never a separate one.
+// Stores each parent's children (name + photo), emergency contacts, and
+// authorized pickup/drop-off adults -- each a list, since a family can have
+// more than one child, emergency contact, or authorized adult. Merged into
+// the existing "parent:<email>" KV record alongside passwordHash -- the same
+// record functions/api/parent-*.js already reads/writes, never a separate one.
+//
+// functions/api/trips.js and functions/api/owner-trips.js read this record
+// to attach a trip's child photo and the family's emergency/authorized
+// contacts to each trip, so drivers and the owner see it without the parent
+// having to send it separately.
 
 import { verifySessionCookie } from "../_lib/session.js";
 
-const FIELDS = [
-  "emergencyContactName", "emergencyContactPhone", "emergencyContactRelationship",
-  "authorizedPickupName", "authorizedPickupPhone", "authorizedPickupRelationship",
-];
+const MAX_ENTRIES = 8;
+const MAX_TEXT_LENGTH = 200;
+const MAX_PHOTO_LENGTH = 400000; // ~300KB raw -- keeps parent KV records and every trip lookup fast
 
 export async function onRequestGet({ request, env }) {
   const email = await requireEmail(request, env);
   if (email instanceof Response) return email;
 
   const record = await getParentRecord(env, email);
-  const profile = {};
-  for (const field of FIELDS) profile[field] = record?.[field] || "";
-  return json({ profile });
+  return json({
+    children: record?.children || [],
+    emergencyContacts: record?.emergencyContacts || [],
+    authorizedPickups: record?.authorizedPickups || [],
+  });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -38,12 +45,50 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Account not found." }, 404);
   }
 
-  for (const field of FIELDS) {
-    if (body?.[field] !== undefined) record[field] = String(body[field]).trim().slice(0, 200);
-  }
-  await env.TRIPS_KV.put(key, JSON.stringify(record));
+  const children = sanitizeList(body?.children, (c) => {
+    if (c.photo && String(c.photo).length > MAX_PHOTO_LENGTH) {
+      throw new Error("One of the child photos is too large. Please use a smaller photo.");
+    }
+    return { name: text(c.name), photo: c.photo ? String(c.photo) : "" };
+  });
+  if (children instanceof Response) return children;
 
+  const emergencyContacts = sanitizeList(body?.emergencyContacts, (c) => ({
+    name: text(c.name), phone: text(c.phone), relationship: text(c.relationship),
+  }));
+  if (emergencyContacts instanceof Response) return emergencyContacts;
+
+  const authorizedPickups = sanitizeList(body?.authorizedPickups, (c) => ({
+    name: text(c.name), phone: text(c.phone), relationship: text(c.relationship),
+  }));
+  if (authorizedPickups instanceof Response) return authorizedPickups;
+
+  if (body?.children !== undefined) record.children = children;
+  if (body?.emergencyContacts !== undefined) record.emergencyContacts = emergencyContacts;
+  if (body?.authorizedPickups !== undefined) record.authorizedPickups = authorizedPickups;
+
+  await env.TRIPS_KV.put(key, JSON.stringify(record));
   return json({ ok: true });
+}
+
+// Trims each entry to MAX_ENTRIES, drops fully-blank entries, and applies
+// `mapFn` to shape/validate each one. Returns a Response on validation
+// failure instead of throwing, so callers can `return` it directly.
+function sanitizeList(list, mapFn) {
+  if (list === undefined) return [];
+  if (!Array.isArray(list)) return json({ error: "Invalid request." }, 400);
+  try {
+    return list
+      .slice(0, MAX_ENTRIES)
+      .map(mapFn)
+      .filter((entry) => Object.values(entry).some((v) => v));
+  } catch (err) {
+    return json({ error: err.message || "Invalid request." }, 400);
+  }
+}
+
+function text(v) {
+  return String(v || "").trim().slice(0, MAX_TEXT_LENGTH);
 }
 
 async function requireEmail(request, env) {

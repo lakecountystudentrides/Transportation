@@ -25,13 +25,17 @@
   const CARD_SURCHARGE_RATE = 0.03; // must match functions/api/pay-past-due.js
   let pastDueAmount = 0;
 
-  const PROFILE_FIELDS = [
-    'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelationship',
-    'authorizedPickupName', 'authorizedPickupPhone', 'authorizedPickupRelationship',
-  ];
+  const childrenList = document.getElementById('children-list');
+  const addChildBtn = document.getElementById('add-child-btn');
+  const emergencyContactsList = document.getElementById('emergency-contacts-list');
+  const addEmergencyContactBtn = document.getElementById('add-emergency-contact-btn');
+  const authorizedPickupsList = document.getElementById('authorized-pickups-list');
+  const addAuthorizedPickupBtn = document.getElementById('add-authorized-pickup-btn');
   const saveProfileBtn = document.getElementById('save-profile-btn');
   const profileMessage = document.getElementById('profile-message');
   const profileError = document.getElementById('profile-error');
+
+  const MAX_PHOTO_DIMENSION = 400; // resized client-side before it ever reaches the server
 
   const STATUS_LABELS = { scheduled: 'Scheduled', started: 'In Progress', arrived: 'Completed' };
 
@@ -104,10 +108,9 @@
     pastDueBanner.hidden = true;
     authPanel.hidden = false;
     showTab('signin');
-    for (const field of PROFILE_FIELDS) {
-      const el = document.getElementById(field);
-      if (el) el.value = '';
-    }
+    childrenList.innerHTML = '';
+    emergencyContactsList.innerHTML = '';
+    authorizedPickupsList.innerHTML = '';
   });
 
   async function loadTrips() {
@@ -131,17 +134,129 @@
   }
 
   async function loadProfile() {
+    childrenList.innerHTML = '';
+    emergencyContactsList.innerHTML = '';
+    authorizedPickupsList.innerHTML = '';
     try {
       const res = await fetch('/api/parent-profile');
       const data = await res.json();
-      if (!res.ok || data.error) return;
-      for (const field of PROFILE_FIELDS) {
-        const el = document.getElementById(field);
-        if (el) el.value = data.profile?.[field] || '';
+      if (res.ok && !data.error) {
+        (data.children || []).forEach((c) => addChildRow(c));
+        (data.emergencyContacts || []).forEach((c) => addContactRow(emergencyContactsList, c));
+        (data.authorizedPickups || []).forEach((c) => addContactRow(authorizedPickupsList, c));
       }
     } catch {
-      // Non-critical -- the form just stays blank if this fails.
+      // Non-critical -- the lists just stay empty if this fails.
     }
+    // Always show at least one blank row per section so the form isn't empty on a first visit.
+    if (!childrenList.children.length) addChildRow();
+    if (!emergencyContactsList.children.length) addContactRow(emergencyContactsList);
+    if (!authorizedPickupsList.children.length) addContactRow(authorizedPickupsList);
+  }
+
+  function addChildRow(child) {
+    const row = document.createElement('div');
+    row.className = 'child-row';
+    row.style.cssText = 'display:flex; gap:0.75rem; align-items:flex-end; margin-bottom:0.75rem; flex-wrap:wrap;';
+    row.innerHTML = `
+      <img class="child-photo-preview" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:8px; background:var(--border); ${child?.photo ? '' : 'display:none;'}" src="${child?.photo || ''}" />
+      <div class="form-row" style="flex:1; min-width:140px; margin-bottom:0;">
+        <label>Child's name</label>
+        <input type="text" class="child-name" value="${escapeAttr(child?.name)}" />
+      </div>
+      <div class="form-row" style="margin-bottom:0;">
+        <label>Photo</label>
+        <input type="file" accept="image/*" class="child-photo-input" />
+        <input type="hidden" class="child-photo-data" value="${escapeAttr(child?.photo)}" />
+      </div>
+      <button type="button" class="btn btn-ghost remove-row-btn" style="padding:0.5rem 0.75rem;">Remove</button>
+    `;
+    childrenList.appendChild(row);
+  }
+
+  function addContactRow(container, contact) {
+    const row = document.createElement('div');
+    row.className = 'contact-row';
+    row.style.cssText = 'display:flex; gap:0.5rem; align-items:flex-end; margin-bottom:0.75rem; flex-wrap:wrap;';
+    row.innerHTML = `
+      <div class="form-row" style="flex:1; min-width:120px; margin-bottom:0;">
+        <label>Name</label>
+        <input type="text" class="contact-name" value="${escapeAttr(contact?.name)}" />
+      </div>
+      <div class="form-row" style="flex:1; min-width:120px; margin-bottom:0;">
+        <label>Phone</label>
+        <input type="tel" class="contact-phone" value="${escapeAttr(contact?.phone)}" />
+      </div>
+      <div class="form-row" style="flex:1; min-width:140px; margin-bottom:0;">
+        <label>Relationship (optional)</label>
+        <input type="text" class="contact-relationship" value="${escapeAttr(contact?.relationship)}" placeholder="e.g., Grandparent, Neighbor" />
+      </div>
+      <button type="button" class="btn btn-ghost remove-row-btn" style="padding:0.5rem 0.75rem;">Remove</button>
+    `;
+    container.appendChild(row);
+  }
+
+  addChildBtn.addEventListener('click', () => addChildRow());
+  addEmergencyContactBtn.addEventListener('click', () => addContactRow(emergencyContactsList));
+  addAuthorizedPickupBtn.addEventListener('click', () => addContactRow(authorizedPickupsList));
+
+  // One delegated listener per concern instead of re-wiring every dynamically added row.
+  document.getElementById('profile-section').addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-row-btn')) {
+      e.target.closest('.child-row, .contact-row').remove();
+    }
+  });
+
+  document.getElementById('profile-section').addEventListener('change', (e) => {
+    if (!e.target.classList.contains('child-photo-input')) return;
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const row = e.target.closest('.child-row');
+    resizeImageToDataUrl(file, MAX_PHOTO_DIMENSION).then((dataUrl) => {
+      row.querySelector('.child-photo-data').value = dataUrl;
+      const preview = row.querySelector('.child-photo-preview');
+      preview.src = dataUrl;
+      preview.style.display = '';
+    }).catch(() => {
+      showError(profileError, 'Unable to process that photo. Please try a different image.');
+    });
+  });
+
+  function resizeImageToDataUrl(file, maxDimension) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function readChildRows() {
+    return Array.from(childrenList.querySelectorAll('.child-row')).map((row) => ({
+      name: row.querySelector('.child-name').value.trim(),
+      photo: row.querySelector('.child-photo-data').value,
+    }));
+  }
+
+  function readContactRows(container) {
+    return Array.from(container.querySelectorAll('.contact-row')).map((row) => ({
+      name: row.querySelector('.contact-name').value.trim(),
+      phone: row.querySelector('.contact-phone').value.trim(),
+      relationship: row.querySelector('.contact-relationship').value.trim(),
+    }));
   }
 
   saveProfileBtn.addEventListener('click', async () => {
@@ -150,10 +265,11 @@
     saveProfileBtn.disabled = true;
     saveProfileBtn.textContent = 'Saving…';
     try {
-      const body = {};
-      for (const field of PROFILE_FIELDS) {
-        body[field] = document.getElementById(field).value.trim();
-      }
+      const body = {
+        children: readChildRows(),
+        emergencyContacts: readContactRows(emergencyContactsList),
+        authorizedPickups: readContactRows(authorizedPickupsList),
+      };
       const res = await fetch('/api/parent-profile', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -164,7 +280,7 @@
         showError(profileError, data.error || 'Unable to save. Please try again.');
         return;
       }
-      profileMessage.textContent = 'Saved.';
+      profileMessage.textContent = 'Saved. Your driver and Lake County Student Rides can now see this information.';
       profileMessage.hidden = false;
     } catch {
       showError(profileError, 'Unable to reach the server. Please try again.');
@@ -173,6 +289,10 @@
       saveProfileBtn.textContent = 'Save';
     }
   });
+
+  function escapeAttr(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
 
   function renderPastDue(amount) {
     if (!amount || amount <= 0) {
