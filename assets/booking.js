@@ -14,6 +14,14 @@
     e.preventDefault();
     hideError();
 
+    // The form has novalidate (so we can control error placement/timing
+    // ourselves), which means the browser never automatically enforces the
+    // "required" attributes -- reportValidity() runs that same check on
+    // demand instead, showing the browser's normal "please fill this out"
+    // prompt pointing at whichever required field (child's name included)
+    // is still empty.
+    if (!form.reportValidity()) return;
+
     if (stage === 'quote') {
       await getPrice();
     } else {
