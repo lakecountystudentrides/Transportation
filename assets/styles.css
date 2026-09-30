@@ -284,6 +284,25 @@ a { color: var(--navy); }
   .pricing-grid { grid-template-columns: 1fr; }
 }
 
+/* Our Story */
+.story-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+.story-photo {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+  aspect-ratio: 4 / 5;
+}
+@media (max-width: 860px) {
+  .story-layout { grid-template-columns: 1fr; }
+  .story-photo { max-width: 280px; margin: 0 auto; }
+}
+
 /* FAQ */
 .faq-list { max-width: 720px; }
 .faq-list details {
