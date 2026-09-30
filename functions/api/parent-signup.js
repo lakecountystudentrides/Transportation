@@ -13,24 +13,25 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: "Invalid request." }, 400);
   }
+  const isEs = body?.lang === "es";
 
   const email = String(body?.email || "").trim().toLowerCase();
   const password = String(body?.password || "");
 
   if (!isValidEmail(email)) {
-    return json({ error: "Please enter a valid email address." }, 400);
+    return json({ error: isEs ? "Por favor ingrese un correo electrónico válido." : "Please enter a valid email address." }, 400);
   }
   if (password.length < 8) {
-    return json({ error: "Password must be at least 8 characters." }, 400);
+    return json({ error: isEs ? "La contraseña debe tener al menos 8 caracteres." : "Password must be at least 8 characters." }, 400);
   }
   if (!env.TRIPS_KV || !env.PARENT_SESSION_SECRET) {
-    return json({ error: "Account sign-up isn't configured yet." }, 503);
+    return json({ error: isEs ? "El registro de cuentas aún no está configurado." : "Account sign-up isn't configured yet." }, 503);
   }
 
   const key = `parent:${email}`;
   const existing = await env.TRIPS_KV.get(key);
   if (existing) {
-    return json({ error: "An account with this email already exists. Please sign in instead." }, 409);
+    return json({ error: isEs ? "Ya existe una cuenta con este correo electrónico. Por favor inicie sesión." : "An account with this email already exists. Please sign in instead." }, 409);
   }
 
   const passwordHash = await hashPassword(password);

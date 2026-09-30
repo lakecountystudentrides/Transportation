@@ -38,29 +38,30 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: "Invalid request." }, 400);
   }
+  const isEs = body?.lang === "es";
 
   const key = `parent:${email}`;
   const record = await getParentRecord(env, email);
   if (!record) {
-    return json({ error: "Account not found." }, 404);
+    return json({ error: isEs ? "Cuenta no encontrada." : "Account not found." }, 404);
   }
 
   const children = sanitizeList(body?.children, (c) => {
     if (c.photo && String(c.photo).length > MAX_PHOTO_LENGTH) {
-      throw new Error("One of the child photos is too large. Please use a smaller photo.");
+      throw new Error(isEs ? "Una de las fotos de los niños es demasiado grande. Por favor use una foto más pequeña." : "One of the child photos is too large. Please use a smaller photo.");
     }
     return { name: text(c.name), photo: c.photo ? String(c.photo) : "" };
-  });
+  }, isEs);
   if (children instanceof Response) return children;
 
   const emergencyContacts = sanitizeList(body?.emergencyContacts, (c) => ({
     name: text(c.name), phone: text(c.phone), relationship: text(c.relationship),
-  }));
+  }), isEs);
   if (emergencyContacts instanceof Response) return emergencyContacts;
 
   const authorizedPickups = sanitizeList(body?.authorizedPickups, (c) => ({
     name: text(c.name), phone: text(c.phone), relationship: text(c.relationship),
-  }));
+  }), isEs);
   if (authorizedPickups instanceof Response) return authorizedPickups;
 
   if (body?.children !== undefined) record.children = children;
@@ -74,16 +75,16 @@ export async function onRequestPost({ request, env }) {
 // Trims each entry to MAX_ENTRIES, drops fully-blank entries, and applies
 // `mapFn` to shape/validate each one. Returns a Response on validation
 // failure instead of throwing, so callers can `return` it directly.
-function sanitizeList(list, mapFn) {
+function sanitizeList(list, mapFn, isEs) {
   if (list === undefined) return [];
-  if (!Array.isArray(list)) return json({ error: "Invalid request." }, 400);
+  if (!Array.isArray(list)) return json({ error: isEs ? "Solicitud inválida." : "Invalid request." }, 400);
   try {
     return list
       .slice(0, MAX_ENTRIES)
       .map(mapFn)
       .filter((entry) => Object.values(entry).some((v) => v));
   } catch (err) {
-    return json({ error: err.message || "Invalid request." }, 400);
+    return json({ error: err.message || (isEs ? "Solicitud inválida." : "Invalid request.") }, 400);
   }
 }
 

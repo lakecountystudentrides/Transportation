@@ -10,25 +10,26 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: "Invalid request." }, 400);
   }
+  const isEs = body?.lang === "es";
 
   const email = String(body?.email || "").trim().toLowerCase();
   const password = String(body?.password || "");
   if (!email || !password) {
-    return json({ error: "Incorrect email or password." }, 401);
+    return json({ error: isEs ? "Correo electrónico o contraseña incorrectos." : "Incorrect email or password." }, 401);
   }
   if (!env.TRIPS_KV || !env.PARENT_SESSION_SECRET) {
-    return json({ error: "Sign-in isn't configured yet." }, 503);
+    return json({ error: isEs ? "El inicio de sesión aún no está configurado." : "Sign-in isn't configured yet." }, 503);
   }
 
   const raw = await env.TRIPS_KV.get(`parent:${email}`);
   if (!raw) {
-    return json({ error: "Incorrect email or password." }, 401);
+    return json({ error: isEs ? "Correo electrónico o contraseña incorrectos." : "Incorrect email or password." }, 401);
   }
 
   const account = JSON.parse(raw);
   const valid = await verifyPassword(password, account.passwordHash);
   if (!valid) {
-    return json({ error: "Incorrect email or password." }, 401);
+    return json({ error: isEs ? "Correo electrónico o contraseña incorrectos." : "Incorrect email or password." }, 401);
   }
 
   const cookie = await createSessionCookie(email, env.PARENT_SESSION_SECRET);

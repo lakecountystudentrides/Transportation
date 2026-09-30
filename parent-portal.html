@@ -17,7 +17,8 @@
         <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
         <span class="brand-name">Lake County<br>Student Rides</span>
       </a>
-      <span style="font-weight:700; color:var(--navy-dark);">Parent Portal</span>
+      <span style="font-weight:700; color:var(--navy-dark);" data-i18n-es="Portal de Padres">Parent Portal</span>
+      <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
     </div>
   </header>
 
@@ -27,60 +28,60 @@
 
         <div id="auth-panel">
           <div class="form-row" style="display:flex; gap:0.75rem;">
-            <button id="tab-signin" class="btn btn-primary" type="button">Sign In</button>
-            <button id="tab-signup" class="btn btn-ghost" type="button">Create Account</button>
+            <button id="tab-signin" class="btn btn-primary" type="button" data-i18n-es="Iniciar Sesión">Sign In</button>
+            <button id="tab-signup" class="btn btn-ghost" type="button" data-i18n-es="Crear Cuenta">Create Account</button>
           </div>
 
           <div id="signin-form">
-            <h1>Sign In</h1>
-            <p class="section-lede">See your trip history and what you've paid.</p>
+            <h1 data-i18n-es="Iniciar Sesión">Sign In</h1>
+            <p class="section-lede" data-i18n-es="Vea su historial de viajes y lo que ha pagado.">See your trip history and what you've paid.</p>
             <div class="form-row">
-              <label for="signinEmail">Email</label>
+              <label for="signinEmail" data-i18n-es="Correo electrónico">Email</label>
               <input id="signinEmail" type="email" autocomplete="email" />
             </div>
             <div class="form-row">
-              <label for="signinPassword">Password</label>
+              <label for="signinPassword" data-i18n-es="Contraseña">Password</label>
               <input id="signinPassword" type="password" autocomplete="current-password" />
             </div>
-            <button id="signin-btn" class="btn btn-primary btn-lg">Sign In</button>
+            <button id="signin-btn" class="btn btn-primary btn-lg" data-i18n-es="Iniciar Sesión">Sign In</button>
             <div id="signin-error" class="price-error" role="alert" hidden></div>
-            <p class="price-note"><a href="/reset-password.html">Forgot your password?</a></p>
+            <p class="price-note"><a href="/reset-password.html" data-i18n-es="¿Olvidó su contraseña?">Forgot your password?</a></p>
           </div>
 
           <div id="signup-form" hidden>
-            <h1>Create Account</h1>
-            <p class="section-lede">Use the same email you booked with so your past trips show up automatically.</p>
+            <h1 data-i18n-es="Crear Cuenta">Create Account</h1>
+            <p class="section-lede" data-i18n-es="Use el mismo correo electrónico con el que reservó para que sus viajes anteriores aparezcan automáticamente.">Use the same email you booked with so your past trips show up automatically.</p>
             <div class="form-row">
-              <label for="signupEmail">Email</label>
+              <label for="signupEmail" data-i18n-es="Correo electrónico">Email</label>
               <input id="signupEmail" type="email" autocomplete="email" />
             </div>
             <div class="form-row">
-              <label for="signupPassword">Password</label>
+              <label for="signupPassword" data-i18n-es="Contraseña">Password</label>
               <input id="signupPassword" type="password" autocomplete="new-password" />
             </div>
-            <button id="signup-btn" class="btn btn-primary btn-lg">Create Account</button>
+            <button id="signup-btn" class="btn btn-primary btn-lg" data-i18n-es="Crear Cuenta">Create Account</button>
             <div id="signup-error" class="price-error" role="alert" hidden></div>
           </div>
 
-          <p class="price-note" style="margin-top:1.5rem;">Just need to book a ride? <a href="/book.html">Book a Ride</a> — no account required.</p>
+          <p class="price-note" style="margin-top:1.5rem;" data-i18n-es='¿Solo necesita reservar un viaje? <a href="/book.html">Reservar un Viaje</a> — no se necesita cuenta.'>Just need to book a ride? <a href="/book.html">Book a Ride</a> — no account required.</p>
         </div>
 
         <div id="trips-panel" hidden>
-          <h1>Your Trips</h1>
+          <h1 data-i18n-es="Sus Viajes">Your Trips</h1>
           <div id="past-due-banner" class="price-error" hidden>
             <p id="past-due-text" style="margin:0 0 0.75rem;"></p>
             <div style="margin-bottom:0.75rem;">
               <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
                 <input type="radio" name="pastDuePaymentMethod" value="credit_card" style="width:auto;" checked />
-                Credit Card (+3% credit card processing fee)
+                <span data-i18n-es="Tarjeta de Crédito (+3% de cargo por procesamiento)">Credit Card (+3% credit card processing fee)</span>
               </label>
               <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400; margin-bottom:0.35rem;">
                 <input type="radio" name="pastDuePaymentMethod" value="debit_card" style="width:auto;" />
-                Debit Card (no fee)
+                <span data-i18n-es="Tarjeta de Débito (sin cargo)">Debit Card (no fee)</span>
               </label>
               <label style="display:flex; align-items:center; gap:0.5rem; font-weight:400;">
                 <input type="radio" name="pastDuePaymentMethod" value="bank_transfer" style="width:auto;" />
-                Bank transfer / ACH (no fee, takes a few business days)
+                <span data-i18n-es="Transferencia bancaria / ACH (sin cargo, tarda unos días hábiles)">Bank transfer / ACH (no fee, takes a few business days)</span>
               </label>
               <p id="past-due-method-note" class="price-note" style="margin-top:0.5rem;"></p>
             </div>
@@ -88,34 +89,34 @@
             <p id="past-due-error" role="alert" hidden style="color:#8a1f1f; font-weight:600; margin:0.75rem 0 0;"></p>
           </div>
           <div id="profile-section" style="background:var(--bg-alt); border-radius:8px; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
-            <h2 style="font-size:1.25rem; margin:0 0 0.25rem;">Emergency Contact &amp; Authorized Pickup</h2>
-            <p class="price-note" style="margin:0 0 1rem;">This is shared with your driver and Lake County Student Rides so your child is recognized and only ever released to someone you've authorized.</p>
+            <h2 style="font-size:1.25rem; margin:0 0 0.25rem;" data-i18n-es="Contacto de Emergencia y Autorización de Recogida">Emergency Contact &amp; Authorized Pickup</h2>
+            <p class="price-note" style="margin:0 0 1rem;" data-i18n-es="Esto se comparte con su conductor y con Lake County Student Rides para que su hijo(a) sea reconocido(a) y solo se entregue a alguien que usted haya autorizado.">This is shared with your driver and Lake County Student Rides so your child is recognized and only ever released to someone you've authorized.</p>
 
-            <p style="font-weight:700; margin:0 0 0.5rem;">Children</p>
-            <p class="price-note" style="margin:0 0 0.75rem;">Add a photo for each child so your driver can recognize them at pickup.</p>
+            <p style="font-weight:700; margin:0 0 0.5rem;" data-i18n-es="Niños">Children</p>
+            <p class="price-note" style="margin:0 0 0.75rem;" data-i18n-es="Agregue una foto de cada niño(a) para que su conductor pueda reconocerlo(a) al recogerlo(a).">Add a photo for each child so your driver can recognize them at pickup.</p>
             <div id="children-list"></div>
-            <button id="add-child-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;">+ Add Child</button>
+            <button id="add-child-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="+ Agregar Niño(a)">+ Add Child</button>
 
-            <p style="font-weight:700; margin:1rem 0 0.5rem;">Emergency Contacts</p>
+            <p style="font-weight:700; margin:1rem 0 0.5rem;" data-i18n-es="Contactos de Emergencia">Emergency Contacts</p>
             <div id="emergency-contacts-list"></div>
-            <button id="add-emergency-contact-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;">+ Add Emergency Contact</button>
+            <button id="add-emergency-contact-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="+ Agregar Contacto de Emergencia">+ Add Emergency Contact</button>
 
-            <p style="font-weight:700; margin:1rem 0 0.5rem;">Authorized Pickup / Drop-off Adults</p>
-            <p class="price-note" style="margin:0 0 0.75rem;">Anyone besides you who's allowed to drop off or pick up your child, if needed.</p>
+            <p style="font-weight:700; margin:1rem 0 0.5rem;" data-i18n-es="Adultos Autorizados para Recoger / Entregar">Authorized Pickup / Drop-off Adults</p>
+            <p class="price-note" style="margin:0 0 0.75rem;" data-i18n-es="Cualquier persona además de usted que esté autorizada para dejar o recoger a su hijo(a), si es necesario.">Anyone besides you who's allowed to drop off or pick up your child, if needed.</p>
             <div id="authorized-pickups-list"></div>
-            <button id="add-authorized-pickup-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;">+ Add Authorized Adult</button>
+            <button id="add-authorized-pickup-btn" type="button" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="+ Agregar Adulto Autorizado">+ Add Authorized Adult</button>
 
             <div>
-              <button id="save-profile-btn" class="btn btn-primary">Save</button>
+              <button id="save-profile-btn" class="btn btn-primary" data-i18n-es="Guardar">Save</button>
               <p id="profile-message" class="price-note" role="status" hidden></p>
               <p id="profile-error" class="price-error" role="alert" hidden></p>
             </div>
           </div>
 
-          <p class="section-lede">Most recent bookings first.</p>
+          <p class="section-lede" data-i18n-es="Las reservas más recientes primero.">Most recent bookings first.</p>
           <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
-            <a href="/book.html" class="btn btn-primary">Book a Ride</a>
-            <button id="logout-btn" class="btn btn-ghost">Sign Out</button>
+            <a href="/book.html" class="btn btn-primary" data-i18n-es="Reservar un Viaje">Book a Ride</a>
+            <button id="logout-btn" class="btn btn-ghost" data-i18n-es="Cerrar Sesión">Sign Out</button>
           </div>
           <div id="trip-list"></div>
           <div id="trips-error" class="price-error" role="alert" hidden></div>
@@ -127,11 +128,12 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p>&copy; <span id="year"></span> Lake County Student Rides. <span data-i18n-es="Todos los derechos reservados.">All rights reserved.</span></p>
     </div>
   </footer>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
   <script src="/assets/parent-portal.js"></script>
 </body>
 </html>

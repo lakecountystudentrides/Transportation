@@ -37,7 +37,32 @@
 
   const MAX_PHOTO_DIMENSION = 400; // resized client-side before it ever reaches the server
 
-  const STATUS_LABELS = { scheduled: 'Scheduled', started: 'In Progress', arrived: 'Completed' };
+  // Falls back to English if i18n.js somehow hasn't loaded yet.
+  function T(en, es) { return window.LCSR_T ? window.LCSR_T(en, es) : en; }
+  function lang() { return window.LCSR_LANG || 'en'; }
+
+  function statusLabel(status) {
+    return T(
+      { scheduled: 'Scheduled', started: 'In Progress', arrived: 'Completed' }[status] || status,
+      { scheduled: 'Programado', started: 'En Progreso', arrived: 'Completado' }[status] || status
+    );
+  }
+
+  // Trip category is always stored as a canonical English label (see
+  // CATEGORY_LABELS_EN in booking.js) so server-side English regex matching
+  // (isRoundTrip/isRecurring) keeps working regardless of booking language --
+  // translate it for display here rather than at the source.
+  const CATEGORY_LABELS_ES = {
+    'One-way': 'Solo ida',
+    'Round trip': 'Viaje redondo',
+    'Weekly, one-way only': 'Semanal, solo ida',
+    'Weekly, round trip': 'Semanal, viaje redondo',
+    'Monthly, one route/day': 'Mensual, una ruta/día',
+    'Monthly, two routes/day (round trip)': 'Mensual, dos rutas/día (viaje redondo)',
+  };
+  function categoryLabel(category) {
+    return lang() === 'es' ? (CATEGORY_LABELS_ES[category] || category) : category;
+  }
 
   tabSignin.addEventListener('click', () => showTab('signin'));
   tabSignup.addEventListener('click', () => showTab('signup'));
@@ -61,16 +86,16 @@
       const res = await fetch('/api/parent-login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(signinError, data.error || 'Unable to sign in.');
+        showError(signinError, data.error || T('Unable to sign in.', 'No se pudo iniciar sesión.'));
         return;
       }
       await loadTrips();
     } catch {
-      showError(signinError, 'Unable to reach the server. Please try again.');
+      showError(signinError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     } finally {
       signinBtn.disabled = false;
     }
@@ -87,16 +112,16 @@
       const res = await fetch('/api/parent-signup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(signupError, data.error || 'Unable to create account.');
+        showError(signupError, data.error || T('Unable to create account.', 'No se pudo crear la cuenta.'));
         return;
       }
       await loadTrips();
     } catch {
-      showError(signupError, 'Unable to reach the server. Please try again.');
+      showError(signupError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     } finally {
       signupBtn.disabled = false;
     }
@@ -129,9 +154,16 @@
       tripsPanel.hidden = false;
       loadProfile();
     } catch {
-      showError(tripsError, 'Unable to reach the server. Please try again.');
+      showError(tripsError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     }
   }
+
+  // Re-render whatever's currently visible in the new language -- the trip
+  // list/category labels and past-due note are built in JS, so a static
+  // data-i18n-es swap alone wouldn't reach them.
+  document.addEventListener('lcsr:langchange', () => {
+    if (!tripsPanel.hidden) loadTrips();
+  });
 
   async function loadProfile() {
     childrenList.innerHTML = '';
@@ -161,15 +193,15 @@
     row.innerHTML = `
       <img class="child-photo-preview" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:8px; background:var(--border); ${child?.photo ? '' : 'display:none;'}" src="${child?.photo || ''}" />
       <div class="form-row" style="flex:1; min-width:140px; margin-bottom:0;">
-        <label>Child's name</label>
+        <label>${T("Child's name", 'Nombre del niño(a)')}</label>
         <input type="text" class="child-name" value="${escapeAttr(child?.name)}" />
       </div>
       <div class="form-row" style="margin-bottom:0;">
-        <label>Photo</label>
+        <label>${T('Photo', 'Foto')}</label>
         <input type="file" accept="image/*" class="child-photo-input" />
         <input type="hidden" class="child-photo-data" value="${escapeAttr(child?.photo)}" />
       </div>
-      <button type="button" class="btn btn-ghost remove-row-btn" style="padding:0.5rem 0.75rem;">Remove</button>
+      <button type="button" class="btn btn-ghost remove-row-btn" style="padding:0.5rem 0.75rem;">${T('Remove', 'Eliminar')}</button>
     `;
     childrenList.appendChild(row);
   }
@@ -180,18 +212,18 @@
     row.style.cssText = 'display:flex; gap:0.5rem; align-items:flex-end; margin-bottom:0.75rem; flex-wrap:wrap;';
     row.innerHTML = `
       <div class="form-row" style="flex:1; min-width:120px; margin-bottom:0;">
-        <label>Name</label>
+        <label>${T('Name', 'Nombre')}</label>
         <input type="text" class="contact-name" value="${escapeAttr(contact?.name)}" />
       </div>
       <div class="form-row" style="flex:1; min-width:120px; margin-bottom:0;">
-        <label>Phone</label>
+        <label>${T('Phone', 'Teléfono')}</label>
         <input type="tel" class="contact-phone" value="${escapeAttr(contact?.phone)}" />
       </div>
       <div class="form-row" style="flex:1; min-width:140px; margin-bottom:0;">
-        <label>Relationship (optional)</label>
-        <input type="text" class="contact-relationship" value="${escapeAttr(contact?.relationship)}" placeholder="e.g., Grandparent, Neighbor" />
+        <label>${T('Relationship (optional)', 'Relación (opcional)')}</label>
+        <input type="text" class="contact-relationship" value="${escapeAttr(contact?.relationship)}" placeholder="${T('e.g., Grandparent, Neighbor', 'ej., Abuelo(a), Vecino(a)')}" />
       </div>
-      <button type="button" class="btn btn-ghost remove-row-btn" style="padding:0.5rem 0.75rem;">Remove</button>
+      <button type="button" class="btn btn-ghost remove-row-btn" style="padding:0.5rem 0.75rem;">${T('Remove', 'Eliminar')}</button>
     `;
     container.appendChild(row);
   }
@@ -218,7 +250,7 @@
       preview.src = dataUrl;
       preview.style.display = '';
     }).catch(() => {
-      showError(profileError, 'Unable to process that photo. Please try a different image.');
+      showError(profileError, T('Unable to process that photo. Please try a different image.', 'No se pudo procesar esa foto. Por favor intente con otra imagen.'));
     });
   });
 
@@ -263,12 +295,13 @@
     profileError.hidden = true;
     profileMessage.hidden = true;
     saveProfileBtn.disabled = true;
-    saveProfileBtn.textContent = 'Saving…';
+    saveProfileBtn.textContent = T('Saving…', 'Guardando…');
     try {
       const body = {
         children: readChildRows(),
         emergencyContacts: readContactRows(emergencyContactsList),
         authorizedPickups: readContactRows(authorizedPickupsList),
+        lang: lang(),
       };
       const res = await fetch('/api/parent-profile', {
         method: 'POST',
@@ -277,16 +310,19 @@
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(profileError, data.error || 'Unable to save. Please try again.');
+        showError(profileError, data.error || T('Unable to save. Please try again.', 'No se pudo guardar. Por favor intente de nuevo.'));
         return;
       }
-      profileMessage.textContent = 'Saved. Your driver and Lake County Student Rides can now see this information.';
+      profileMessage.textContent = T(
+        'Saved. Your driver and Lake County Student Rides can now see this information.',
+        'Guardado. Su conductor y Lake County Student Rides ahora pueden ver esta información.'
+      );
       profileMessage.hidden = false;
     } catch {
-      showError(profileError, 'Unable to reach the server. Please try again.');
+      showError(profileError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     } finally {
       saveProfileBtn.disabled = false;
-      saveProfileBtn.textContent = 'Save';
+      saveProfileBtn.textContent = T('Save', 'Guardar');
     }
   });
 
@@ -300,7 +336,10 @@
       return;
     }
     pastDueAmount = Number(amount);
-    pastDueText.textContent = `You have a past due balance of $${pastDueAmount.toFixed(2)} from a failed bank transfer. New bookings are on hold until this is paid.`;
+    pastDueText.textContent = T(
+      `You have a past due balance of $${pastDueAmount.toFixed(2)} from a failed bank transfer. New bookings are on hold until this is paid.`,
+      `Tiene un saldo pendiente de $${pastDueAmount.toFixed(2)} de una transferencia bancaria fallida. Las nuevas reservas están en espera hasta que esto se pague.`
+    );
     updatePastDueMethodNote();
     payPastDueBtn.textContent = pastDuePayButtonLabel();
     pastDueBanner.hidden = false;
@@ -327,18 +366,27 @@
   }
 
   function pastDuePayButtonLabel() {
-    return `Pay Past Due Balance ($${pastDueDisplayTotal().toFixed(2)})`;
+    return `${T('Pay Past Due Balance', 'Pagar Saldo Pendiente')} ($${pastDueDisplayTotal().toFixed(2)})`;
   }
 
   function updatePastDueMethodNote() {
     const method = selectedPastDuePaymentMethod();
     if (method === 'credit_card') {
       const fee = round2(pastDueAmount * CARD_SURCHARGE_RATE);
-      pastDueMethodNote.textContent = `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
+      pastDueMethodNote.textContent = T(
+        `Credit card payments include a 3% credit card processing fee ($${fee.toFixed(2)}) — your total is $${pastDueDisplayTotal().toFixed(2)}.`,
+        `Los pagos con tarjeta de crédito incluyen un cargo del 3% por procesamiento ($${fee.toFixed(2)}) — su total es $${pastDueDisplayTotal().toFixed(2)}.`
+      );
     } else if (method === 'debit_card') {
-      pastDueMethodNote.textContent = `Debit card has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}.`;
+      pastDueMethodNote.textContent = T(
+        `Debit card has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}.`,
+        `La tarjeta de débito no tiene cargo por procesamiento — su total es $${pastDueDisplayTotal().toFixed(2)}.`
+      );
     } else {
-      pastDueMethodNote.textContent = `Bank transfer (ACH) has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`;
+      pastDueMethodNote.textContent = T(
+        `Bank transfer (ACH) has no processing fee — your total is $${pastDueDisplayTotal().toFixed(2)}. Bank transfers take a few business days to clear.`,
+        `La transferencia bancaria (ACH) no tiene cargo por procesamiento — su total es $${pastDueDisplayTotal().toFixed(2)}. Las transferencias bancarias tardan unos días hábiles en procesarse.`
+      );
     }
   }
 
@@ -349,23 +397,23 @@
   payPastDueBtn.addEventListener('click', async () => {
     pastDueError.hidden = true;
     payPastDueBtn.disabled = true;
-    payPastDueBtn.textContent = 'Redirecting to payment…';
+    payPastDueBtn.textContent = T('Redirecting to payment…', 'Redirigiendo al pago…');
     try {
       const res = await fetch('/api/pay-past-due', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ paymentMethod: selectedPastDuePaymentMethod() }),
+        body: JSON.stringify({ paymentMethod: selectedPastDuePaymentMethod(), lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(pastDueError, data.error || 'Unable to start payment.');
+        showError(pastDueError, data.error || T('Unable to start payment.', 'No se pudo iniciar el pago.'));
         payPastDueBtn.disabled = false;
         payPastDueBtn.textContent = pastDuePayButtonLabel();
         return;
       }
       window.location.href = data.url;
     } catch {
-      showError(pastDueError, 'Unable to reach the server. Please try again.');
+      showError(pastDueError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
       payPastDueBtn.disabled = false;
       payPastDueBtn.textContent = pastDuePayButtonLabel();
     }
@@ -373,63 +421,66 @@
 
   function renderTrips(trips) {
     if (!trips.length) {
-      tripList.innerHTML = '<p>No trips yet.</p>';
+      tripList.innerHTML = `<p>${T('No trips yet.', 'Aún no hay viajes.')}</p>`;
       return;
     }
     tripList.innerHTML = trips.map(tripCard).join('');
 
     tripList.querySelectorAll('[data-cancel-trip-id]').forEach((btn) => {
       btn.addEventListener('click', async () => {
-        if (!window.confirm('Cancel this monthly plan? You will not be charged again after the current billing period ends.')) return;
+        if (!window.confirm(T(
+          'Cancel this monthly plan? You will not be charged again after the current billing period ends.',
+          '¿Cancelar este plan mensual? No se le cobrará de nuevo después de que termine el período de facturación actual.'
+        ))) return;
         btn.disabled = true;
-        btn.textContent = 'Canceling…';
+        btn.textContent = T('Canceling…', 'Cancelando…');
         try {
           const res = await fetch('/api/cancel-subscription', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ tripId: btn.getAttribute('data-cancel-trip-id') }),
+            body: JSON.stringify({ tripId: btn.getAttribute('data-cancel-trip-id'), lang: lang() }),
           });
           const data = await res.json();
           if (!res.ok || data.error) {
-            showError(tripsError, data.error || 'Unable to cancel this plan.');
+            showError(tripsError, data.error || T('Unable to cancel this plan.', 'No se pudo cancelar este plan.'));
             btn.disabled = false;
-            btn.textContent = 'Cancel Plan';
+            btn.textContent = T('Cancel Plan', 'Cancelar Plan');
             return;
           }
           await loadTrips();
         } catch {
-          showError(tripsError, 'Unable to reach the server. Please try again.');
+          showError(tripsError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
           btn.disabled = false;
-          btn.textContent = 'Cancel Plan';
+          btn.textContent = T('Cancel Plan', 'Cancelar Plan');
         }
       });
     });
   }
 
   function tripCard(t) {
-    const statusLabel = STATUS_LABELS[t.status] || t.status;
+    const status = statusLabel(t.status);
     const amount = t.total != null ? `$${Number(t.total).toFixed(2)}` : '—';
-    const amountLabel = t.paymentStatus === 'pending' ? 'Amount (bank transfer processing)'
-      : t.paymentStatus === 'failed' ? 'Amount (bank transfer failed)'
-      : 'Amount Paid';
-    const pickup = (escapeHtml(t.pickupAddress) || '—') + (t.pickupTime ? ' at ' + formatTime(t.pickupTime) : '');
-    const dropoff = (escapeHtml(t.dropoffAddress) || '—') + (t.dropoffTime ? ' at ' + formatTime(t.dropoffTime) : '');
+    const amountLabel = t.paymentStatus === 'pending' ? T('Amount (bank transfer processing)', 'Monto (transferencia bancaria en proceso)')
+      : t.paymentStatus === 'failed' ? T('Amount (bank transfer failed)', 'Monto (transferencia bancaria fallida)')
+      : T('Amount Paid', 'Monto Pagado');
+    const pickup = (escapeHtml(t.pickupAddress) || '—') + (t.pickupTime ? ` ${T('at', 'a las')} ` + formatTime(t.pickupTime) : '');
+    const dropoff = (escapeHtml(t.dropoffAddress) || '—') + (t.dropoffTime ? ` ${T('at', 'a las')} ` + formatTime(t.dropoffTime) : '');
     const billingRow = t.subscriptionId
-      ? `<div class="price-row"><span>Next Billing Date</span><span>${t.nextBillingDate ? formatFullDate(t.nextBillingDate) : 'Pending'}</span></div>`
+      ? `<div class="price-row"><span>${T('Next Billing Date', 'Próxima Fecha de Cobro')}</span><span>${t.nextBillingDate ? formatFullDate(t.nextBillingDate) : T('Pending', 'Pendiente')}</span></div>`
       : '';
     const cancelBtn = t.subscriptionId
       ? (t.cancelPending
-          ? '<p class="price-note">Auto-pay canceled — this plan will not renew.</p>'
-          : `<button class="btn btn-ghost" data-cancel-trip-id="${t.id}" style="margin-top:0.5rem;">Cancel Plan</button>`)
+          ? `<p class="price-note">${T('Auto-pay canceled — this plan will not renew.', 'Pago automático cancelado — este plan no se renovará.')}</p>`
+          : `<button class="btn btn-ghost" data-cancel-trip-id="${t.id}" style="margin-top:0.5rem;">${T('Cancel Plan', 'Cancelar Plan')}</button>`)
       : '';
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
-        <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || 'Child'}</span><span>${statusLabel}</span></div>
-        <div class="price-row"><span>Date</span><span>${formatDate(t)}</span></div>
-        <div class="price-row"><span>Service</span><span>${escapeHtml(t.category) || '—'}</span></div>
-        <div class="price-row"><span>Pickup</span><span>${pickup}</span></div>
-        <div class="price-row"><span>Drop-off</span><span>${dropoff}</span></div>
-        ${t.activityAddress ? `<div class="price-row"><span>Then to</span><span>${escapeHtml(t.activityAddress)}</span></div>` : ''}
+        <div class="price-row price-row-total"><span>${escapeHtml(t.childName) || T('Child', 'Niño(a)')}</span><span>${status}</span></div>
+        <div class="price-row"><span>${T('Date', 'Fecha')}</span><span>${formatDate(t)}</span></div>
+        <div class="price-row"><span>${T('Service', 'Servicio')}</span><span>${escapeHtml(categoryLabel(t.category)) || '—'}</span></div>
+        <div class="price-row"><span>${T('Pickup', 'Recogida')}</span><span>${pickup}</span></div>
+        <div class="price-row"><span>${T('Drop-off', 'Entrega')}</span><span>${dropoff}</span></div>
+        ${t.activityAddress ? `<div class="price-row"><span>${T('Then to', 'Luego a')}</span><span>${escapeHtml(t.activityAddress)}</span></div>` : ''}
         <div class="price-row price-row-total"><span>${amountLabel}</span><span>${amount}</span></div>
         ${billingRow}
         ${cancelBtn}
@@ -439,7 +490,7 @@
 
   function formatFullDate(isoString) {
     const d = new Date(isoString);
-    return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { dateStyle: 'medium' });
+    return isNaN(d) ? '—' : d.toLocaleDateString(lang() === 'es' ? 'es' : 'en-US', { dateStyle: 'medium' });
   }
 
   function formatTime(timeStr) {
@@ -453,10 +504,10 @@
   function formatDate(t) {
     if (t.startDate) {
       const d = new Date(`${t.startDate}T00:00`);
-      if (!isNaN(d)) return d.toLocaleDateString('en-US', { dateStyle: 'medium' });
+      if (!isNaN(d)) return d.toLocaleDateString(lang() === 'es' ? 'es' : 'en-US', { dateStyle: 'medium' });
     }
     if (t.createdAt) {
-      return new Date(t.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' }) + ' (booked)';
+      return new Date(t.createdAt).toLocaleDateString(lang() === 'es' ? 'es' : 'en-US', { dateStyle: 'medium' }) + T(' (booked)', ' (reservado)');
     }
     return '—';
   }

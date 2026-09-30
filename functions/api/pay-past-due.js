@@ -1,5 +1,6 @@
 // POST /api/pay-past-due -- requires a valid parent session cookie.
-// Body: { paymentMethod } -- "credit_card" (default), "debit_card", or "bank_transfer".
+// Body: { paymentMethod, lang } -- paymentMethod is "credit_card" (default),
+// "debit_card", or "bank_transfer"; lang is "en" (default) or "es".
 // Creates a Stripe Checkout Session for the parent's full past-due balance
 // (from a previously failed bank transfer). Does not create a trip record --
 // functions/api/webhook.js clears the balance on success instead, matched by
@@ -14,19 +15,21 @@ import { getPastDue } from "../_lib/pastDue.js";
 const CARD_SURCHARGE_RATE = 0.03;
 
 export async function onRequestPost({ request, env }) {
+  let body = {};
+  try { body = await request.json(); } catch {}
+  const isEs = body?.lang === "es";
+
   if (!env.PARENT_SESSION_SECRET) {
-    return json({ error: "Sign-in isn't configured yet." }, 503);
+    return json({ error: isEs ? "El inicio de sesión aún no está configurado." : "Sign-in isn't configured yet." }, 503);
   }
   const email = await verifySessionCookie(request.headers.get("cookie"), env.PARENT_SESSION_SECRET);
   if (!email) {
-    return json({ error: "Please sign in again." }, 401);
+    return json({ error: isEs ? "Por favor inicie sesión de nuevo." : "Please sign in again." }, 401);
   }
   if (!env.TRIPS_KV) {
-    return json({ error: "Trip storage not configured" }, 503);
+    return json({ error: isEs ? "El almacenamiento de viajes no está configurado" : "Trip storage not configured" }, 503);
   }
 
-  let body = {};
-  try { body = await request.json(); } catch {}
   const isBankTransfer = body?.paymentMethod === "bank_transfer";
   const isDebitCard = body?.paymentMethod === "debit_card";
   const isCard = !isBankTransfer; // covers credit_card, debit_card, and any missing/unrecognized value
@@ -34,20 +37,24 @@ export async function onRequestPost({ request, env }) {
 
   const pastDue = await getPastDue(env, email);
   if (pastDue <= 0) {
-    return json({ error: "You don't have a past due balance." }, 400);
+    return json({ error: isEs ? "No tiene ningún saldo pendiente." : "You don't have a past due balance." }, 400);
   }
   const chargeAmount = isCreditCard ? round2(pastDue * (1 + CARD_SURCHARGE_RATE)) : pastDue;
 
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) {
-    return json({ error: "Online payment isn't active yet. Please contact us directly." }, 503);
+    return json({ error: isEs ? "El pago en línea aún no está activo. Por favor contáctenos directamente." : "Online payment isn't active yet. Please contact us directly." }, 503);
   }
 
   const siteUrl = env.SITE_URL || new URL(request.url).origin;
   const amountCents = Math.round(chargeAmount * 100);
-  const lineItemName = isCreditCard
-    ? "Lake County Student Rides — Past Due Balance (includes 3% credit card processing fee)"
-    : "Lake County Student Rides — Past Due Balance";
+  const lineItemName = isEs
+    ? (isCreditCard
+        ? "Lake County Student Rides — Saldo Pendiente (incluye 3% de cargo por procesamiento de tarjeta de crédito)"
+        : "Lake County Student Rides — Saldo Pendiente")
+    : (isCreditCard
+        ? "Lake County Student Rides — Past Due Balance (includes 3% credit card processing fee)"
+        : "Lake County Student Rides — Past Due Balance");
 
   const params = new URLSearchParams();
   params.append("mode", "payment");
@@ -75,11 +82,11 @@ export async function onRequestPost({ request, env }) {
     });
     session = await res.json();
   } catch {
-    return json({ error: "Unable to reach the payment processor. Please try again." }, 502);
+    return json({ error: isEs ? "No se pudo conectar con el procesador de pagos. Por favor intente de nuevo." : "Unable to reach the payment processor. Please try again." }, 502);
   }
 
   if (!res.ok) {
-    return json({ error: session.error?.message || "Unable to start checkout." }, 502);
+    return json({ error: session.error?.message || (isEs ? "No se pudo iniciar el pago." : "Unable to start checkout.") }, 502);
   }
 
   return json({ url: session.url });
