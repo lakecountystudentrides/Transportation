@@ -10,6 +10,9 @@
   const confirmMessage = document.getElementById('confirm-message');
   const confirmError = document.getElementById('confirm-error');
 
+  function T(en, es) { return window.LCSR_T ? window.LCSR_T(en, es) : en; }
+  function lang() { return window.LCSR_LANG || 'en'; }
+
   const token = new URLSearchParams(window.location.search).get('token');
 
   if (token) {
@@ -28,16 +31,16 @@
       const res = await fetch('/api/parent-forgot-password', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        show(requestError, data.error || 'Unable to send a reset link right now.');
+        show(requestError, data.error || T('Unable to send a reset link right now.', 'No se pudo enviar un enlace de restablecimiento en este momento.'));
         return;
       }
-      show(requestMessage, data.message || "If an account exists for that email, we've sent a link to reset your password.");
+      show(requestMessage, data.message || T("If an account exists for that email, we've sent a link to reset your password.", 'Si existe una cuenta para ese correo electrónico, le hemos enviado un enlace para restablecer su contraseña.'));
     } catch {
-      show(requestError, 'Unable to reach the server. Please try again.');
+      show(requestError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     } finally {
       requestBtn.disabled = false;
     }
@@ -54,19 +57,19 @@
       const res = await fetch('/api/parent-reset-password', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, password, lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        show(confirmError, data.error || 'Unable to reset your password.');
+        show(confirmError, data.error || T('Unable to reset your password.', 'No se pudo restablecer su contraseña.'));
         return;
       }
-      show(confirmMessage, 'Your password has been reset. You can now sign in with your new password.');
+      show(confirmMessage, T('Your password has been reset. You can now sign in with your new password.', 'Su contraseña ha sido restablecida. Ahora puede iniciar sesión con su nueva contraseña.'));
       confirmBtn.disabled = true;
-      confirmBtn.textContent = 'Password Reset';
+      confirmBtn.textContent = T('Password Reset', 'Contraseña Restablecida');
       setTimeout(() => { window.location.href = '/parent-portal.html'; }, 2000);
     } catch {
-      show(confirmError, 'Unable to reach the server. Please try again.');
+      show(confirmError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
       confirmBtn.disabled = false;
     }
   });

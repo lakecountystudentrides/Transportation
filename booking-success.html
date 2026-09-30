@@ -17,31 +17,33 @@
         <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
         <span class="brand-name">Lake County<br>Student Rides</span>
       </a>
+      <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
     </div>
   </header>
 
   <main>
     <section class="section section-cta" style="text-align:left;">
       <div class="wrap" style="max-width:640px;">
-        <h1 style="color:#fff;">Payment Confirmed</h1>
-        <p>Thank you — your booking request has been received and your payment was successful.</p>
-        <p>We'll follow up by email or phone shortly to confirm pickup details and your driver assignment. If you don't hear from us within one business day, please reach out directly.</p>
+        <h1 style="color:#fff;" data-i18n-es="Pago Confirmado">Payment Confirmed</h1>
+        <p data-i18n-es="Gracias — su solicitud de reserva ha sido recibida y su pago fue exitoso.">Thank you — your booking request has been received and your payment was successful.</p>
+        <p data-i18n-es="Le daremos seguimiento por correo electrónico o teléfono en breve para confirmar los detalles de recogida y la asignación de su conductor. Si no tiene noticias nuestras dentro de un día hábil, por favor contáctenos directamente.">We'll follow up by email or phone shortly to confirm pickup details and your driver assignment. If you don't hear from us within one business day, please reach out directly.</p>
         <div style="background:rgba(255,255,255,0.12); border-radius:8px; padding:1.25rem 1.5rem; margin:1.5rem 0;">
-          <p style="margin:0 0 0.5rem; font-weight:700;">One more thing — create your free Parent Portal account</p>
-          <p style="margin:0 0 1rem;">Use it to view your trip history and payments, and to add your emergency contact and an authorized adult who can drop off or pick up your child. Use the same email you just booked with so this trip shows up automatically.</p>
-          <a class="btn btn-primary" href="/parent-portal.html">Create My Account</a>
+          <p style="margin:0 0 0.5rem; font-weight:700;" data-i18n-es="Una cosa más — cree su cuenta gratuita del Portal para Padres">One more thing — create your free Parent Portal account</p>
+          <p style="margin:0 0 1rem;" data-i18n-es="Úsela para ver su historial de viajes y pagos, y para agregar su contacto de emergencia y un adulto autorizado que pueda dejar o recoger a su hijo/a. Use el mismo correo electrónico con el que acaba de reservar para que este viaje aparezca automáticamente.">Use it to view your trip history and payments, and to add your emergency contact and an authorized adult who can drop off or pick up your child. Use the same email you just booked with so this trip shows up automatically.</p>
+          <a class="btn btn-primary" href="/parent-portal.html" data-i18n-es="Crear Mi Cuenta">Create My Account</a>
         </div>
-        <p><a class="btn btn-ghost" href="/" style="color:#fff; border-color:rgba(255,255,255,0.4);">Back to Home</a></p>
+        <p><a class="btn btn-ghost" href="/" style="color:#fff; border-color:rgba(255,255,255,0.4);" data-i18n-es="Volver al Inicio">Back to Home</a></p>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p>&copy; <span id="year"></span> <span data-i18n-es="Lake County Student Rides. Todos los derechos reservados.">Lake County Student Rides. All rights reserved.</span></p>
       <p class="footer-links"><a href="mailto:transportation@lakecountystudentrides.com">transportation@lakecountystudentrides.com</a></p>
     </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
 </body>
 </html>

@@ -12,25 +12,26 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid request." }, 400);
   }
 
+  const isEs = body?.lang === "es";
   const token = String(body?.token || "");
   const password = String(body?.password || "");
 
   if (password.length < 8) {
-    return json({ error: "Password must be at least 8 characters." }, 400);
+    return json({ error: isEs ? "La contraseña debe tener al menos 8 caracteres." : "Password must be at least 8 characters." }, 400);
   }
   if (!env.TRIPS_KV || !env.PARENT_SESSION_SECRET) {
-    return json({ error: "Password reset isn't configured yet." }, 503);
+    return json({ error: isEs ? "El restablecimiento de contraseña aún no está configurado." : "Password reset isn't configured yet." }, 503);
   }
 
   const email = await verifyResetToken(token, env.PARENT_SESSION_SECRET);
   if (!email) {
-    return json({ error: "This reset link is invalid or has expired. Please request a new one." }, 400);
+    return json({ error: isEs ? "Este enlace de restablecimiento no es válido o ha expirado. Por favor solicite uno nuevo." : "This reset link is invalid or has expired. Please request a new one." }, 400);
   }
 
   const key = `parent:${email}`;
   const raw = await env.TRIPS_KV.get(key);
   if (!raw) {
-    return json({ error: "This reset link is invalid or has expired. Please request a new one." }, 400);
+    return json({ error: isEs ? "Este enlace de restablecimiento no es válido o ha expirado. Por favor solicite uno nuevo." : "This reset link is invalid or has expired. Please request a new one." }, 400);
   }
 
   const account = JSON.parse(raw);
