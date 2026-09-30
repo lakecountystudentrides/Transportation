@@ -20,15 +20,16 @@
         <span class="brand-name">Lake County<br>Student Rides</span>
       </a>
       <nav class="main-nav" aria-label="Primary">
-        <a href="/#how-it-works">How It Works</a>
-        <a href="/#services">Services</a>
-        <a href="/#pricing">Pricing</a>
-        <a href="/#safety">Safety</a>
-        <a href="/#faq">FAQ</a>
-        <a href="/#contact">Contact</a>
+        <a href="/#how-it-works" data-i18n-es="Cómo Funciona">How It Works</a>
+        <a href="/#services" data-i18n-es="Servicios">Services</a>
+        <a href="/#pricing" data-i18n-es="Precios">Pricing</a>
+        <a href="/#safety" data-i18n-es="Seguridad">Safety</a>
+        <a href="/#faq" data-i18n-es="Preguntas Frecuentes">FAQ</a>
+        <a href="/#contact" data-i18n-es="Contacto">Contact</a>
       </nav>
       <div class="header-actions">
-        <a class="btn btn-ghost" href="/parent-portal.html">Parent Login</a>
+        <button type="button" class="btn btn-ghost" data-lang-toggle>Español</button>
+        <a class="btn btn-ghost" href="/parent-portal.html" data-i18n-es="Acceso de Padres">Parent Login</a>
       </div>
     </div>
   </header>
@@ -36,63 +37,63 @@
   <main>
     <section class="section booking-section">
       <div class="wrap booking-wrap">
-        <h1>Book a Ride</h1>
-        <p class="section-lede">Get an instant price, then book and pay online.</p>
+        <h1 data-i18n-es="Reservar un Viaje">Book a Ride</h1>
+        <p class="section-lede" data-i18n-es="Obtenga un precio instantáneo, luego reserve y pague en línea.">Get an instant price, then book and pay online.</p>
 
         <form id="booking-form" class="booking-form" novalidate>
           <fieldset>
-            <legend>Parent / Guardian</legend>
+            <legend data-i18n-es="Padre / Tutor">Parent / Guardian</legend>
             <div class="form-row">
-              <label for="parentName">Full name<span class="required-mark">*</span></label>
+              <label for="parentName" data-i18n-es='Nombre completo<span class="required-mark">*</span>'>Full name<span class="required-mark">*</span></label>
               <input id="parentName" name="parentName" type="text" required autocomplete="name" />
             </div>
             <div class="form-row form-row-split">
               <div>
-                <label for="parentEmail">Email<span class="required-mark">*</span></label>
+                <label for="parentEmail" data-i18n-es='Correo electrónico<span class="required-mark">*</span>'>Email<span class="required-mark">*</span></label>
                 <input id="parentEmail" name="parentEmail" type="email" required autocomplete="email" />
               </div>
               <div>
-                <label for="parentPhone">Phone<span class="required-mark">*</span></label>
+                <label for="parentPhone" data-i18n-es='Teléfono<span class="required-mark">*</span>'>Phone<span class="required-mark">*</span></label>
                 <input id="parentPhone" name="parentPhone" type="tel" required autocomplete="tel" />
               </div>
             </div>
           </fieldset>
 
           <fieldset>
-            <legend>Child</legend>
+            <legend data-i18n-es="Niño(a)">Child</legend>
             <div class="form-row">
-              <label for="childName">Child's name<span class="required-mark">*</span></label>
+              <label for="childName" data-i18n-es='Nombre del niño(a)<span class="required-mark">*</span>'>Child's name<span class="required-mark">*</span></label>
               <input id="childName" name="childName" type="text" required />
             </div>
             <div class="form-row form-row-split">
               <div>
-                <label for="childAge">Age<span class="required-mark">*</span></label>
+                <label for="childAge" data-i18n-es='Edad<span class="required-mark">*</span>'>Age<span class="required-mark">*</span></label>
                 <input id="childAge" name="childAge" type="number" min="0" max="18" required />
               </div>
               <div>
-                <label for="childGrade">Grade</label>
+                <label for="childGrade" data-i18n-es="Grado">Grade</label>
                 <select id="childGrade" name="childGrade">
-                  <option value="">Select grade</option>
-                  <option value="Daycare">Daycare</option>
-                  <option value="Pre-K">Pre-K</option>
-                  <option value="Kindergarten">Kindergarten</option>
-                  <option value="1st">1st</option>
-                  <option value="2nd">2nd</option>
-                  <option value="3rd">3rd</option>
-                  <option value="4th">4th</option>
-                  <option value="5th">5th</option>
-                  <option value="6th">6th</option>
-                  <option value="7th">7th</option>
-                  <option value="8th">8th</option>
-                  <option value="9th">9th</option>
-                  <option value="10th">10th</option>
-                  <option value="11th">11th</option>
-                  <option value="12th">12th</option>
+                  <option value="" data-i18n-es="Seleccione el grado">Select grade</option>
+                  <option value="Daycare" data-i18n-es="Guardería">Daycare</option>
+                  <option value="Pre-K" data-i18n-es="Pre-Kínder">Pre-K</option>
+                  <option value="Kindergarten" data-i18n-es="Kínder">Kindergarten</option>
+                  <option value="1st" data-i18n-es="1.º">1st</option>
+                  <option value="2nd" data-i18n-es="2.º">2nd</option>
+                  <option value="3rd" data-i18n-es="3.º">3rd</option>
+                  <option value="4th" data-i18n-es="4.º">4th</option>
+                  <option value="5th" data-i18n-es="5.º">5th</option>
+                  <option value="6th" data-i18n-es="6.º">6th</option>
+                  <option value="7th" data-i18n-es="7.º">7th</option>
+                  <option value="8th" data-i18n-es="8.º">8th</option>
+                  <option value="9th" data-i18n-es="9.º">9th</option>
+                  <option value="10th" data-i18n-es="10.º">10th</option>
+                  <option value="11th" data-i18n-es="11.º">11th</option>
+                  <option value="12th" data-i18n-es="12.º">12th</option>
                 </select>
               </div>
             </div>
             <div class="form-row">
-              <label for="numChildren">Number of children on this schedule</label>
+              <label for="numChildren" data-i18n-es="Número de niños en este horario">Number of children on this schedule</label>
               <select id="numChildren" name="numChildren">
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -103,56 +104,62 @@
           </fieldset>
 
           <fieldset>
-            <legend>Trip</legend>
+            <legend data-i18n-es="Viaje">Trip</legend>
             <div class="form-row">
-              <label for="pickupAddress">Pickup address<span class="required-mark">*</span></label>
-              <input id="pickupAddress" name="pickupAddress" type="text" placeholder="e.g. 123 Main St, Clermont, FL" required />
+              <label for="pickupAddress" data-i18n-es='Dirección de recogida<span class="required-mark">*</span>'>Pickup address<span class="required-mark">*</span></label>
+              <input id="pickupAddress" name="pickupAddress" type="text" placeholder="e.g. 123 Main St, Clermont, FL" data-i18n-es-placeholder="ej. 123 Main St, Clermont, FL" required />
             </div>
             <div class="form-row">
-              <label for="dropoffAddress">Drop-off address<span class="required-mark">*</span></label>
-              <input id="dropoffAddress" name="dropoffAddress" type="text" placeholder="e.g. Clermont Elementary School" required />
+              <label for="dropoffAddress" data-i18n-es='Dirección de entrega<span class="required-mark">*</span>'>Drop-off address<span class="required-mark">*</span></label>
+              <input id="dropoffAddress" name="dropoffAddress" type="text" placeholder="e.g. Clermont Elementary School" data-i18n-es-placeholder="ej. Escuela Primaria Clermont" required />
             </div>
             <div class="form-row">
-              <label for="activityAddress">Activity or additional stop (if not going straight home)</label>
-              <input id="activityAddress" name="activityAddress" type="text" placeholder="e.g. Karate class, 456 Oak St, Clermont, FL" />
-              <p class="price-note" style="margin-top:0.4rem;">Only needed if your child is going somewhere other than home after this trip.</p>
+              <label for="activityAddress" data-i18n-es="Actividad o parada adicional (si no va directo a casa)">Activity or additional stop (if not going straight home)</label>
+              <input id="activityAddress" name="activityAddress" type="text" placeholder="e.g. Karate class, 456 Oak St, Clermont, FL" data-i18n-es-placeholder="ej. Clase de karate, 456 Oak St, Clermont, FL" />
+              <p class="price-note" style="margin-top:0.4rem;" data-i18n-es="Solo es necesario si su hijo(a) va a otro lugar que no sea su casa después de este viaje.">Only needed if your child is going somewhere other than home after this trip.</p>
             </div>
             <div class="form-row">
-              <label for="category">Service</label>
+              <label for="category" data-i18n-es="Servicio">Service</label>
               <select id="category" name="category" required>
-                <option value="oneway">One-way — $15&ndash;$20 by distance</option>
-                <option value="roundtrip">Round trip — $24&ndash;$34 by distance</option>
-                <option value="weekly-oneway">Weekly, one-way only — $63&ndash;$84/week</option>
-                <option value="weekly-roundtrip">Weekly, round trip — $99&ndash;$140/week</option>
-                <option value="monthly-oneway">Monthly, one route/day — $259&ndash;$345/month</option>
-                <option value="monthly-roundtrip">Monthly, two routes/day (round trip) — $409&ndash;$580/month</option>
+                <option value="oneway" data-i18n-es="Solo ida — $15–$20 según la distancia">One-way — $15&ndash;$20 by distance</option>
+                <option value="roundtrip" data-i18n-es="Viaje redondo — $24–$34 según la distancia">Round trip — $24&ndash;$34 by distance</option>
+                <option value="weekly-oneway" data-i18n-es="Semanal, solo ida — $63–$84/semana">Weekly, one-way only — $63&ndash;$84/week</option>
+                <option value="weekly-roundtrip" data-i18n-es="Semanal, viaje redondo — $99–$140/semana">Weekly, round trip — $99&ndash;$140/week</option>
+                <option value="monthly-oneway" data-i18n-es="Mensual, una ruta/día — $259–$345/mes">Monthly, one route/day — $259&ndash;$345/month</option>
+                <option value="monthly-roundtrip" data-i18n-es="Mensual, dos rutas/día (viaje redondo) — $409–$580/mes">Monthly, two routes/day (round trip) — $409&ndash;$580/month</option>
               </select>
-              <p class="price-note" style="margin-top:0.4rem;">Exact price depends on your pickup distance — calculated below once you enter your address.</p>
+              <p class="price-note" style="margin-top:0.4rem;" data-i18n-es="El precio exacto depende de su distancia de recogida — se calcula abajo una vez que ingrese su dirección.">Exact price depends on your pickup distance — calculated below once you enter your address.</p>
             </div>
             <div class="form-row">
-              <label for="startDate">Start date<span class="required-mark">*</span></label>
+              <label for="startDate" data-i18n-es='Fecha de inicio<span class="required-mark">*</span>'>Start date<span class="required-mark">*</span></label>
               <input id="startDate" name="startDate" type="date" required />
             </div>
             <div class="form-row form-row-split">
               <div>
-                <label for="dropoffTime">Time to be dropped off to school<span class="required-mark">*</span></label>
+                <label for="dropoffTime" data-i18n-es='Hora de entrada a la escuela<span class="required-mark">*</span>'>Time to be dropped off to school<span class="required-mark">*</span></label>
                 <input id="dropoffTime" name="dropoffTime" type="time" required />
               </div>
               <div>
-                <label for="pickupTime">Time to be picked up from school<span class="required-mark">*</span></label>
+                <label for="pickupTime" data-i18n-es='Hora de salida de la escuela<span class="required-mark">*</span>'>Time to be picked up from school<span class="required-mark">*</span></label>
                 <input id="pickupTime" name="pickupTime" type="time" required />
               </div>
             </div>
             <div class="form-row">
-              <label for="instructions">Special instructions (optional)</label>
-              <textarea id="instructions" name="instructions" rows="2" placeholder="Car seat/booster needed, authorized pickup adult, etc."></textarea>
+              <label for="instructions" data-i18n-es="Instrucciones especiales (opcional)">Special instructions (optional)</label>
+              <textarea id="instructions" name="instructions" rows="2" placeholder="Car seat/booster needed, authorized pickup adult, etc." data-i18n-es-placeholder="Asiento de auto/elevador necesario, adulto autorizado para recoger, etc."></textarea>
             </div>
           </fieldset>
 
           <div class="form-row">
             <label style="display:flex; align-items:flex-start; gap:0.5rem; font-weight:400;">
               <input type="checkbox" id="agreeCheckbox" style="width:auto; margin-top:0.2rem;" />
-              <span>
+              <span data-i18n-es='Certifico que soy el padre, madre o tutor legal del estudiante. He leído y estoy de acuerdo con el
+                <a href="/legal-agreement.html#agreement" target="_blank" rel="noopener" style="color:#1a56db;">Acuerdo de Transporte para Padres</a>,
+                los <a href="/legal-agreement.html#terms" target="_blank" rel="noopener" style="color:#1a56db;">Términos y Condiciones</a>,
+                la <a href="/legal-agreement.html#liability" target="_blank" rel="noopener" style="color:#1a56db;">Exención de Responsabilidad</a>,
+                la <a href="/legal-agreement.html#emergency" target="_blank" rel="noopener" style="color:#1a56db;">Autorización Médica de Emergencia</a>, y
+                la <a href="/legal-agreement.html#privacy" target="_blank" rel="noopener" style="color:#1a56db;">Política de Privacidad</a>
+                de Lake County Student Rides.'>
                 I certify that I am the parent or legal guardian of the student. I have read and agree to the
                 <a href="/legal-agreement.html#agreement" target="_blank" rel="noopener" style="color:#1a56db;">Parent Transportation Agreement</a>,
                 <a href="/legal-agreement.html#terms" target="_blank" rel="noopener" style="color:#1a56db;">Terms &amp; Conditions</a>,
@@ -164,7 +171,7 @@
             </label>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-lg" id="get-price-btn">Get Price</button>
+          <button type="submit" class="btn btn-primary btn-lg" id="get-price-btn" data-i18n-es="Obtener Precio">Get Price</button>
 
           <div id="price-result" class="price-result" hidden></div>
           <div id="price-error" class="price-error" role="alert" hidden></div>
@@ -175,12 +182,13 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p>&copy; <span id="year"></span> Lake County Student Rides. <span data-i18n-es="Todos los derechos reservados.">All rights reserved.</span></p>
       <p class="footer-links"><a href="mailto:transportation@lakecountystudentrides.com">transportation@lakecountystudentrides.com</a></p>
     </div>
   </footer>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
   <script src="/assets/booking.js"></script>
 </body>
 </html>

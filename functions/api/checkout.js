@@ -39,10 +39,11 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid request." }, 400);
   }
 
-  const { amount, description, customerEmail, category, autoPay, paymentMethod } = body || {};
+  const { amount, description, customerEmail, category, autoPay, paymentMethod, lang } = body || {};
+  const isEs = lang === "es";
   const amountNum = Number(amount);
   if (!amountNum || amountNum <= 0 || amountNum > 5000) {
-    return json({ error: "Invalid amount." }, 400);
+    return json({ error: isEs ? "Monto inválido." : "Invalid amount." }, 400);
   }
 
   const isBankTransfer = paymentMethod === "bank_transfer";
@@ -53,14 +54,16 @@ export async function onRequestPost({ request, env }) {
 
   const secretKey = env.STRIPE_SECRET_KEY;
   if (!secretKey) {
-    return json({ error: "Online payment isn't active yet. Please contact us to complete your booking." }, 503);
+    return json({ error: isEs ? "El pago en línea aún no está activo. Por favor contáctenos para completar su reserva." : "Online payment isn't active yet. Please contact us to complete your booking." }, 503);
   }
 
   if (customerEmail && env.TRIPS_KV) {
     const pastDue = await getPastDue(env, customerEmail);
     if (pastDue > 0) {
       return json({
-        error: `Your account has a past due balance of $${pastDue.toFixed(2)} from a failed bank transfer. Please pay this from the parent portal before booking another trip.`,
+        error: isEs
+          ? `Su cuenta tiene un saldo pendiente de $${pastDue.toFixed(2)} de una transferencia bancaria fallida. Por favor pague esto desde el portal de padres antes de reservar otro viaje.`
+          : `Your account has a past due balance of $${pastDue.toFixed(2)} from a failed bank transfer. Please pay this from the parent portal before booking another trip.`,
       }, 402);
     }
   }
@@ -75,9 +78,10 @@ export async function onRequestPost({ request, env }) {
   const isMonthly = String(category || "").toLowerCase().startsWith("monthly");
   const useSubscription = isMonthly && autoPay === true;
 
+  const defaultDescription = isEs ? "Lake County Student Rides — Reserva" : "Lake County Student Rides — Booking";
   const lineItemName = isCreditCard
-    ? `${description || "Lake County Student Rides — Booking"} (includes 3% credit card processing fee)`
-    : (description || "Lake County Student Rides — Booking");
+    ? `${description || defaultDescription} (${isEs ? "incluye 3% de cargo por procesamiento de tarjeta de crédito" : "includes 3% credit card processing fee"})`
+    : (description || defaultDescription);
 
   const params = new URLSearchParams();
   params.append("mode", useSubscription ? "subscription" : "payment");
@@ -119,11 +123,11 @@ export async function onRequestPost({ request, env }) {
     });
     session = await res.json();
   } catch {
-    return json({ error: "Unable to reach the payment processor. Please try again." }, 502);
+    return json({ error: isEs ? "No se pudo conectar con el procesador de pagos. Por favor intente de nuevo." : "Unable to reach the payment processor. Please try again." }, 502);
   }
 
   if (!res.ok) {
-    return json({ error: session.error?.message || "Unable to start checkout." }, 502);
+    return json({ error: session.error?.message || (isEs ? "No se pudo iniciar el pago." : "Unable to start checkout.") }, 502);
   }
 
   return json({ url: session.url });

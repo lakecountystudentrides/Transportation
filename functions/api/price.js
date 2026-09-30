@@ -1,5 +1,5 @@
 // POST /api/price
-// Body: { pickupAddress: string, category: string, children?: number }
+// Body: { pickupAddress: string, category: string, children?: number, lang?: "en" | "es" }
 // category: "oneway" | "roundtrip" | "weekly-oneway" | "weekly-roundtrip" | "monthly-oneway" | "monthly-roundtrip"
 //
 // Distance is measured from the private dispatch origin (env.DISPATCH_ORIGIN_ADDRESS)
@@ -15,8 +15,24 @@ const TIER2_MAX_MILES = 9;
 const OVERAGE_PER_MILE = 1.2;
 const SCHOOL_DAYS_PER_MONTH = 21.7;
 
-const TIER1 = { oneway: 15, roundtrip: 24, child2: 205, child3plus: 143, label: "0-5 mi" };
-const TIER2 = { oneway: 20, roundtrip: 34, child2: 290, child3plus: 205, label: "5-9 mi" };
+const TIER1 = { oneway: 15, roundtrip: 24, child2: 205, child3plus: 143, label: "0-5 mi", labelEs: "0-5 millas" };
+const TIER2 = { oneway: 20, roundtrip: 34, child2: 290, child3plus: 205, label: "5-9 mi", labelEs: "5-9 millas" };
+
+// Spanish translations for the price-breakdown labels below -- kept here,
+// alongside the English strings they mirror, rather than in the client, so
+// there's one place that defines what a given breakdown row says.
+const ES = {
+  oneway: (t) => `Solo ida (${t})`,
+  roundtrip: (t) => `Viaje redondo (${t})`,
+  weeklyOneway: (t) => `Semanal, solo ida (${t})`,
+  weeklyRoundtrip: (t) => `Semanal, viaje redondo (${t})`,
+  monthlyOneway: (t) => `Mensual, una ruta/día (${t})`,
+  monthlyRoundtrip: (t) => `Mensual, dos rutas/día (${t})`,
+  extraDistance: (miles, maxMiles, perMile, freq) => `Distancia adicional (+${miles} millas más allá de ${maxMiles} millas @ $${perMile}/milla${freq})`,
+  perWeek: " x 5 días/semana",
+  perMonth: " x ~21.7 días/mes",
+  child: (i) => `Niño ${i}`,
+};
 
 // Derived so these exactly reproduce the locked rate card in docs/03-pricing.md
 // when a trip is within a tier's flat radius (no overage).
@@ -36,32 +52,34 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Invalid request." }, 400);
   }
 
-  const { pickupAddress, category, children } = body || {};
+  const { pickupAddress, category, children, lang } = body || {};
+  const isEs = lang === "es";
   if (!pickupAddress || typeof pickupAddress !== "string") {
-    return json({ error: "Please enter a pickup address." }, 400);
+    return json({ error: isEs ? "Por favor ingrese una dirección de recogida." : "Please enter a pickup address." }, 400);
   }
   if (!["oneway", "roundtrip", "weekly-oneway", "weekly-roundtrip", "monthly-oneway", "monthly-roundtrip"].includes(category)) {
-    return json({ error: "Please choose a valid service option." }, 400);
+    return json({ error: isEs ? "Por favor elija una opción de servicio válida." : "Please choose a valid service option." }, 400);
   }
 
   const origin = env.DISPATCH_ORIGIN_ADDRESS;
   const apiKey = env.GOOGLE_MAPS_API_KEY;
   if (!origin || !apiKey) {
-    return json({ error: "Pricing isn't fully configured yet — please contact us directly for a quote." }, 503);
+    return json({ error: isEs ? "Los precios aún no están completamente configurados — por favor contáctenos directamente para una cotización." : "Pricing isn't fully configured yet — please contact us directly for a quote." }, 503);
   }
 
   let miles;
   try {
     const distance = await getDistanceMiles(origin, pickupAddress, apiKey);
     if (!distance.found) {
-      return json({ error: "We couldn't find that address. Please check it and try again." }, 200);
+      return json({ error: isEs ? "No pudimos encontrar esa dirección. Por favor verifíquela e intente de nuevo." : "We couldn't find that address. Please check it and try again." }, 200);
     }
     miles = distance.miles;
   } catch {
-    return json({ error: "Unable to calculate distance right now. Please try again shortly." }, 502);
+    return json({ error: isEs ? "No se pudo calcular la distancia en este momento. Por favor intente de nuevo en un momento." : "Unable to calculate distance right now. Please try again shortly." }, 502);
   }
 
   const tier = miles <= TIER1_MAX_MILES ? TIER1 : TIER2;
+  const tierLabel = isEs ? tier.labelEs : tier.label;
   const overageMiles = Math.max(0, miles - TIER2_MAX_MILES);
   const overagePerTrip = round2(overageMiles * OVERAGE_PER_MILE);
 
@@ -72,17 +90,17 @@ export async function onRequestPost({ request, env }) {
   let basePrice, label, isMonthly = false, overageTrips = 0;
   switch (category) {
     case "oneway":
-      basePrice = tier.oneway; label = `One-way (${tier.label})`; overageTrips = 1; break;
+      basePrice = tier.oneway; label = isEs ? ES.oneway(tierLabel) : `One-way (${tierLabel})`; overageTrips = 1; break;
     case "roundtrip":
-      basePrice = tier.roundtrip; label = `Round trip (${tier.label})`; overageTrips = 1; break;
+      basePrice = tier.roundtrip; label = isEs ? ES.roundtrip(tierLabel) : `Round trip (${tierLabel})`; overageTrips = 1; break;
     case "weekly-oneway":
-      basePrice = round2(tier.oneway * 5 * WEEKLY_ONEWAY_FACTOR); label = `Weekly, one-way only (${tier.label})`; overageTrips = 5; break;
+      basePrice = round2(tier.oneway * 5 * WEEKLY_ONEWAY_FACTOR); label = isEs ? ES.weeklyOneway(tierLabel) : `Weekly, one-way only (${tierLabel})`; overageTrips = 5; break;
     case "weekly-roundtrip":
-      basePrice = round2(tier.roundtrip * 5 * WEEKLY_ROUNDTRIP_FACTOR); label = `Weekly, round trip (${tier.label})`; overageTrips = 5; break;
+      basePrice = round2(tier.roundtrip * 5 * WEEKLY_ROUNDTRIP_FACTOR); label = isEs ? ES.weeklyRoundtrip(tierLabel) : `Weekly, round trip (${tierLabel})`; overageTrips = 5; break;
     case "monthly-oneway":
-      basePrice = round2(tier.oneway * SCHOOL_DAYS_PER_MONTH * MONTHLY_ONEWAY_FACTOR); label = `Monthly, one route/day (${tier.label})`; isMonthly = true; overageTrips = SCHOOL_DAYS_PER_MONTH; break;
+      basePrice = round2(tier.oneway * SCHOOL_DAYS_PER_MONTH * MONTHLY_ONEWAY_FACTOR); label = isEs ? ES.monthlyOneway(tierLabel) : `Monthly, one route/day (${tierLabel})`; isMonthly = true; overageTrips = SCHOOL_DAYS_PER_MONTH; break;
     case "monthly-roundtrip":
-      basePrice = round2(tier.roundtrip * SCHOOL_DAYS_PER_MONTH * MONTHLY_ROUNDTRIP_FACTOR); label = `Monthly, two routes/day (${tier.label})`; isMonthly = true; overageTrips = SCHOOL_DAYS_PER_MONTH; break;
+      basePrice = round2(tier.roundtrip * SCHOOL_DAYS_PER_MONTH * MONTHLY_ROUNDTRIP_FACTOR); label = isEs ? ES.monthlyRoundtrip(tierLabel) : `Monthly, two routes/day (${tierLabel})`; isMonthly = true; overageTrips = SCHOOL_DAYS_PER_MONTH; break;
   }
 
   // Overage recurs every school day for weekly/monthly plans, not just once —
@@ -93,8 +111,12 @@ export async function onRequestPost({ request, env }) {
   const childCount = Math.max(1, Math.min(6, Number(children) || 1));
   const breakdown = [{ label, amount: basePrice }];
   if (overageTotal > 0) {
-    const freq = overageTrips === 1 ? "" : overageTrips === 5 ? " x 5 days/week" : " x ~21.7 days/month";
-    breakdown.push({ label: `Extra distance (+${round1(overageMiles)} mi beyond ${TIER2_MAX_MILES} mi @ $${OVERAGE_PER_MILE}/mi${freq})`, amount: overageTotal, note: true });
+    const freqEn = overageTrips === 1 ? "" : overageTrips === 5 ? " x 5 days/week" : " x ~21.7 days/month";
+    const freqEs = overageTrips === 1 ? "" : overageTrips === 5 ? ES.perWeek : ES.perMonth;
+    const overageLabel = isEs
+      ? ES.extraDistance(round1(overageMiles), TIER2_MAX_MILES, OVERAGE_PER_MILE, freqEs)
+      : `Extra distance (+${round1(overageMiles)} mi beyond ${TIER2_MAX_MILES} mi @ $${OVERAGE_PER_MILE}/mi${freqEn})`;
+    breakdown.push({ label: overageLabel, amount: overageTotal, note: true });
   }
   let childrenSurcharge = 0;
   for (let i = 2; i <= childCount; i++) {
@@ -102,14 +124,14 @@ export async function onRequestPost({ request, env }) {
       ? (i === 2 ? tier.child2 : tier.child3plus)
       : round2(perChildBase * (i === 2 ? SECOND_CHILD_PCT : THIRD_PLUS_CHILD_PCT));
     childrenSurcharge += add;
-    breakdown.push({ label: `Child ${i}`, amount: add });
+    breakdown.push({ label: isEs ? ES.child(i) : `Child ${i}`, amount: add });
   }
 
   const total = round2(basePrice + overageTotal + childrenSurcharge);
 
   return json({
     distanceMiles: round1(miles),
-    tier: tier.label,
+    tier: tierLabel,
     withinFlatRadius: overageMiles === 0,
     breakdown,
     total,

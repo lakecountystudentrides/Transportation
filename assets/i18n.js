@@ -1,8 +1,16 @@
-// Lightweight EN/ES toggle. Translatable elements carry the Spanish text
-// right on the element via data-i18n-es (innerHTML) or, for attributes
-// like placeholder/alt, data-i18n-es-<attr>. The English version is
-// captured from the live DOM the first time a page switches to Spanish,
-// so there's no separate English dictionary to keep in sync with the HTML.
+// Lightweight EN/ES toggle. Translatable static HTML carries the Spanish
+// text right on the element via data-i18n-es (innerHTML) or
+// data-i18n-es-placeholder for inputs. The English version is captured
+// from the live DOM the first time a page switches to Spanish, so there's
+// no separate English dictionary to keep in sync with the HTML.
+//
+// Dynamically-generated text (built in JS -- price breakdowns, trip cards,
+// error messages) can't carry a data attribute before it exists, so those
+// scripts call window.LCSR_T(en, es) at the point they build each string,
+// and re-run their own render function on the 'lcsr:langchange' event this
+// file dispatches on `document` whenever the language changes -- see
+// booking.js, driver.js, manage-drivers.js, parent-portal.js.
+//
 // The chosen language is remembered (localStorage) and re-applied on every
 // page load, so it carries across the site as someone navigates.
 (function () {
@@ -11,6 +19,11 @@
   function currentLang() {
     try { return localStorage.getItem(STORAGE_KEY) || 'en'; } catch { return 'en'; }
   }
+
+  window.LCSR_LANG = currentLang();
+  window.LCSR_T = function (en, es) {
+    return window.LCSR_LANG === 'es' ? es : en;
+  };
 
   function applyLang(lang) {
     document.querySelectorAll('[data-i18n-es]').forEach((el) => {
@@ -32,7 +45,9 @@
 
   function setLang(lang) {
     try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
+    window.LCSR_LANG = lang;
     applyLang(lang);
+    document.dispatchEvent(new CustomEvent('lcsr:langchange', { detail: { lang } }));
   }
 
   document.addEventListener('DOMContentLoaded', () => {
