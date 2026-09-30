@@ -267,6 +267,10 @@ a { color: var(--navy); }
   border-color: var(--gold);
   box-shadow: var(--shadow);
 }
+.pricing-grid .price-card:nth-child(1) { background: #eef3f8; }
+.pricing-grid .price-card:nth-child(2) { background: #eef7f0; }
+.pricing-grid .price-card:nth-child(3) { background: #f3eef7; }
+.pricing-grid .price-card:nth-child(4) { background: #fdf3e3; }
 .price {
   font-size: 1.6rem;
   font-weight: 800;
