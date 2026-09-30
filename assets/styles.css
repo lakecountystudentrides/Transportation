@@ -287,7 +287,7 @@ a { color: var(--navy); }
 /* Our Story */
 .story-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 2.5rem;
   align-items: center;
 }
