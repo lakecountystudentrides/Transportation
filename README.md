@@ -15,6 +15,8 @@ Live site: [`index.html`](index.html) (homepage), [`book.html`](book.html) (book
 - `parent-forgot-password.js` / `parent-reset-password.js` — emails a time-limited reset link via Resend (`functions/_lib/resetToken.js`); see [`reset-password.html`](reset-password.html)
 - `pay-past-due.js` — pays off a parent's past-due balance (from a failed bank transfer or failed monthly renewal, tracked in `functions/_lib/pastDue.js`); `checkout.js` blocks new bookings for that email until it's cleared. Same credit card/debit card/bank-transfer choice and 3% credit card surcharge as `checkout.js`
 
+`assets/i18n.js` powers an English/Spanish toggle ("Español" button in the header) on the homepage (`index.html`) — the Spanish text lives right on each element via a `data-i18n-es` attribute, so it's easy to find and edit in the HTML itself; the chosen language is remembered (localStorage) across pages. Not yet extended to `book.html` or the other pages, since their dynamic, JS-generated content (price breakdowns, form validation messages, etc.) needs the same treatment added to `assets/booking.js` and friends.
+
 All of this requires environment variables and a KV binding set in Cloudflare (see `.env.example` and `docs/12-deployment-checklist.md`) before it works end to end.
 
 Parents book and pay online for safe, background-checked transportation for their children to and from school, daycare, after-school programs, sports, camps, and tutoring — with a driver dashboard for trip management and pickup/drop-off email notifications.
