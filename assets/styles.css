@@ -130,7 +130,7 @@ a { color: var(--navy); }
 .btn-navy-white:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
 [data-lang-toggle] {
   background: var(--navy);
-  color: var(--gold);
+  color: #fff;
   border-color: var(--navy);
 }
 [data-lang-toggle]:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
