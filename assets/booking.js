@@ -28,6 +28,19 @@
   let stage = 'quote'; // 'quote' -> 'pay'
   let isMonthly = false;
 
+  // Fail closed: assume bookings are closed until /api/booking-status says
+  // otherwise, so a slow or failed request never lets someone through.
+  let bookingsOpen = false;
+  const closedBanner = document.getElementById('booking-closed-banner');
+  fetch('/api/booking-status')
+    .then((r) => r.json())
+    .then((d) => {
+      bookingsOpen = !!d.open;
+      closedBanner.hidden = bookingsOpen;
+      if (stage === 'pay') setLoading(false, payButtonLabel());
+    })
+    .catch(() => { closedBanner.hidden = false; });
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     hideError();
@@ -43,6 +56,13 @@
     if (stage === 'quote') {
       await getPrice();
     } else {
+      if (!bookingsOpen) {
+        showError(T(
+          "We're not accepting bookings yet. Please contact us and we'll let you know as soon as we open.",
+          'Aún no estamos aceptando reservas. Por favor contáctenos y le avisaremos en cuanto abramos.'
+        ));
+        return;
+      }
       if (!document.getElementById('agreeCheckbox').checked) {
         showError(T(
           'Please check the box certifying you are the parent/guardian and agree to the Parent Transportation Agreement, Terms & Conditions, Liability Waiver, Emergency Medical Authorization, and Privacy Policy before booking.',
@@ -164,6 +184,7 @@
   }
 
   function payButtonLabel() {
+    if (!bookingsOpen) return T('Bookings Not Open Yet', 'Reservas Aún No Disponibles');
     const label = isMonthly && isAutoPayChecked() ? T('Subscribe & Pay', 'Suscribirse y Pagar') : T('Book & Pay', 'Reservar y Pagar');
     return `${label} $${displayTotal().toFixed(2)}`;
   }
@@ -304,7 +325,7 @@
   }
 
   function setLoading(isLoading, label) {
-    btn.disabled = isLoading;
+    btn.disabled = isLoading || (stage === 'pay' && !bookingsOpen);
     btn.textContent = label;
   }
 

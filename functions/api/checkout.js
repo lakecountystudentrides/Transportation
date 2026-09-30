@@ -19,6 +19,7 @@
 // trip record for the driver dashboard (see docs/04-website-booking-system.md).
 
 import { getPastDue } from "../_lib/pastDue.js";
+import { BOOKINGS_OPEN } from "../_lib/bookingGate.js";
 
 // Only a credit card carries a surcharge, to cover processing cost -- debit
 // card and bank transfer (ACH) do not. Applied here, server-side, rather
@@ -41,6 +42,11 @@ export async function onRequestPost({ request, env }) {
 
   const { amount, description, customerEmail, category, autoPay, paymentMethod, lang } = body || {};
   const isEs = lang === "es";
+
+  if (!BOOKINGS_OPEN) {
+    return json({ error: isEs ? "Aún no estamos aceptando reservas. Por favor contáctenos y le avisaremos en cuanto abramos." : "We're not accepting bookings yet. Please contact us and we'll let you know as soon as we open." }, 503);
+  }
+
   const amountNum = Number(amount);
   if (!amountNum || amountNum <= 0 || amountNum > 5000) {
     return json({ error: isEs ? "Monto inválido." : "Invalid amount." }, 400);
