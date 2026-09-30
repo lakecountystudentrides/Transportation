@@ -17,7 +17,8 @@
         <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
         <span class="brand-name">Lake County<br>Student Rides</span>
       </a>
-      <span style="font-weight:700; color:var(--navy-dark);">Driver Dashboard</span>
+      <span style="font-weight:700; color:var(--navy-dark);" data-i18n-es="Panel del Conductor">Driver Dashboard</span>
+      <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
     </div>
   </header>
 
@@ -25,13 +26,13 @@
     <section class="section booking-section">
       <div class="wrap booking-wrap">
         <div id="login-panel">
-          <h1>Driver Login</h1>
-          <p class="section-lede">Enter your driver access code to see today's trips.</p>
+          <h1 data-i18n-es="Inicio de Sesión del Conductor">Driver Login</h1>
+          <p class="section-lede" data-i18n-es="Ingrese su código de acceso de conductor para ver los viajes de hoy.">Enter your driver access code to see today's trips.</p>
           <div class="form-row">
-            <label for="driverToken">Access code</label>
+            <label for="driverToken" data-i18n-es="Código de acceso">Access code</label>
             <input id="driverToken" type="password" autocomplete="off" />
           </div>
-          <button id="login-btn" class="btn btn-primary btn-lg">Unlock Dashboard</button>
+          <button id="login-btn" class="btn btn-primary btn-lg" data-i18n-es="Desbloquear Panel">Unlock Dashboard</button>
           <div id="login-error" class="price-error" role="alert" hidden></div>
         </div>
       </div>
@@ -41,16 +42,16 @@
       <div class="wrap">
         <div id="trips-panel" class="driver-columns" hidden>
           <div>
-            <h1>Today's Trips</h1>
-            <p class="section-lede">Most recent bookings first.</p>
-            <button id="refresh-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Refresh</button>
-            <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Log Out</button>
+            <h1 data-i18n-es="Viajes de Hoy">Today's Trips</h1>
+            <p class="section-lede" data-i18n-es="Reservas más recientes primero.">Most recent bookings first.</p>
+            <button id="refresh-btn" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="Actualizar">Refresh</button>
+            <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="Cerrar Sesión">Log Out</button>
             <div id="trip-list"></div>
             <div id="trips-error" class="price-error" role="alert" hidden></div>
           </div>
           <div>
-            <h2>Today's Roster</h2>
-            <p class="section-lede">Resets automatically every day.</p>
+            <h2 data-i18n-es="Lista de Hoy">Today's Roster</h2>
+            <p class="section-lede" data-i18n-es="Se reinicia automáticamente cada día.">Resets automatically every day.</p>
             <div id="today-summary"></div>
           </div>
         </div>
@@ -60,11 +61,12 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p>&copy; <span id="year"></span> <span data-i18n-es="Lake County Student Rides. Todos los derechos reservados.">Lake County Student Rides. All rights reserved.</span></p>
     </div>
   </footer>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
   <script src="/assets/driver.js"></script>
 </body>
 </html>

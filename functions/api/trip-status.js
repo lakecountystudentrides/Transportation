@@ -28,19 +28,20 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: "Invalid request." }, 400);
   }
+  const isEs = body?.lang === "es";
 
   const { tripId, leg, action } = body || {};
   if (!tripId || !["dropoff", "pickup"].includes(leg) || !["start", "arrive"].includes(action)) {
-    return json({ error: "Invalid request." }, 400);
+    return json({ error: isEs ? "Solicitud inválida." : "Invalid request." }, 400);
   }
 
   const raw = await env.TRIPS_KV.get(`trip:${tripId}`);
-  if (!raw) return json({ error: "Trip not found." }, 404);
+  if (!raw) return json({ error: isEs ? "Viaje no encontrado." : "Trip not found." }, 404);
   const trip = JSON.parse(raw);
 
   const legs = legsFor(trip.category);
   if (!legs.includes(leg)) {
-    return json({ error: "This trip doesn't have that leg." }, 400);
+    return json({ error: isEs ? "Este viaje no tiene ese tramo." : "This trip doesn't have that leg." }, 400);
   }
 
   const dateKey = getDateKey(trip);

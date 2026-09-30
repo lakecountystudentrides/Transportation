@@ -12,6 +12,9 @@
 
   const STORAGE_KEY = 'lcsr_driver_token';
 
+  function T(en, es) { return window.LCSR_T ? window.LCSR_T(en, es) : en; }
+  function lang() { return window.LCSR_LANG || 'en'; }
+
   const savedToken = safeStorageGet(STORAGE_KEY);
   if (savedToken) {
     tokenInput.value = savedToken;
@@ -35,6 +38,10 @@
     loginPanel.hidden = false;
   });
 
+  document.addEventListener('lcsr:langchange', function () {
+    if (!tripsPanel.hidden) loadTrips(safeStorageGet(STORAGE_KEY));
+  });
+
   async function tryLoad(token) {
     hideError(loginError);
     const ok = await loadTrips(token);
@@ -43,7 +50,7 @@
       loginPanel.hidden = true;
       tripsPanel.hidden = false;
     } else {
-      showError(loginError, 'Incorrect access code.');
+      showError(loginError, T('Incorrect access code.', 'Código de acceso incorrecto.'));
     }
   }
 
@@ -54,26 +61,28 @@
       const data = await res.json();
       if (!res.ok || data.error) {
         if (res.status === 401) return false;
-        showError(tripsError, data.error || 'Unable to load trips.');
+        showError(tripsError, data.error || T('Unable to load trips.', 'No se pudieron cargar los viajes.'));
         return true;
       }
       renderTrips(data.trips || [], token);
       renderTodaySummary(data.trips || []);
       return true;
     } catch {
-      showError(tripsError, 'Unable to reach the server. Please try again.');
+      showError(tripsError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
       return true;
     }
   }
 
-  const LEG_INFO = {
-    dropoff: { startLabel: 'Start Drop-off', arriveLabel: 'Arrived at School' },
-    pickup: { startLabel: 'Start Pickup', arriveLabel: 'Arrived Home' },
-  };
+  function legInfo() {
+    return {
+      dropoff: { startLabel: T('Start Drop-off', 'Iniciar Entrega'), arriveLabel: T('Arrived at School', 'Llegó a la Escuela') },
+      pickup: { startLabel: T('Start Pickup', 'Iniciar Recogida'), arriveLabel: T('Arrived Home', 'Llegó a Casa') },
+    };
+  }
 
   function renderTrips(trips, token) {
     if (!trips.length) {
-      tripList.innerHTML = '<p>No trips yet.</p>';
+      tripList.innerHTML = `<p>${T('No trips yet.', 'Aún no hay viajes.')}</p>`;
       return;
     }
     tripList.innerHTML = trips.map((t) => tripCard(t)).join('');
@@ -85,23 +94,23 @@
         const action = btn.getAttribute('data-action');
         const prevLabel = btn.textContent;
         btn.disabled = true;
-        btn.textContent = 'Updating…';
+        btn.textContent = T('Updating…', 'Actualizando…');
         try {
           const res = await fetch('/api/trip-status', {
             method: 'POST',
             headers: { 'content-type': 'application/json', 'x-driver-token': token },
-            body: JSON.stringify({ tripId, leg, action }),
+            body: JSON.stringify({ tripId, leg, action, lang: lang() }),
           });
           const data = await res.json();
           if (!res.ok || data.error) {
-            showError(tripsError, data.error || 'Unable to update trip.');
+            showError(tripsError, data.error || T('Unable to update trip.', 'No se pudo actualizar el viaje.'));
             btn.disabled = false;
             btn.textContent = prevLabel;
             return;
           }
           loadTrips(token);
         } catch {
-          showError(tripsError, 'Unable to reach the server. Please try again.');
+          showError(tripsError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
         }
       });
     });
@@ -134,6 +143,7 @@
     const legs = legsFor(t.category);
     const dateKey = todayDateKey(t);
     const today = (t.dailyProgress && t.dailyProgress[dateKey]) || {};
+    const LEG_INFO = legInfo();
 
     return legs.map((leg) => {
       const info = LEG_INFO[leg];
@@ -171,7 +181,7 @@
       const legs = legsFor(t.category);
       const dateKey = todayDateKey(t);
       const today = (t.dailyProgress && t.dailyProgress[dateKey]) || {};
-      const name = escapeHtml(t.childName) || 'Child';
+      const name = escapeHtml(t.childName) || T('Child', 'Niño/a');
 
       dropoffs.push({ name, time: t.dropoffTime || '', done: today.dropoff === 'arrived' });
       if (legs.includes('pickup')) {
@@ -184,20 +194,20 @@
     pickups.sort(byTime);
 
     if (!dropoffs.length && !pickups.length) {
-      todaySummaryEl.innerHTML = '<p>No trips scheduled for today.</p>';
+      todaySummaryEl.innerHTML = `<p>${T('No trips scheduled for today.', 'No hay viajes programados para hoy.')}</p>`;
       return;
     }
 
     todaySummaryEl.innerHTML = `
-      <h3 style="margin-bottom:0.25rem;">Drop-off to School</h3>
+      <h3 style="margin-bottom:0.25rem;">${T('Drop-off to School', 'Entrega en la Escuela')}</h3>
       ${rosterList(dropoffs)}
-      <h3 style="margin:1.25rem 0 0.25rem;">Pickup from School</h3>
+      <h3 style="margin:1.25rem 0 0.25rem;">${T('Pickup from School', 'Recogida de la Escuela')}</h3>
       ${rosterList(pickups)}
     `;
   }
 
   function rosterList(items) {
-    if (!items.length) return '<p class="price-row-note">None today.</p>';
+    if (!items.length) return `<p class="price-row-note">${T('None today.', 'Ninguno hoy.')}</p>`;
     return items.map((item) => `
       <div class="roster-item${item.done ? ' roster-done' : ''}">
         <span>${item.name}</span>
@@ -212,7 +222,7 @@
     const today = (t.dailyProgress && t.dailyProgress[dateKey]) || {};
     const allArrived = legs.every((l) => today[l] === 'arrived');
     const anyStarted = legs.some((l) => today[l] === 'started' || today[l] === 'arrived');
-    return allArrived ? 'Completed' : anyStarted ? 'In Progress' : 'Scheduled';
+    return allArrived ? T('Completed', 'Completado') : anyStarted ? T('In Progress', 'En Progreso') : T('Scheduled', 'Programado');
   }
 
   function recurringNote(t) {
@@ -223,14 +233,16 @@
     const end = new Date(start);
     if (isMonthly) end.setMonth(end.getMonth() + 1);
     else end.setDate(end.getDate() + 6);
-    const range = `${start.toLocaleDateString('en-US', { dateStyle: 'medium' })} – ${end.toLocaleDateString('en-US', { dateStyle: 'medium' })}`;
-    return `<p class="price-note">Recurring ${isMonthly ? 'monthly' : 'weekly'} plan — continue Start/Arrived every school day through ${range}.</p>`;
+    const locale = lang() === 'es' ? 'es' : 'en-US';
+    const range = `${start.toLocaleDateString(locale, { dateStyle: 'medium' })} – ${end.toLocaleDateString(locale, { dateStyle: 'medium' })}`;
+    const planWord = isMonthly ? T('monthly', 'mensual') : T('weekly', 'semanal');
+    return `<p class="price-note">${T(`Recurring ${planWord} plan — continue Start/Arrived every school day through ${range}.`, `Plan recurrente ${planWord} — continúe Iniciar/Llegó cada día escolar hasta ${range}.`)}</p>`;
   }
 
   function tripCard(t) {
     const statusLabel = overallStatusLabel(t);
-    const ageGrade = [t.childAge ? `age ${escapeHtml(t.childAge)}` : '', t.childGrade ? `grade ${escapeHtml(t.childGrade)}` : ''].filter(Boolean).join(', ');
-    const childLabel = [escapeHtml(t.childName) || 'Child', ageGrade].filter(Boolean).join(' — ');
+    const ageGrade = [t.childAge ? `${T('age', 'edad')} ${escapeHtml(t.childAge)}` : '', t.childGrade ? `${T('grade', 'grado')} ${escapeHtml(t.childGrade)}` : ''].filter(Boolean).join(', ');
+    const childLabel = [escapeHtml(t.childName) || T('Child', 'Niño/a'), ageGrade].filter(Boolean).join(' — ');
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total">
@@ -238,16 +250,16 @@
           <span>${statusLabel}</span>
         </div>
         ${paymentBadge(t.paymentStatus)}
-        <div class="price-row"><span>Start Date</span><span>${formatDate(t)}</span></div>
-        <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${phoneLink(t.parentPhone)}</span></div>
-        <div class="price-row"><span>Pickup address</span><span>${addressLink(t.pickupAddress)}</span></div>
-        <div class="price-row"><span>Drop-off address</span><span>${addressLink(t.dropoffAddress)}</span></div>
-        ${t.activityAddress ? `<div class="price-row"><span>Then to</span><span>${addressLink(t.activityAddress)}</span></div>` : ''}
-        <div class="price-row"><span>Time to be dropped off to school</span><span>${t.dropoffTime ? formatTime(t.dropoffTime) : '—'}</span></div>
-        <div class="price-row"><span>Time to be picked up from school</span><span>${t.pickupTime ? formatTime(t.pickupTime) : '—'}</span></div>
-        ${t.instructions ? `<div class="price-row price-row-note"><span>Notes</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
-        ${contactListRows('Emergency Contact', t.emergencyContacts)}
-        ${contactListRows('Authorized Pickup/Drop-off', t.authorizedPickups)}
+        <div class="price-row"><span>${T('Start Date', 'Fecha de Inicio')}</span><span>${formatDate(t)}</span></div>
+        <div class="price-row"><span>${T('Parent', 'Padre/Madre')}</span><span>${escapeHtml(t.parentName) || '—'} ${phoneLink(t.parentPhone)}</span></div>
+        <div class="price-row"><span>${T('Pickup address', 'Dirección de recogida')}</span><span>${addressLink(t.pickupAddress)}</span></div>
+        <div class="price-row"><span>${T('Drop-off address', 'Dirección de entrega')}</span><span>${addressLink(t.dropoffAddress)}</span></div>
+        ${t.activityAddress ? `<div class="price-row"><span>${T('Then to', 'Luego a')}</span><span>${addressLink(t.activityAddress)}</span></div>` : ''}
+        <div class="price-row"><span>${T('Time to be dropped off to school', 'Hora de entrega en la escuela')}</span><span>${t.dropoffTime ? formatTime(t.dropoffTime) : '—'}</span></div>
+        <div class="price-row"><span>${T('Time to be picked up from school', 'Hora de recogida de la escuela')}</span><span>${t.pickupTime ? formatTime(t.pickupTime) : '—'}</span></div>
+        ${t.instructions ? `<div class="price-row price-row-note"><span>${T('Notes', 'Notas')}</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
+        ${contactListRows(T('Emergency Contact', 'Contacto de Emergencia'), t.emergencyContacts)}
+        ${contactListRows(T('Authorized Pickup/Drop-off', 'Recogida/Entrega Autorizada'), t.authorizedPickups)}
         ${recurringNote(t)}
         ${legButtons(t)}
       </div>
@@ -269,12 +281,13 @@
   }
 
   function formatDate(t) {
+    const locale = lang() === 'es' ? 'es' : 'en-US';
     if (t.startDate) {
       const d = new Date(`${t.startDate}T00:00`);
-      if (!isNaN(d)) return d.toLocaleDateString('en-US', { dateStyle: 'medium' });
+      if (!isNaN(d)) return d.toLocaleDateString(locale, { dateStyle: 'medium' });
     }
     if (t.createdAt) {
-      return new Date(t.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' }) + ' (booked)';
+      return new Date(t.createdAt).toLocaleDateString(locale, { dateStyle: 'medium' }) + T(' (booked)', ' (reservado)');
     }
     return '—';
   }
@@ -289,10 +302,10 @@
 
   function paymentBadge(paymentStatus) {
     if (paymentStatus === 'pending') {
-      return '<div class="price-row"><span></span><span style="color:#a66a00; font-weight:700;">Bank transfer pending — trip is still on</span></div>';
+      return `<div class="price-row"><span></span><span style="color:#a66a00; font-weight:700;">${T('Bank transfer pending — trip is still on', 'Transferencia bancaria pendiente — el viaje continúa')}</span></div>`;
     }
     if (paymentStatus === 'failed') {
-      return '<div class="price-row"><span></span><span style="color:#8a1f1f; font-weight:700;">Bank transfer failed — follow up with parent</span></div>';
+      return `<div class="price-row"><span></span><span style="color:#8a1f1f; font-weight:700;">${T('Bank transfer failed — follow up with parent', 'Transferencia bancaria fallida — comuníquese con el padre/madre')}</span></div>`;
     }
     return '';
   }
