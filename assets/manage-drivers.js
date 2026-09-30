@@ -21,8 +21,15 @@
   const rosterError = document.getElementById('roster-error');
   const rosterRefreshBtn = document.getElementById('roster-refresh-btn');
 
+  function T(en, es) { return window.LCSR_T ? window.LCSR_T(en, es) : en; }
+  function lang() { return window.LCSR_LANG || 'en'; }
+
   // If a valid session cookie already exists from a previous visit, skip straight to the drivers list.
   loadDrivers();
+
+  document.addEventListener('lcsr:langchange', () => {
+    if (!driversPanel.hidden) loadDrivers();
+  });
 
   loginBtn.addEventListener('click', async () => {
     hideError(loginError);
@@ -35,16 +42,16 @@
       const res = await fetch('/api/owner-login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(loginError, data.error || 'Incorrect username or password.');
+        showError(loginError, data.error || T('Incorrect username or password.', 'Nombre de usuario o contraseña incorrectos.'));
         return;
       }
       await loadDrivers();
     } catch {
-      showError(loginError, 'Unable to reach the server. Please try again.');
+      showError(loginError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     } finally {
       loginBtn.disabled = false;
     }
@@ -67,7 +74,7 @@
       rosterSection.hidden = false;
       await loadRoster();
     } catch {
-      showError(driversError, 'Unable to reach the server. Please try again.');
+      showError(driversError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     }
   }
 
@@ -86,12 +93,12 @@
       const res = await fetch('/api/owner-trips');
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(rosterError, data.error || 'Unable to load roster.');
+        showError(rosterError, data.error || T('Unable to load roster.', 'No se pudo cargar la lista.'));
         return;
       }
       renderRoster(data.trips || []);
     } catch {
-      showError(rosterError, 'Unable to reach the server. Please try again.');
+      showError(rosterError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     }
   }
 
@@ -101,8 +108,9 @@
     const pickups = active.filter((t) => legsFor(t.category).includes('pickup'))
       .sort((a, b) => (a.pickupTime || '99:99').localeCompare(b.pickupTime || '99:99'));
 
-    rosterDropoffEl.innerHTML = dropoffs.length ? dropoffs.map(ownerTripCard).join('') : '<p>No trips today.</p>';
-    rosterPickupEl.innerHTML = pickups.length ? pickups.map(ownerTripCard).join('') : '<p>No trips today.</p>';
+    const noneToday = `<p>${T('No trips today.', 'No hay viajes hoy.')}</p>`;
+    rosterDropoffEl.innerHTML = dropoffs.length ? dropoffs.map(ownerTripCard).join('') : noneToday;
+    rosterPickupEl.innerHTML = pickups.length ? pickups.map(ownerTripCard).join('') : noneToday;
   }
 
   function isRoundTrip(category) {
@@ -137,13 +145,25 @@
     const today = (t.dailyProgress && t.dailyProgress[dateKey]) || {};
     const allArrived = legs.every((l) => today[l] === 'arrived');
     const anyStarted = legs.some((l) => today[l] === 'started' || today[l] === 'arrived');
-    return allArrived ? 'Completed' : anyStarted ? 'In Progress' : 'Scheduled';
+    return allArrived ? T('Completed', 'Completado') : anyStarted ? T('In Progress', 'En Progreso') : T('Scheduled', 'Programado');
   }
 
   function legStatusText(state) {
-    if (state === 'arrived') return '✓ Completed';
-    if (state === 'started') return 'In Progress';
-    return 'Not started yet';
+    if (state === 'arrived') return `✓ ${T('Completed', 'Completado')}`;
+    if (state === 'started') return T('In Progress', 'En Progreso');
+    return T('Not started yet', 'Aún no ha comenzado');
+  }
+
+  const CATEGORY_LABELS_ES = {
+    'One-way': 'Solo ida',
+    'Round trip': 'Viaje redondo',
+    'Weekly, one-way only': 'Semanal, solo ida',
+    'Weekly, round trip': 'Semanal, viaje redondo',
+    'Monthly, one route/day': 'Mensual, una ruta/día',
+    'Monthly, two routes/day (round trip)': 'Mensual, dos rutas/día (viaje redondo)',
+  };
+  function categoryLabel(category) {
+    return lang() === 'es' ? (CATEGORY_LABELS_ES[category] || category) : category;
   }
 
   function recurringNote(t) {
@@ -154,13 +174,15 @@
     const end = new Date(start);
     if (isMonthly) end.setMonth(end.getMonth() + 1);
     else end.setDate(end.getDate() + 6);
-    const range = `${start.toLocaleDateString('en-US', { dateStyle: 'medium' })} – ${end.toLocaleDateString('en-US', { dateStyle: 'medium' })}`;
-    return `<p class="price-note">Recurring ${isMonthly ? 'monthly' : 'weekly'} plan — continue through ${range}.</p>`;
+    const locale = lang() === 'es' ? 'es' : 'en-US';
+    const range = `${start.toLocaleDateString(locale, { dateStyle: 'medium' })} – ${end.toLocaleDateString(locale, { dateStyle: 'medium' })}`;
+    const planWord = isMonthly ? T('monthly', 'mensual') : T('weekly', 'semanal');
+    return `<p class="price-note">${T(`Recurring ${planWord} plan — continue through ${range}.`, `Plan recurrente ${planWord} — continúe hasta ${range}.`)}</p>`;
   }
 
   function ownerTripCard(t) {
-    const ageGrade = [t.childAge ? `age ${escapeHtml(t.childAge)}` : '', t.childGrade ? `grade ${escapeHtml(t.childGrade)}` : ''].filter(Boolean).join(', ');
-    const childLabel = [escapeHtml(t.childName) || 'Child', ageGrade].filter(Boolean).join(' — ');
+    const ageGrade = [t.childAge ? `${T('age', 'edad')} ${escapeHtml(t.childAge)}` : '', t.childGrade ? `${T('grade', 'grado')} ${escapeHtml(t.childGrade)}` : ''].filter(Boolean).join(', ');
+    const childLabel = [escapeHtml(t.childName) || T('Child', 'Niño/a'), ageGrade].filter(Boolean).join(' — ');
     const legs = legsFor(t.category);
     const dateKey = todayDateKey(t);
     const today = (t.dailyProgress && t.dailyProgress[dateKey]) || {};
@@ -172,19 +194,19 @@
           <span>${overallStatusLabel(t)}</span>
         </div>
         ${paymentBadge(t.paymentStatus)}
-        <div class="price-row"><span>Start Date</span><span>${formatDate(t)}</span></div>
-        <div class="price-row"><span>Service</span><span>${escapeHtml(t.category) || '—'}</span></div>
-        <div class="price-row"><span>Parent</span><span>${escapeHtml(t.parentName) || '—'} ${phoneLink(t.parentPhone)}</span></div>
-        <div class="price-row"><span>Pickup address</span><span>${addressLink(t.pickupAddress)}</span></div>
-        <div class="price-row"><span>Drop-off address</span><span>${addressLink(t.dropoffAddress)}</span></div>
-        ${t.activityAddress ? `<div class="price-row"><span>Then to</span><span>${addressLink(t.activityAddress)}</span></div>` : ''}
-        <div class="price-row"><span>Time to be dropped off to school</span><span>${t.dropoffTime ? formatTime(t.dropoffTime) : '—'}</span></div>
-        <div class="price-row"><span>Time to be picked up from school</span><span>${t.pickupTime ? formatTime(t.pickupTime) : '—'}</span></div>
-        ${t.instructions ? `<div class="price-row price-row-note"><span>Notes</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
-        ${contactListRows('Emergency Contact', t.emergencyContacts)}
-        ${contactListRows('Authorized Pickup/Drop-off', t.authorizedPickups)}
-        <div class="price-row"><span>Drop-off leg</span><span>${legStatusText(today.dropoff)}</span></div>
-        ${legs.includes('pickup') ? `<div class="price-row"><span>Pickup leg</span><span>${legStatusText(today.pickup)}</span></div>` : ''}
+        <div class="price-row"><span>${T('Start Date', 'Fecha de Inicio')}</span><span>${formatDate(t)}</span></div>
+        <div class="price-row"><span>${T('Service', 'Servicio')}</span><span>${escapeHtml(categoryLabel(t.category)) || '—'}</span></div>
+        <div class="price-row"><span>${T('Parent', 'Padre/Madre')}</span><span>${escapeHtml(t.parentName) || '—'} ${phoneLink(t.parentPhone)}</span></div>
+        <div class="price-row"><span>${T('Pickup address', 'Dirección de recogida')}</span><span>${addressLink(t.pickupAddress)}</span></div>
+        <div class="price-row"><span>${T('Drop-off address', 'Dirección de entrega')}</span><span>${addressLink(t.dropoffAddress)}</span></div>
+        ${t.activityAddress ? `<div class="price-row"><span>${T('Then to', 'Luego a')}</span><span>${addressLink(t.activityAddress)}</span></div>` : ''}
+        <div class="price-row"><span>${T('Time to be dropped off to school', 'Hora de entrega en la escuela')}</span><span>${t.dropoffTime ? formatTime(t.dropoffTime) : '—'}</span></div>
+        <div class="price-row"><span>${T('Time to be picked up from school', 'Hora de recogida de la escuela')}</span><span>${t.pickupTime ? formatTime(t.pickupTime) : '—'}</span></div>
+        ${t.instructions ? `<div class="price-row price-row-note"><span>${T('Notes', 'Notas')}</span><span>${escapeHtml(t.instructions)}</span></div>` : ''}
+        ${contactListRows(T('Emergency Contact', 'Contacto de Emergencia'), t.emergencyContacts)}
+        ${contactListRows(T('Authorized Pickup/Drop-off', 'Recogida/Entrega Autorizada'), t.authorizedPickups)}
+        <div class="price-row"><span>${T('Drop-off leg', 'Tramo de entrega')}</span><span>${legStatusText(today.dropoff)}</span></div>
+        ${legs.includes('pickup') ? `<div class="price-row"><span>${T('Pickup leg', 'Tramo de recogida')}</span><span>${legStatusText(today.pickup)}</span></div>` : ''}
         ${recurringNote(t)}
       </div>
     `;
@@ -205,12 +227,13 @@
   }
 
   function formatDate(t) {
+    const locale = lang() === 'es' ? 'es' : 'en-US';
     if (t.startDate) {
       const d = new Date(`${t.startDate}T00:00`);
-      if (!isNaN(d)) return d.toLocaleDateString('en-US', { dateStyle: 'medium' });
+      if (!isNaN(d)) return d.toLocaleDateString(locale, { dateStyle: 'medium' });
     }
     if (t.createdAt) {
-      return new Date(t.createdAt).toLocaleDateString('en-US', { dateStyle: 'medium' }) + ' (booked)';
+      return new Date(t.createdAt).toLocaleDateString(locale, { dateStyle: 'medium' }) + T(' (booked)', ' (reservado)');
     }
     return '—';
   }
@@ -225,10 +248,10 @@
 
   function paymentBadge(paymentStatus) {
     if (paymentStatus === 'pending') {
-      return '<div class="price-row"><span></span><span style="color:#a66a00; font-weight:700;">Bank transfer pending — trip is still on</span></div>';
+      return `<div class="price-row"><span></span><span style="color:#a66a00; font-weight:700;">${T('Bank transfer pending — trip is still on', 'Transferencia bancaria pendiente — el viaje continúa')}</span></div>`;
     }
     if (paymentStatus === 'failed') {
-      return '<div class="price-row"><span></span><span style="color:#8a1f1f; font-weight:700;">Bank transfer failed — follow up with parent</span></div>';
+      return `<div class="price-row"><span></span><span style="color:#8a1f1f; font-weight:700;">${T('Bank transfer failed — follow up with parent', 'Transferencia bancaria fallida — comuníquese con el padre/madre')}</span></div>`;
     }
     return '';
   }
@@ -256,19 +279,22 @@
       const res = await fetch('/api/drivers', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, lang: lang() }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        showError(addDriverError, data.error || 'Unable to add driver.');
+        showError(addDriverError, data.error || T('Unable to add driver.', 'No se pudo agregar el conductor.'));
         return;
       }
       newDriverName.value = '';
-      newDriverCode.textContent = `${data.name}'s access code: ${data.code} — give this to them to sign in at /driver.html`;
+      newDriverCode.textContent = T(
+        `${data.name}'s access code: ${data.code} — give this to them to sign in at /driver.html`,
+        `Código de acceso de ${data.name}: ${data.code} — entrégueselo para que inicie sesión en /driver.html`
+      );
       newDriverCode.hidden = false;
       await loadDrivers();
     } catch {
-      showError(addDriverError, 'Unable to reach the server. Please try again.');
+      showError(addDriverError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     } finally {
       addDriverBtn.disabled = false;
     }
@@ -276,7 +302,7 @@
 
   function renderDrivers(drivers) {
     if (!drivers.length) {
-      driverList.innerHTML = '<p>No drivers added yet.</p>';
+      driverList.innerHTML = `<p>${T('No drivers added yet.', 'Aún no se han agregado conductores.')}</p>`;
       return;
     }
     driverList.innerHTML = drivers.map(driverCard).join('');
@@ -290,17 +316,17 @@
           const res = await fetch('/api/driver-deactivate', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ code, active: nextActive }),
+            body: JSON.stringify({ code, active: nextActive, lang: lang() }),
           });
           const data = await res.json();
           if (!res.ok || data.error) {
-            showError(driversError, data.error || 'Unable to update driver.');
+            showError(driversError, data.error || T('Unable to update driver.', 'No se pudo actualizar el conductor.'));
             btn.disabled = false;
             return;
           }
           await loadDrivers();
         } catch {
-          showError(driversError, 'Unable to reach the server. Please try again.');
+          showError(driversError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
           btn.disabled = false;
         }
       });
@@ -309,12 +335,12 @@
 
   function driverCard(d) {
     const isActive = d.active !== false;
-    const actionLabel = isActive ? 'Deactivate' : 'Reactivate';
-    const statusLabel = isActive ? 'Active' : 'Deactivated';
+    const actionLabel = isActive ? T('Deactivate', 'Desactivar') : T('Reactivate', 'Reactivar');
+    const statusLabel = isActive ? T('Active', 'Activo') : T('Deactivated', 'Desactivado');
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(d.name)}</span><span>${statusLabel}</span></div>
-        <div class="price-row"><span>Access code</span><span>${escapeHtml(d.code)}</span></div>
+        <div class="price-row"><span>${T('Access code', 'Código de acceso')}</span><span>${escapeHtml(d.code)}</span></div>
         <button class="btn btn-ghost" data-toggle-code="${d.code}" data-next-active="${!isActive}" style="margin-top:0.5rem;">${actionLabel}</button>
       </div>
     `;

@@ -6,15 +6,16 @@
 import { createOwnerSessionCookie } from "../_lib/ownerSession.js";
 
 export async function onRequestPost({ request, env }) {
-  if (!env.OWNER_USERNAME || !env.OWNER_PASSWORD || !env.OWNER_SESSION_SECRET) {
-    return json({ error: "Owner login isn't configured yet." }, 503);
-  }
-
   let body;
   try {
     body = await request.json();
   } catch {
     return json({ error: "Invalid request." }, 400);
+  }
+  const isEs = body?.lang === "es";
+
+  if (!env.OWNER_USERNAME || !env.OWNER_PASSWORD || !env.OWNER_SESSION_SECRET) {
+    return json({ error: isEs ? "El inicio de sesión del propietario aún no está configurado." : "Owner login isn't configured yet." }, 503);
   }
 
   const username = String(body?.username || "");
@@ -23,7 +24,7 @@ export async function onRequestPost({ request, env }) {
   const usernameOk = timingSafeEqual(username, env.OWNER_USERNAME);
   const passwordOk = timingSafeEqual(password, env.OWNER_PASSWORD);
   if (!usernameOk || !passwordOk) {
-    return json({ error: "Incorrect username or password." }, 401);
+    return json({ error: isEs ? "Nombre de usuario o contraseña incorrectos." : "Incorrect username or password." }, 401);
   }
 
   const cookie = await createOwnerSessionCookie(username, env.OWNER_SESSION_SECRET);

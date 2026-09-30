@@ -17,7 +17,8 @@
         <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
         <span class="brand-name">Lake County<br>Student Rides</span>
       </a>
-      <span class="btn btn-primary" style="pointer-events:none;">Manager</span>
+      <span class="btn btn-primary" style="pointer-events:none;" data-i18n-es="Gerente">Manager</span>
+      <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
     </div>
   </header>
 
@@ -26,32 +27,32 @@
       <div class="wrap booking-wrap">
 
         <div id="login-panel">
-          <h1>Owner Login</h1>
-          <p class="section-lede">Sign in to manage drivers.</p>
+          <h1 data-i18n-es="Inicio de Sesión del Propietario">Owner Login</h1>
+          <p class="section-lede" data-i18n-es="Inicie sesión para administrar conductores.">Sign in to manage drivers.</p>
           <div class="form-row">
-            <label for="ownerUsername">Username</label>
+            <label for="ownerUsername" data-i18n-es="Nombre de usuario">Username</label>
             <input id="ownerUsername" type="text" autocomplete="username" />
           </div>
           <div class="form-row">
-            <label for="ownerPassword">Password</label>
+            <label for="ownerPassword" data-i18n-es="Contraseña">Password</label>
             <input id="ownerPassword" type="password" autocomplete="current-password" />
           </div>
-          <button id="login-btn" class="btn btn-primary btn-lg">Sign In</button>
+          <button id="login-btn" class="btn btn-primary btn-lg" data-i18n-es="Iniciar Sesión">Sign In</button>
           <div id="login-error" class="price-error" role="alert" hidden></div>
         </div>
 
         <div id="drivers-panel" hidden>
-          <h1>Drivers</h1>
-          <p class="section-lede">Each driver signs in at /driver.html with their own code below.</p>
-          <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;">Sign Out</button>
+          <h1 data-i18n-es="Conductores">Drivers</h1>
+          <p class="section-lede" data-i18n-es="Cada conductor inicia sesión en /driver.html con su propio código a continuación.">Each driver signs in at /driver.html with their own code below.</p>
+          <button id="logout-btn" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="Cerrar Sesión">Sign Out</button>
 
           <div class="price-result" style="margin-top:0;">
-            <h3>Add a Driver</h3>
+            <h3 data-i18n-es="Agregar un Conductor">Add a Driver</h3>
             <div class="form-row">
-              <label for="newDriverName">Driver's name</label>
+              <label for="newDriverName" data-i18n-es="Nombre del conductor">Driver's name</label>
               <input id="newDriverName" type="text" />
             </div>
-            <button id="add-driver-btn" class="btn btn-primary">Add Driver</button>
+            <button id="add-driver-btn" class="btn btn-primary" data-i18n-es="Agregar Conductor">Add Driver</button>
             <div id="add-driver-error" class="price-error" role="alert" hidden></div>
             <p id="new-driver-code" class="price-note" hidden></p>
           </div>
@@ -65,14 +66,14 @@
 
     <section class="section booking-section" id="roster-section" hidden>
       <div class="wrap booking-wrap">
-        <h1>Today's Roster</h1>
-        <p class="section-lede">Every child on today's schedule, full detail. Resets automatically every day.</p>
-        <button id="roster-refresh-btn" class="btn btn-ghost" style="margin-bottom:1.5rem;">Refresh</button>
+        <h1 data-i18n-es="Lista de Hoy">Today's Roster</h1>
+        <p class="section-lede" data-i18n-es="Todos los niños en el horario de hoy, con todo el detalle. Se reinicia automáticamente cada día.">Every child on today's schedule, full detail. Resets automatically every day.</p>
+        <button id="roster-refresh-btn" class="btn btn-ghost" style="margin-bottom:1.5rem;" data-i18n-es="Actualizar">Refresh</button>
 
-        <h2>Drop-off to School</h2>
+        <h2 data-i18n-es="Entrega en la Escuela">Drop-off to School</h2>
         <div id="roster-dropoff"></div>
 
-        <h2 style="margin-top:1.5rem;">Pickup from School</h2>
+        <h2 style="margin-top:1.5rem;" data-i18n-es="Recogida de la Escuela">Pickup from School</h2>
         <div id="roster-pickup"></div>
 
         <div id="roster-error" class="price-error" role="alert" hidden></div>
@@ -82,11 +83,12 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>&copy; <span id="year"></span> Lake County Student Rides. All rights reserved.</p>
+      <p>&copy; <span id="year"></span> <span data-i18n-es="Lake County Student Rides. Todos los derechos reservados.">Lake County Student Rides. All rights reserved.</span></p>
     </div>
   </footer>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
   <script src="/assets/manage-drivers.js"></script>
 </body>
 </html>

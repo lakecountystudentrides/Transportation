@@ -34,9 +34,10 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ error: "Invalid request." }, 400);
   }
+  const isEs = body?.lang === "es";
 
   const name = String(body?.name || "").trim();
-  if (!name) return json({ error: "Please enter the driver's name." }, 400);
+  if (!name) return json({ error: isEs ? "Por favor ingrese el nombre del conductor." : "Please enter the driver's name." }, 400);
 
   const code = crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
   const driver = { name, active: true, createdAt: new Date().toISOString() };
