@@ -3,7 +3,7 @@
   "short_name": "LCSR Manager",
   "id": "/manage-drivers.html",
   "start_url": "/manage-drivers.html",
-  "scope": "/",
+  "scope": "/manage-drivers.html",
   "display": "standalone",
   "background_color": "#16324f",
   "theme_color": "#16324f",
