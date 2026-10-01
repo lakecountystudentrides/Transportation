@@ -49,6 +49,15 @@
       <div class="wrap">
         <div id="trips-panel" class="driver-columns" hidden>
           <div>
+            <div id="clock-card" class="price-result" style="margin-top:0; margin-bottom:1.5rem;">
+              <div class="price-row price-row-total">
+                <span data-i18n-es="Reloj de Trabajo">Time Clock</span>
+                <span id="clock-status-label" data-i18n-es="Fuera de servicio">Clocked Out</span>
+              </div>
+              <div class="price-row"><span data-i18n-es="Horas de hoy">Hours Today</span><span id="clock-today-hours">0.00</span></div>
+              <button id="clock-btn" type="button" class="btn btn-primary" style="margin-top:0.75rem;" data-i18n-es="Marcar Entrada">Clock In</button>
+              <div id="clock-error" class="price-error" role="alert" hidden></div>
+            </div>
             <h1 data-i18n-es="Viajes de Hoy">Today's Trips</h1>
             <p class="section-lede" data-i18n-es="Reservas más recientes primero.">Most recent bookings first.</p>
             <button id="refresh-btn" class="btn btn-ghost" style="margin-bottom:1rem;" data-i18n-es="Actualizar">Refresh</button>

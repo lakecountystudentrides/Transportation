@@ -21,6 +21,11 @@
   const rosterError = document.getElementById('roster-error');
   const rosterRefreshBtn = document.getElementById('roster-refresh-btn');
 
+  const timeclockSection = document.getElementById('timeclock-section');
+  const timeclockListEl = document.getElementById('timeclock-list');
+  const timeclockError = document.getElementById('timeclock-error');
+  const timeclockRefreshBtn = document.getElementById('timeclock-refresh-btn');
+
   function T(en, es) { return window.LCSR_T ? window.LCSR_T(en, es) : en; }
   function lang() { return window.LCSR_LANG || 'en'; }
 
@@ -72,7 +77,9 @@
       loginPanel.hidden = true;
       driversPanel.hidden = false;
       rosterSection.hidden = false;
+      timeclockSection.hidden = false;
       await loadRoster();
+      await loadTimeLog();
     } catch {
       showError(driversError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
     }
@@ -82,10 +89,68 @@
     try { await fetch('/api/owner-logout', { method: 'POST' }); } catch {}
     driversPanel.hidden = true;
     rosterSection.hidden = true;
+    timeclockSection.hidden = true;
     loginPanel.hidden = false;
   });
 
   rosterRefreshBtn.addEventListener('click', () => window.location.reload());
+  timeclockRefreshBtn.addEventListener('click', () => loadTimeLog());
+
+  async function loadTimeLog() {
+    hideError(timeclockError);
+    try {
+      const res = await fetch('/api/time-log');
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        showError(timeclockError, data.error || T('Unable to load the time clock.', 'No se pudo cargar el reloj de trabajo.'));
+        return;
+      }
+      renderTimeLog(data.drivers || []);
+    } catch {
+      showError(timeclockError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
+    }
+  }
+
+  const DAYS_SHOWN = 14;
+
+  function renderTimeLog(drivers) {
+    if (!drivers.length) {
+      timeclockListEl.innerHTML = `<p>${T('No drivers have clocked in yet.', 'Ningún conductor ha marcado entrada todavía.')}</p>`;
+      return;
+    }
+    timeclockListEl.innerHTML = drivers.map(timeclockCard).join('');
+  }
+
+  function timeclockCard(d) {
+    const isIn = d.status === 'in';
+    const statusLabel = isIn
+      ? (d.currentShiftStart ? T(`Clocked In since ${formatDateTime(d.currentShiftStart)}`, `Presente desde ${formatDateTime(d.currentShiftStart)}`) : T('Clocked In', 'Presente'))
+      : T('Clocked Out', 'Fuera de servicio');
+
+    const dayKeys = Object.keys(d.days || {}).sort().reverse().slice(0, DAYS_SHOWN);
+    const rows = dayKeys.length
+      ? dayKeys.map((key) => `<div class="price-row"><span>${formatDayKey(key)}</span><span>${(d.days[key].hours || 0).toFixed(2)} ${T('hrs', 'hrs')}</span></div>`).join('')
+      : `<div class="price-row price-row-note"><span>${T('No hours logged yet.', 'Aún no hay horas registradas.')}</span><span></span></div>`;
+
+    return `
+      <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
+        <div class="price-row price-row-total"><span>${escapeHtml(d.name)}</span><span style="color:${isIn ? 'var(--gold-dark)' : 'inherit'};">${statusLabel}</span></div>
+        ${rows}
+      </div>
+    `;
+  }
+
+  function formatDayKey(key) {
+    const d = new Date(`${key}T00:00`);
+    if (isNaN(d)) return key;
+    return d.toLocaleDateString(lang() === 'es' ? 'es' : 'en-US', { dateStyle: 'medium' });
+  }
+
+  function formatDateTime(isoString) {
+    const d = new Date(isoString);
+    if (isNaN(d)) return '';
+    return d.toLocaleTimeString(lang() === 'es' ? 'es' : 'en-US', { hour: 'numeric', minute: '2-digit' });
+  }
 
   async function loadRoster() {
     hideError(rosterError);

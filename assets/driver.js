@@ -9,6 +9,10 @@
   const tripList = document.getElementById('trip-list');
   const tripsError = document.getElementById('trips-error');
   const todaySummaryEl = document.getElementById('today-summary');
+  const clockBtn = document.getElementById('clock-btn');
+  const clockStatusLabel = document.getElementById('clock-status-label');
+  const clockTodayHours = document.getElementById('clock-today-hours');
+  const clockError = document.getElementById('clock-error');
 
   const STORAGE_KEY = 'lcsr_driver_token';
 
@@ -36,10 +40,14 @@
     tokenInput.value = '';
     tripsPanel.hidden = true;
     loginPanel.hidden = false;
+    clockStatus = 'out';
   });
 
   document.addEventListener('lcsr:langchange', function () {
-    if (!tripsPanel.hidden) loadTrips(safeStorageGet(STORAGE_KEY));
+    if (!tripsPanel.hidden) {
+      loadTrips(safeStorageGet(STORAGE_KEY));
+      loadClockStatus(safeStorageGet(STORAGE_KEY));
+    }
   });
 
   async function tryLoad(token) {
@@ -49,10 +57,70 @@
       safeStorageSet(STORAGE_KEY, token);
       loginPanel.hidden = true;
       tripsPanel.hidden = false;
+      loadClockStatus(token);
     } else {
       showError(loginError, T('Incorrect access code.', 'Código de acceso incorrecto.'));
     }
   }
+
+  let clockStatus = 'out';
+
+  async function loadClockStatus(token) {
+    hideError(clockError);
+    try {
+      const res = await fetch('/api/clock', { headers: { 'x-driver-token': token } });
+      const data = await res.json();
+      if (!res.ok || data.error) return;
+      renderClockStatus(data);
+    } catch {
+      showError(clockError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
+    }
+  }
+
+  function renderClockStatus(data) {
+    clockStatus = data.status === 'in' ? 'in' : 'out';
+    clockTodayHours.textContent = (data.today?.hours || 0).toFixed(2);
+    if (clockStatus === 'in') {
+      const since = data.currentShiftStart ? formatTime24(data.currentShiftStart) : '';
+      clockStatusLabel.textContent = since
+        ? T(`Clocked In since ${since}`, `Presente desde las ${since}`)
+        : T('Clocked In', 'Presente');
+      clockBtn.textContent = T('Clock Out', 'Marcar Salida');
+    } else {
+      clockStatusLabel.textContent = T('Clocked Out', 'Fuera de servicio');
+      clockBtn.textContent = T('Clock In', 'Marcar Entrada');
+    }
+  }
+
+  function formatTime24(isoString) {
+    const d = new Date(isoString);
+    return formatTime(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`);
+  }
+
+  clockBtn.addEventListener('click', async function () {
+    const token = safeStorageGet(STORAGE_KEY);
+    if (!token) return;
+    hideError(clockError);
+    clockBtn.disabled = true;
+    const action = clockStatus === 'in' ? 'out' : 'in';
+    try {
+      const res = await fetch('/api/clock', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-driver-token': token },
+        body: JSON.stringify({ action, lang: lang() }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        showError(clockError, data.error || T('Unable to update your clock status.', 'No se pudo actualizar su estado de reloj.'));
+        return;
+      }
+      renderClockStatus(data);
+    } catch {
+      showError(clockError, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
+    } finally {
+      clockBtn.disabled = false;
+    }
+  });
 
   async function loadTrips(token) {
     hideError(tripsError);
