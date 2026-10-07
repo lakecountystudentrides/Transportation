@@ -26,6 +26,8 @@
   const timeclockError = document.getElementById('timeclock-error');
   const timeclockRefreshBtn = document.getElementById('timeclock-refresh-btn');
 
+  const MAX_PHOTO_DIMENSION = 400; // resized client-side before it ever reaches the server
+
   function T(en, es) { return window.LCSR_T ? window.LCSR_T(en, es) : en; }
   function lang() { return window.LCSR_LANG || 'en'; }
 
@@ -396,6 +398,140 @@
         }
       });
     });
+
+    driverList.querySelectorAll('[data-edit-profile]').forEach((btn) => {
+      btn.addEventListener('click', () => toggleProfileForm(btn.getAttribute('data-edit-profile')));
+    });
+  }
+
+  async function toggleProfileForm(code) {
+    const form = driverList.querySelector(`.driver-profile-form[data-code="${code}"]`);
+    if (!form) return;
+    if (!form.hidden) {
+      form.hidden = true;
+      return;
+    }
+    form.hidden = false;
+    if (form.dataset.loaded) return;
+    form.innerHTML = `<p class="price-note">${T('Loading…', 'Cargando…')}</p>`;
+    try {
+      const res = await fetch(`/api/manage-driver-profile?code=${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        form.innerHTML = `<p class="price-error">${data.error || T('Unable to load this driver’s info.', 'No se pudo cargar la información de este conductor.')}</p>`;
+        return;
+      }
+      form.dataset.loaded = 'true';
+      renderProfileForm(form, code, data.profile || {});
+    } catch {
+      form.innerHTML = `<p class="price-error">${T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.')}</p>`;
+    }
+  }
+
+  function renderProfileForm(form, code, p) {
+    form.innerHTML = `
+      <div class="form-row">
+        <label>${T('Photo', 'Foto')}</label>
+        <img class="driver-photo-preview" alt="" style="width:72px; height:72px; object-fit:cover; border-radius:10px; background:var(--border); margin-bottom:0.5rem; ${p.photo ? '' : 'display:none;'}" src="${p.photo || ''}" />
+        <input type="file" accept="image/*" class="driver-photo-input" />
+        <input type="hidden" class="driver-photo-data" value="${escapeAttr(p.photo)}" />
+      </div>
+      <div class="form-row"><label>${T('Phone', 'Teléfono')}</label><input type="tel" class="pf-phone" value="${escapeAttr(p.phone)}" /></div>
+      <div class="form-row"><label>${T('Email', 'Correo electrónico')}</label><input type="email" class="pf-email" value="${escapeAttr(p.email)}" /></div>
+      <div class="form-row"><label>${T('Address', 'Dirección')}</label><input type="text" class="pf-address" value="${escapeAttr(p.address)}" /></div>
+      <div class="form-row"><label>${T('License Number', 'Número de Licencia')}</label><input type="text" class="pf-licenseNumber" value="${escapeAttr(p.licenseNumber)}" /></div>
+      <div class="form-row"><label>${T('License Expiration', 'Vencimiento de Licencia')}</label><input type="date" class="pf-licenseExpiration" value="${escapeAttr(p.licenseExpiration)}" /></div>
+      <div class="form-row"><label>${T('Vehicle Make', 'Marca del Vehículo')}</label><input type="text" class="pf-vehicleMake" value="${escapeAttr(p.vehicleMake)}" /></div>
+      <div class="form-row"><label>${T('Vehicle Model', 'Modelo del Vehículo')}</label><input type="text" class="pf-vehicleModel" value="${escapeAttr(p.vehicleModel)}" /></div>
+      <div class="form-row"><label>${T('License Plate', 'Placa')}</label><input type="text" class="pf-vehiclePlate" value="${escapeAttr(p.vehiclePlate)}" /></div>
+      <div class="form-row"><label>${T('Emergency Contact Name', 'Nombre de Contacto de Emergencia')}</label><input type="text" class="pf-emergencyContactName" value="${escapeAttr(p.emergencyContactName)}" /></div>
+      <div class="form-row"><label>${T('Emergency Contact Phone', 'Teléfono de Emergencia')}</label><input type="tel" class="pf-emergencyContactPhone" value="${escapeAttr(p.emergencyContactPhone)}" /></div>
+      <div class="form-row"><label>${T('Relationship', 'Relación')}</label><input type="text" class="pf-emergencyContactRelationship" value="${escapeAttr(p.emergencyContactRelationship)}" /></div>
+      <div class="form-row"><label>${T('Hire Date', 'Fecha de Contratación')}</label><input type="date" class="pf-hireDate" value="${escapeAttr(p.hireDate)}" /></div>
+      <button type="button" class="btn btn-primary" data-save-profile="${code}" style="margin-top:0.5rem;">${T('Save', 'Guardar')}</button>
+      <div class="profile-save-error price-error" role="alert" hidden></div>
+    `;
+
+    form.querySelector('.driver-photo-input').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      resizeImageToDataUrl(file, MAX_PHOTO_DIMENSION).then((dataUrl) => {
+        form.querySelector('.driver-photo-data').value = dataUrl;
+        const preview = form.querySelector('.driver-photo-preview');
+        preview.src = dataUrl;
+        preview.style.display = '';
+      }).catch(() => {
+        const errEl = form.querySelector('.profile-save-error');
+        showError(errEl, T('Unable to process that photo. Please try a different image.', 'No se pudo procesar esa foto. Por favor intente con otra imagen.'));
+      });
+    });
+
+    form.querySelector('[data-save-profile]').addEventListener('click', async () => {
+      const errEl = form.querySelector('.profile-save-error');
+      hideError(errEl);
+      const btn = form.querySelector('[data-save-profile]');
+      btn.disabled = true;
+      const body = {
+        code,
+        lang: lang(),
+        photo: form.querySelector('.driver-photo-data').value,
+        phone: form.querySelector('.pf-phone').value.trim(),
+        email: form.querySelector('.pf-email').value.trim(),
+        address: form.querySelector('.pf-address').value.trim(),
+        licenseNumber: form.querySelector('.pf-licenseNumber').value.trim(),
+        licenseExpiration: form.querySelector('.pf-licenseExpiration').value,
+        vehicleMake: form.querySelector('.pf-vehicleMake').value.trim(),
+        vehicleModel: form.querySelector('.pf-vehicleModel').value.trim(),
+        vehiclePlate: form.querySelector('.pf-vehiclePlate').value.trim(),
+        emergencyContactName: form.querySelector('.pf-emergencyContactName').value.trim(),
+        emergencyContactPhone: form.querySelector('.pf-emergencyContactPhone').value.trim(),
+        emergencyContactRelationship: form.querySelector('.pf-emergencyContactRelationship').value.trim(),
+        hireDate: form.querySelector('.pf-hireDate').value,
+      };
+      try {
+        const res = await fetch('/api/manage-driver-profile', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          showError(errEl, data.error || T('Unable to save. Please try again.', 'No se pudo guardar. Por favor intente de nuevo.'));
+          return;
+        }
+        form.hidden = true;
+      } catch {
+        showError(errEl, T('Unable to reach the server. Please try again.', 'No se pudo conectar con el servidor. Por favor intente de nuevo.'));
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  function resizeImageToDataUrl(file, maxDimension) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;');
   }
 
   function driverCard(d) {
@@ -407,6 +543,8 @@
         <div class="price-row price-row-total"><span>${escapeHtml(d.name)}</span><span>${statusLabel}</span></div>
         <div class="price-row"><span>${T('Access code', 'Código de acceso')}</span><span>${escapeHtml(d.code)}</span></div>
         <button class="btn btn-ghost" data-toggle-code="${d.code}" data-next-active="${!isActive}" style="margin-top:0.5rem;">${actionLabel}</button>
+        <button class="btn btn-ghost" data-edit-profile="${d.code}" style="margin-top:0.5rem; margin-left:0.5rem;">${T('Edit Info', 'Editar Información')}</button>
+        <div class="driver-profile-form" data-code="${d.code}" hidden style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);"></div>
       </div>
     `;
   }

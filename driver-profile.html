@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Information | Lake County Student Rides</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-mark.svg" />
+  <link rel="manifest" href="/driver-manifest.json" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <meta name="theme-color" content="#16324f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LCSR Driver" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
+        <span class="brand-name">Lake County<br>Student Rides</span>
+      </a>
+      <span style="font-weight:700; color:var(--navy-dark);" data-i18n-es="Mi Información">My Information</span>
+      <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="section booking-section">
+      <div class="wrap booking-wrap">
+
+        <div id="signed-out-panel" hidden>
+          <h1 data-i18n-es="Por Favor Inicie Sesión">Please Sign In</h1>
+          <p class="section-lede" data-i18n-es="Inicie sesión en el Panel del Conductor primero para ver su información personal.">Please sign in at the Driver Dashboard first to view your personal information.</p>
+          <a class="btn btn-primary btn-lg" href="/driver.html" data-i18n-es="Ir al Panel del Conductor">Go to Driver Dashboard</a>
+        </div>
+
+        <div id="info-panel" hidden>
+          <h1 data-i18n-es="Mi Información">My Information</h1>
+          <p class="section-lede" data-i18n-es="Solo lectura. Si algo está desactualizado o falta, comuníquese con su gerente para actualizarlo.">View-only. If anything is out of date or missing, contact your manager to have it updated.</p>
+          <a class="btn btn-ghost" href="/driver.html" style="margin-bottom:1.5rem; display:inline-block;" data-i18n-es="&larr; Volver al Panel">&larr; Back to Dashboard</a>
+
+          <div id="info-card" class="price-result" style="margin-top:0;"></div>
+          <div id="info-error" class="price-error" role="alert" hidden></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year"></span> <span data-i18n-es="Lake County Student Rides. Todos los derechos reservados.">Lake County Student Rides. All rights reserved.</span></p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
+  <script src="/assets/driver-profile.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
+</body>
+</html>

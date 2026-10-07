@@ -3,7 +3,7 @@
   "short_name": "LCSR Driver",
   "id": "/driver.html",
   "start_url": "/driver.html",
-  "scope": "/driver.html",
+  "scope": "/driver",
   "display": "standalone",
   "background_color": "#16324f",
   "theme_color": "#16324f",
