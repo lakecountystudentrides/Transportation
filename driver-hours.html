@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Information | Lake County Student Rides</title>
+  <title>Hours Worked | Lake County Student Rides</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/assets/logo-mark.svg" />
   <link rel="manifest" href="/driver-manifest.json" />
@@ -24,7 +24,7 @@
         <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
         <span class="brand-name">Lake County<br>Student Rides</span>
       </a>
-      <span style="font-weight:700; color:var(--navy-dark);" data-i18n-es="Mi Información">My Information</span>
+      <span style="font-weight:700; color:var(--navy-dark);" data-i18n-es="Horas Trabajadas">Hours Worked</span>
       <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
     </div>
   </header>
@@ -35,18 +35,17 @@
 
         <div id="signed-out-panel" hidden>
           <h1 data-i18n-es="Por Favor Inicie Sesión">Please Sign In</h1>
-          <p class="section-lede" data-i18n-es="Inicie sesión en el Panel del Conductor primero para ver su información personal.">Please sign in at the Driver Dashboard first to view your personal information.</p>
+          <p class="section-lede" data-i18n-es="Inicie sesión en el Panel del Conductor primero para ver sus horas trabajadas.">Please sign in at the Driver Dashboard first to view your hours worked.</p>
           <a class="btn btn-primary btn-lg" href="/driver.html" data-i18n-es="Ir al Panel del Conductor">Go to Driver Dashboard</a>
         </div>
 
-        <div id="info-panel" hidden>
-          <h1 data-i18n-es="Mi Información">My Information</h1>
-          <p class="section-lede" data-i18n-es="Puede actualizar su información de contacto y de emergencia abajo. Para la licencia, el vehículo o la fecha de contratación, comuníquese con su gerente.">You can update your contact and emergency contact info below. For license, vehicle, or hire date info, contact your manager.</p>
-          <a class="btn btn-ghost" href="/driver.html" style="margin-bottom:1.5rem; display:inline-block;" data-i18n-es="&larr; Volver al Panel">&larr; Back to Dashboard</a>
-          <a class="btn btn-primary" href="/driver-hours.html" style="margin-bottom:1.5rem; margin-left:0.5rem; display:inline-block;" data-i18n-es="Horas Trabajadas">Hours Worked</a>
+        <div id="hours-panel" hidden>
+          <h1 data-i18n-es="Horas Trabajadas">Hours Worked</h1>
+          <p class="section-lede" data-i18n-es="Sus horas, agrupadas en períodos de pago de dos semanas, más reciente primero.">Your hours, grouped into two-week pay periods, most recent first.</p>
+          <a class="btn btn-ghost" href="/driver-profile.html" style="margin-bottom:1.5rem; display:inline-block;" data-i18n-es="&larr; Volver a Mi Información">&larr; Back to My Information</a>
 
-          <div id="info-card" class="price-result" style="margin-top:0;"></div>
-          <div id="info-error" class="price-error" role="alert" hidden></div>
+          <div id="hours-list"></div>
+          <div id="hours-error" class="price-error" role="alert" hidden></div>
         </div>
 
       </div>
@@ -61,7 +60,7 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   <script src="/assets/i18n.js"></script>
-  <script src="/assets/driver-profile.js"></script>
+  <script src="/assets/driver-hours.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));

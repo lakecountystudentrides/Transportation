@@ -2,15 +2,17 @@
 // static app shell (HTML/CSS/JS/icons) so those pages load instantly and
 // still open offline -- every /api/ call always goes straight to the
 // network so trip data, logins, and status updates are never served stale.
-const CACHE_NAME = 'lcsr-app-shell-v2';
+const CACHE_NAME = 'lcsr-app-shell-v3';
 const PRECACHE_URLS = [
   '/driver.html',
   '/driver-profile.html',
+  '/driver-hours.html',
   '/manage-drivers.html',
   '/assets/styles.css',
   '/assets/i18n.js',
   '/assets/driver.js',
   '/assets/driver-profile.js',
+  '/assets/driver-hours.js',
   '/assets/manage-drivers.js',
   '/assets/logo-mark.svg',
   '/assets/icons/icon-192.png',
