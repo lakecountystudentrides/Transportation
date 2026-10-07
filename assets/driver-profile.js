@@ -60,6 +60,7 @@
       ${row(T('Vehicle', 'Vehículo'), vehicle)}
       ${row(T('License Plate', 'Placa'), p.vehiclePlate)}
       ${row(T('Hire Date', 'Fecha de Contratación'), formatDate(p.hireDate))}
+      ${row(T('Pay Rate', 'Tarifa de Pago'), p.payRate)}
     `;
   }
 

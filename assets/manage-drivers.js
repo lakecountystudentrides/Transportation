@@ -448,6 +448,7 @@
       <div class="form-row"><label>${T('Emergency Contact Phone', 'Teléfono de Emergencia')}</label><input type="tel" class="pf-emergencyContactPhone" value="${escapeAttr(p.emergencyContactPhone)}" /></div>
       <div class="form-row"><label>${T('Relationship', 'Relación')}</label><input type="text" class="pf-emergencyContactRelationship" value="${escapeAttr(p.emergencyContactRelationship)}" /></div>
       <div class="form-row"><label>${T('Hire Date', 'Fecha de Contratación')}</label><input type="date" class="pf-hireDate" value="${escapeAttr(p.hireDate)}" /></div>
+      <div class="form-row"><label>${T('Pay Rate', 'Tarifa de Pago')}</label><input type="text" class="pf-payRate" placeholder="${T('e.g. $18.00/hr', 'ej. $18.00/hora')}" value="${escapeAttr(p.payRate)}" /></div>
       <button type="button" class="btn btn-primary" data-save-profile="${code}" style="margin-top:0.5rem;">${T('Save', 'Guardar')}</button>
       <div class="profile-save-error price-error" role="alert" hidden></div>
     `;
@@ -487,6 +488,7 @@
         emergencyContactPhone: form.querySelector('.pf-emergencyContactPhone').value.trim(),
         emergencyContactRelationship: form.querySelector('.pf-emergencyContactRelationship').value.trim(),
         hireDate: form.querySelector('.pf-hireDate').value,
+        payRate: form.querySelector('.pf-payRate').value.trim(),
       };
       try {
         const res = await fetch('/api/manage-driver-profile', {

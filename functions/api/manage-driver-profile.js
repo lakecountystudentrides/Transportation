@@ -16,7 +16,7 @@ const PROFILE_FIELDS = [
   "licenseNumber", "licenseExpiration",
   "vehicleMake", "vehicleModel", "vehiclePlate",
   "emergencyContactName", "emergencyContactPhone", "emergencyContactRelationship",
-  "hireDate",
+  "hireDate", "payRate",
 ];
 
 export async function onRequestGet({ request, env }) {
