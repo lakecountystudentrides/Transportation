@@ -540,10 +540,14 @@
     const isActive = d.active !== false;
     const actionLabel = isActive ? T('Deactivate', 'Desactivar') : T('Reactivate', 'Reactivar');
     const statusLabel = isActive ? T('Active', 'Activo') : T('Deactivated', 'Desactivado');
+    const w4Label = d.w4?.submitted
+      ? T(`W-4: Submitted ${formatDayKey(d.w4.submittedAt.slice(0, 10))}`, `W-4: Enviado ${formatDayKey(d.w4.submittedAt.slice(0, 10))}`)
+      : T('W-4: Not submitted', 'W-4: No enviado');
     return `
       <div class="price-result" style="margin-top:0; margin-bottom:1rem;">
         <div class="price-row price-row-total"><span>${escapeHtml(d.name)}</span><span>${statusLabel}</span></div>
         <div class="price-row"><span>${T('Access code', 'Código de acceso')}</span><span>${escapeHtml(d.code)}</span></div>
+        <div class="price-row price-row-note"><span>${w4Label}</span><span></span></div>
         <button class="btn btn-ghost" data-toggle-code="${d.code}" data-next-active="${!isActive}" style="margin-top:0.5rem;">${actionLabel}</button>
         <button class="btn btn-ghost" data-edit-profile="${d.code}" style="margin-top:0.5rem; margin-left:0.5rem;">${T('Edit Info', 'Editar Información')}</button>
         <div class="driver-profile-form" data-code="${d.code}" hidden style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);"></div>

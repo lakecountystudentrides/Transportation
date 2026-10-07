@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>W-4 Tax Form | Lake County Student Rides</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-mark.svg" />
+  <link rel="manifest" href="/driver-manifest.json" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <meta name="theme-color" content="#16324f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LCSR Driver" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <style>
+    .w4-step { margin: 1.75rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+    .w4-step:first-of-type { border-top: none; padding-top: 0; }
+    .w4-step h2 { font-size: 1.05rem; margin-bottom: 0.25rem; }
+    .w4-step .step-help { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .w4-radio-row { display: flex; align-items: center; gap: 0.5rem; font-weight: 400; margin-bottom: 0.5rem; }
+    .w4-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    @media (max-width: 640px) { .w4-two-col { grid-template-columns: 1fr; } }
+    #signature-pad { border: 1px solid var(--border); border-radius: 8px; width: 100%; max-width: 420px; height: 140px; touch-action: none; background: #fff; }
+    .w4-total-box { background: var(--bg-alt); border-radius: 8px; padding: 0.75rem 1rem; margin-top: 0.5rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <img src="/assets/logo-mark.svg" alt="" width="42" height="42" class="brand-mark-img" />
+        <span class="brand-name">Lake County<br>Student Rides</span>
+      </a>
+      <span style="font-weight:700; color:var(--navy-dark);" data-i18n-es="Formulario W-4">W-4 Tax Form</span>
+      <button type="button" class="btn btn-ghost" data-lang-toggle style="margin-left:auto;">Español</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="section booking-section">
+      <div class="wrap booking-wrap" style="max-width:720px;">
+
+        <div id="signed-out-panel" hidden>
+          <h1 data-i18n-es="Por Favor Inicie Sesión">Please Sign In</h1>
+          <p class="section-lede" data-i18n-es="Inicie sesión en el Panel del Conductor primero para completar su formulario W-4.">Please sign in at the Driver Dashboard first to complete your W-4 form.</p>
+          <a class="btn btn-primary btn-lg" href="/driver.html" data-i18n-es="Ir al Panel del Conductor">Go to Driver Dashboard</a>
+        </div>
+
+        <div id="w4-panel" hidden>
+          <h1 data-i18n-es="Formulario W-4 del IRS">IRS Form W-4</h1>
+          <p class="section-lede" data-i18n-es="Certificado de Retenciones del Empleado. Esto genera un PDF completo en su propio dispositivo — su número de seguro social nunca se envía ni se guarda en este sitio web. Después de descargarlo, envíeselo por correo electrónico o entrégueselo a su gerente.">Employee's Withholding Certificate. This generates a complete PDF right on your own device — your Social Security number is never sent to or stored by this website. After downloading it, email or hand it to your manager.</p>
+          <a class="btn btn-ghost" href="/driver-profile.html" style="margin-bottom:1.5rem; display:inline-block;" data-i18n-es="&larr; Volver a Mi Información">&larr; Back to My Information</a>
+
+          <div id="already-submitted-note" class="price-note" role="status" hidden></div>
+
+          <form id="w4-form" class="booking-form" novalidate>
+
+            <div class="w4-step">
+              <h2 data-i18n-es="Paso 1: Información Personal">Step 1: Personal Information</h2>
+              <div class="w4-two-col">
+                <div class="form-row">
+                  <label for="w4FirstName" data-i18n-es="Nombre y inicial del segundo nombre">First name and middle initial</label>
+                  <input id="w4FirstName" type="text" required />
+                </div>
+                <div class="form-row">
+                  <label for="w4LastName" data-i18n-es="Apellido">Last name</label>
+                  <input id="w4LastName" type="text" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="w4Address" data-i18n-es="Dirección">Address</label>
+                <input id="w4Address" type="text" required />
+              </div>
+              <div class="w4-two-col">
+                <div class="form-row">
+                  <label for="w4City" data-i18n-es="Ciudad o pueblo, estado y código postal">City or town, state, and ZIP code</label>
+                  <input id="w4City" type="text" required />
+                </div>
+                <div class="form-row">
+                  <label for="w4Ssn" data-i18n-es="Número de Seguro Social">Social Security Number</label>
+                  <input id="w4Ssn" type="text" inputmode="numeric" placeholder="XXX-XX-XXXX" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <label data-i18n-es="Estado civil para efectos de declaración">Filing Status</label>
+                <label class="w4-radio-row"><input type="radio" name="filingStatus" value="single" style="width:auto;" checked /> <span data-i18n-es="Soltero(a) o Casado(a) presentando por separado">Single or Married filing separately</span></label>
+                <label class="w4-radio-row"><input type="radio" name="filingStatus" value="joint" style="width:auto;" /> <span data-i18n-es="Casado(a) presentando conjuntamente (o Cónyuge sobreviviente calificado)">Married filing jointly (or Qualifying surviving spouse)</span></label>
+                <label class="w4-radio-row"><input type="radio" name="filingStatus" value="hoh" style="width:auto;" /> <span data-i18n-es="Cabeza de familia">Head of household</span></label>
+              </div>
+            </div>
+
+            <div class="w4-step">
+              <h2 data-i18n-es="Paso 2: Múltiples Empleos o Cónyuge Trabaja">Step 2: Multiple Jobs or Spouse Works</h2>
+              <p class="step-help" data-i18n-es="Complete esto solo si tiene más de un empleo a la vez, o está casado(a) presentando conjuntamente y su cónyuge también trabaja.">Complete this only if you have more than one job at a time, or are married filing jointly and your spouse also works.</p>
+              <label class="w4-radio-row"><input type="checkbox" id="w4MultipleJobs" style="width:auto;" /> <span data-i18n-es="Marque esta casilla si hay solo dos empleos en total (usted y su cónyuge, o dos empleos) y quiere usar el cálculo más simple.">Check this box if there are only two jobs total (you and your spouse, or two jobs) and you want to use the simpler calculation.</span></label>
+            </div>
+
+            <div class="w4-step">
+              <h2 data-i18n-es="Paso 3: Reclamar Dependientes">Step 3: Claim Dependents</h2>
+              <div class="w4-two-col">
+                <div class="form-row">
+                  <label for="w4QualifyingChildren" data-i18n-es="Hijos calificados menores de 17 años">Qualifying children under age 17</label>
+                  <input id="w4QualifyingChildren" type="number" min="0" step="1" value="0" />
+                </div>
+                <div class="form-row">
+                  <label for="w4OtherDependents" data-i18n-es="Otros dependientes">Other dependents</label>
+                  <input id="w4OtherDependents" type="number" min="0" step="1" value="0" />
+                </div>
+              </div>
+              <div class="w4-total-box">
+                <span data-i18n-es="Total del Paso 3">Step 3 Total</span>: $<span id="w4DependentsTotal">0</span>
+              </div>
+            </div>
+
+            <div class="w4-step">
+              <h2 data-i18n-es="Paso 4: Otros Ajustes (opcional)">Step 4: Other Adjustments (optional)</h2>
+              <div class="form-row">
+                <label for="w4OtherIncome" data-i18n-es="(a) Otros ingresos (no de empleos)">(a) Other income (not from jobs)</label>
+                <input id="w4OtherIncome" type="number" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="form-row">
+                <label for="w4Deductions" data-i18n-es="(b) Deducciones">(b) Deductions</label>
+                <input id="w4Deductions" type="number" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="form-row">
+                <label for="w4ExtraWithholding" data-i18n-es="(c) Retención adicional">(c) Extra withholding</label>
+                <input id="w4ExtraWithholding" type="number" min="0" step="0.01" placeholder="0.00" />
+              </div>
+            </div>
+
+            <div class="w4-step">
+              <h2 data-i18n-es="Paso 5: Firme Aquí">Step 5: Sign Here</h2>
+              <p class="step-help" data-i18n-es="Dibuje su firma a continuación.">Draw your signature below.</p>
+              <canvas id="signature-pad" width="420" height="140"></canvas>
+              <div>
+                <button type="button" id="clear-signature-btn" class="btn btn-ghost" style="margin-top:0.5rem;" data-i18n-es="Borrar Firma">Clear Signature</button>
+              </div>
+              <div class="form-row" style="margin-top:0.75rem;">
+                <label for="w4SignDate" data-i18n-es="Fecha">Date</label>
+                <input id="w4SignDate" type="date" required />
+              </div>
+            </div>
+
+            <button type="submit" id="generate-w4-btn" class="btn btn-primary btn-lg" style="margin-top:1rem;" data-i18n-es="Generar y Descargar PDF">Generate &amp; Download PDF</button>
+            <div id="w4-error" class="price-error" role="alert" hidden></div>
+            <div id="w4-success" class="price-note" role="status" hidden></div>
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year"></span> <span data-i18n-es="Lake County Student Rides. Todos los derechos reservados.">Lake County Student Rides. All rights reserved.</span></p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="/assets/i18n.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="/assets/driver-w4.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
+  </script>
+</body>
+</html>
